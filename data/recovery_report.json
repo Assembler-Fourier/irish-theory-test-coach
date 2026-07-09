@@ -1,0 +1,198 @@
+{
+  "source": "Internet Archive Wayback Machine CDX API",
+  "domain_status_when_checked": "theory-tester.com was not reachable from this machine",
+  "questions_recovered": 849,
+  "question_ids_available": 857,
+  "question_captures_available": 38083,
+  "snapshot_limit_per_question": 1,
+  "parse_errors": [
+    {
+      "id": 687,
+      "error": "Failed to fetch https://web.archive.org/web/20200130220301id_/http://theory-tester.com:80/questions/687: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20200130220301id_/http://theory-tester.com:80/questions/687",
+          "error": "Failed to fetch https://web.archive.org/web/20200130220301id_/http://theory-tester.com:80/questions/687: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 33
+    },
+    {
+      "id": 760,
+      "error": "Failed to fetch https://web.archive.org/web/20170722020723id_/http://www.theory-tester.com:80/questions/760: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20170722020723id_/http://www.theory-tester.com:80/questions/760",
+          "error": "Failed to fetch https://web.archive.org/web/20170722020723id_/http://www.theory-tester.com:80/questions/760: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 1
+    },
+    {
+      "id": 764,
+      "error": "Failed to fetch https://web.archive.org/web/20200112022213id_/http://theory-tester.com:80/questions/764: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20200112022213id_/http://theory-tester.com:80/questions/764",
+          "error": "Failed to fetch https://web.archive.org/web/20200112022213id_/http://theory-tester.com:80/questions/764: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 1
+    },
+    {
+      "id": 769,
+      "error": "Failed to fetch https://web.archive.org/web/20200210193342id_/http://theory-tester.com:80/questions/769: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20200210193342id_/http://theory-tester.com:80/questions/769",
+          "error": "Failed to fetch https://web.archive.org/web/20200210193342id_/http://theory-tester.com:80/questions/769: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 2
+    },
+    {
+      "id": 774,
+      "error": "Failed to fetch https://web.archive.org/web/20200130220100id_/http://theory-tester.com:80/questions/774: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20200130220100id_/http://theory-tester.com:80/questions/774",
+          "error": "Failed to fetch https://web.archive.org/web/20200130220100id_/http://theory-tester.com:80/questions/774: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 21
+    },
+    {
+      "id": 776,
+      "error": "Failed to fetch https://web.archive.org/web/20200225202526id_/http://theory-tester.com:80/questions/776: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20200225202526id_/http://theory-tester.com:80/questions/776",
+          "error": "Failed to fetch https://web.archive.org/web/20200225202526id_/http://theory-tester.com:80/questions/776: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 31
+    },
+    {
+      "id": 799,
+      "error": "Failed to fetch https://web.archive.org/web/20250520201434id_/http://theory-tester.com/questions/799: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20250520201434id_/http://theory-tester.com/questions/799",
+          "error": "Failed to fetch https://web.archive.org/web/20250520201434id_/http://theory-tester.com/questions/799: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 2
+    },
+    {
+      "id": 827,
+      "error": "Failed to fetch https://web.archive.org/web/20190528071426id_/http://theory-tester.com:80/questions/827: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>",
+      "attempts": [
+        {
+          "url": "https://web.archive.org/web/20190528071426id_/http://theory-tester.com:80/questions/827",
+          "error": "Failed to fetch https://web.archive.org/web/20190528071426id_/http://theory-tester.com:80/questions/827: <urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+        }
+      ],
+      "captures_checked": 1,
+      "captures_available": 24
+    }
+  ],
+  "id_range": [
+    1,
+    896
+  ],
+  "missing_ids_between_min_max": [
+    687,
+    740,
+    741,
+    742,
+    743,
+    744,
+    745,
+    746,
+    747,
+    749,
+    750,
+    751,
+    752,
+    753,
+    754,
+    755,
+    756,
+    757,
+    758,
+    759,
+    760,
+    761,
+    762,
+    763,
+    764,
+    769,
+    774,
+    776,
+    783,
+    784,
+    785,
+    787,
+    788,
+    789,
+    790,
+    791,
+    792,
+    799,
+    806,
+    809,
+    810,
+    811,
+    812,
+    813,
+    814,
+    827,
+    843
+  ],
+  "categories": {
+    "Alert Driving and Consideration": 16,
+    "Alert Driving and Consideration for Other Road Users": 1,
+    "Characteristics of Various Types of Road": 5,
+    "Collisions": 2,
+    "Control of Vehicle": 86,
+    "Driver Behaviour and Anticipation": 4,
+    "Driving Risk Factors Related to Road Conditions as they Change with Weather and Day/Night": 1,
+    "Driving Risk Factors Related to Various Road Conditions": 3,
+    "Drugs and Alcohol": 18,
+    "Getting On or Off the Vehicle": 4,
+    "Good Judgement and Perception": 4,
+    "Legal Matters/Rules of the Road": 151,
+    "Managing Risk": 126,
+    "Necessary Documents": 1,
+    "Observance of Safe Distance": 4,
+    "Observance of Safe Distances and Driving in Various Weather/Road Conditions": 1,
+    "Observation/Field of View": 6,
+    "Road Signs, Markings and Traffic Regulations": 3,
+    "Safe and Responsible Driving": 325,
+    "Safety Factors Relating to Vehicle Loading and Persons Carried": 1,
+    "Safety Factors Relating to Vehicle and Persons Carried": 4,
+    "Taking Corrective or Emergency Action": 1,
+    "Taking Emergency/Corrective Action": 4,
+    "Techincal Matters": 14,
+    "Technical Matters with a Bearing on Road Safety": 36,
+    "Traffic Signs and Regulatory Matters": 12,
+    "Uncategorized": 10,
+    "Vulnerable Road Users": 6
+  },
+  "generated_files": [
+    "data/questions.json",
+    "data/questions.csv",
+    "data/recovery_manifest.json",
+    "data/recovery_report.json",
+    "data/raw/questions/*.html",
+    "data/assets/**"
+  ],
+  "rights_note": "Recovered pages came from public archives. Reuse the content only if you own it or have the rights/licence to republish it."
+}

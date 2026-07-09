@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.log
+node_modules/
+public/data/
+public/config.js
+data/raw/
+.vercel/
+.env
+.env.*
+!.env.example
+output/
+reports/
+tmp/

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Irish Theory Test Coach icon</title>
+  <desc id="desc">Green learning badge with road and check mark.</desc>
+  <rect width="512" height="512" rx="96" fill="#1e7a5d"/>
+  <path d="M118 420 220 92h72l102 328H118Z" fill="#f5f7f7"/>
+  <path d="M244 420V92h24v328h-24Z" fill="#1e7a5d"/>
+  <path d="M188 314h136" stroke="#1e7a5d" stroke-width="22" stroke-linecap="round" stroke-dasharray="32 34"/>
+  <circle cx="348" cy="166" r="68" fill="#ffffff"/>
+  <path d="m313 166 25 25 47-55" fill="none" stroke="#1e7a5d" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

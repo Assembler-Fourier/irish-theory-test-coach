@@ -1,0 +1,25 @@
+{
+  "name": "irish-theory-test-coach",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/prepare-public-data.mjs",
+    "check:pwa": "node scripts/check-pwa.mjs",
+    "check:seo": "node scripts/check-seo.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "db:check": "node scripts/db-check.mjs",
+    "db:migrate": "node scripts/db-migrate.mjs",
+    "dev": "python -m http.server 5173",
+    "qa:provenance": "node scripts/add-question-provenance.mjs",
+    "qa:checklist": "node scripts/generate-qa-checklist.mjs",
+    "qa": "npm run validate && npm run build && npm run check:pwa && npm run check:seo && npm run check:secrets && npm run test",
+    "test": "node scripts/test-app-flows.mjs && node scripts/test-api-smoke.mjs",
+    "test:ai-generation": "node scripts/test-ai-question-generation-mock.mjs",
+    "test:webhook": "node scripts/test-stripe-webhook-mock.mjs",
+    "validate": "python scripts/validate_dataset.py && node --check public/app.js"
+  },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}

@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin - Irish Theory Test Coach</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="shell admin-shell">
+      <header class="topbar admin-topbar">
+        <div>
+          <p class="eyebrow">Protected workspace</p>
+          <h1>Admin</h1>
+        </div>
+        <nav class="admin-nav" aria-label="Admin navigation">
+          <a href="./">App</a>
+          <a href="./contact.html">Support</a>
+        </nav>
+      </header>
+
+      <main class="admin-layout">
+        <section id="adminStatus" class="status-bar">Checking admin access...</section>
+
+        <section class="admin-section" aria-labelledby="dashboardHeading">
+          <div class="panel-heading">
+            <h2 id="dashboardHeading">Dashboard metrics</h2>
+            <button id="refreshBtn" type="button">Refresh</button>
+          </div>
+          <div id="metricGrid" class="metric-grid"></div>
+        </section>
+
+        <section class="admin-grid">
+          <section class="admin-section" aria-labelledby="usersHeading">
+            <div class="panel-heading">
+              <h2 id="usersHeading">Users</h2>
+            </div>
+            <form id="userSearchForm" class="admin-form">
+              <label class="field">
+                <span>Email search</span>
+                <input id="userSearchInput" type="search" placeholder="email@example.com">
+              </label>
+              <button type="submit">Search users</button>
+            </form>
+            <div id="usersMount" class="admin-list"></div>
+          </section>
+
+          <section class="admin-section" aria-labelledby="entitlementsHeading">
+            <div class="panel-heading">
+              <h2 id="entitlementsHeading">Entitlements</h2>
+            </div>
+            <form id="entitlementForm" class="admin-form">
+              <label class="field">
+                <span>Email</span>
+                <input id="entitlementEmail" type="email" placeholder="email@example.com" required>
+              </label>
+              <label class="field">
+                <span>Action</span>
+                <select id="entitlementAction">
+                  <option value="grant">Grant</option>
+                  <option value="extend">Extend</option>
+                  <option value="revoke">Revoke</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Days</span>
+                <input id="entitlementDays" type="number" min="0" step="1" placeholder="365">
+              </label>
+              <button class="primary" type="submit">Save entitlement</button>
+            </form>
+            <div id="entitlementsMount" class="admin-list"></div>
+          </section>
+        </section>
+
+        <section class="admin-section" aria-labelledby="purchasesHeading">
+          <div class="panel-heading">
+            <h2 id="purchasesHeading">Purchases</h2>
+          </div>
+          <div id="purchasesMount" class="admin-table-wrap"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="analyticsHeading">
+          <div class="panel-heading">
+            <h2 id="analyticsHeading">Analytics</h2>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Conversion funnel</h3>
+              <div id="analyticsFunnelMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Most missed categories</h3>
+              <div id="missedCategoriesMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Most missed questions</h3>
+              <div id="missedQuestionsMount" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="questionsHeading">
+          <div class="panel-heading">
+            <h2 id="questionsHeading">Questions</h2>
+          </div>
+          <form id="questionSearchForm" class="admin-form admin-form-wide">
+            <label class="field">
+              <span>Search</span>
+              <input id="questionSearchInput" type="search" placeholder="question, category, id">
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <input id="questionCategoryInput" type="search" placeholder="Safe and Responsible Driving">
+            </label>
+            <label class="field">
+              <span>Status</span>
+              <select id="questionStatusInput">
+                <option value="">Any</option>
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Review</span>
+              <select id="questionReviewInput">
+                <option value="">Any</option>
+                <option value="unreviewed">Unreviewed</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+              </select>
+            </label>
+            <label class="field check-field">
+              <span>High-yield</span>
+              <input id="questionHighYieldInput" type="checkbox">
+            </label>
+            <button type="submit">Search questions</button>
+          </form>
+          <form id="questionReviewForm" class="review-editor hidden">
+            <div class="review-editor-heading">
+              <div>
+                <span>Selected question</span>
+                <strong id="selectedQuestionLabel">None</strong>
+              </div>
+              <span id="selectedQuestionStatus">No review</span>
+            </div>
+            <label class="field">
+              <span>Explanation</span>
+              <textarea id="questionExplanationInput" rows="4"></textarea>
+            </label>
+            <label class="field">
+              <span>Review notes</span>
+              <textarea id="questionNotesInput" rows="3" placeholder="Cross-check notes, wording concerns, image issue..."></textarea>
+            </label>
+            <div class="review-actions">
+              <button data-review-action="needs_official_cross_check" type="button">Needs check</button>
+              <button data-review-action="reject" type="button">Reject</button>
+              <button data-review-action="approve" class="primary" type="button">Approve</button>
+            </div>
+          </form>
+          <div id="questionsMount" class="admin-table-wrap"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="aiDraftHeading">
+          <div class="panel-heading">
+            <h2 id="aiDraftHeading">AI question drafts</h2>
+            <button id="reloadAiDraftsBtn" type="button">Reload drafts</button>
+          </div>
+          <div class="admin-draft-grid">
+            <form id="sourceNoteForm" class="admin-form admin-form-stack">
+              <label class="field">
+                <span>Source title</span>
+                <input id="sourceTitleInput" type="text" placeholder="Wet road safety note" required>
+              </label>
+              <label class="field">
+                <span>Topic</span>
+                <input id="sourceTopicInput" type="text" placeholder="Wet roads">
+              </label>
+              <label class="field">
+                <span>Category</span>
+                <input id="sourceCategoryInput" type="text" placeholder="Managing Risk" required>
+              </label>
+              <label class="field">
+                <span>Source note</span>
+                <textarea id="sourceBodyInput" rows="7" required></textarea>
+              </label>
+              <button class="primary" type="submit">Save source note</button>
+            </form>
+
+            <form id="generateQuestionsForm" class="admin-form admin-form-stack">
+              <label class="field">
+                <span>Approved source note</span>
+                <select id="sourceDocumentSelect"></select>
+              </label>
+              <label class="field">
+                <span>Draft count</span>
+                <input id="draftCountInput" type="number" min="1" max="10" step="1" value="5">
+              </label>
+              <label class="field">
+                <span>Difficulty</span>
+                <select id="draftDifficultyInput">
+                  <option value="medium">Medium</option>
+                  <option value="easy">Easy</option>
+                  <option value="hard">Hard</option>
+                  <option value="mixed">Mixed</option>
+                </select>
+              </label>
+              <button class="primary" type="submit">Generate drafts</button>
+              <div id="sourceDocumentsMount" class="admin-list"></div>
+            </form>
+          </div>
+          <p id="generatedDraftStatus" class="restore-status" role="status" aria-live="polite"></p>
+          <div id="generatedQuestionsMount" class="admin-list generated-question-list"></div>
+        </section>
+
+        <section class="admin-grid">
+          <section class="admin-section" aria-labelledby="summaryHeading">
+            <div class="panel-heading">
+              <h2 id="summaryHeading">Flags/attempts summary</h2>
+            </div>
+            <div id="attemptSummaryMount" class="admin-list"></div>
+          </section>
+
+          <section class="admin-section" aria-labelledby="auditHeading">
+            <div class="panel-heading">
+              <h2 id="auditHeading">Audit log</h2>
+            </div>
+            <div id="auditMount" class="admin-list"></div>
+          </section>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Independent practice tool. Not affiliated with RSA or Prometric.</p>
+        <nav aria-label="Legal and support links">
+          <a href="./privacy.html">Privacy</a>
+          <a href="./terms.html">Terms</a>
+          <a href="./refunds.html">Refunds</a>
+          <a href="./contact.html">Contact</a>
+        </nav>
+      </footer>
+    </div>
+
+    <script src="./admin.js"></script>
+  </body>
+</html>

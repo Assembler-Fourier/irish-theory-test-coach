@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Irish Theory Test Coach | Category B Practice, Road Signs and Mock Exams</title>
+    <meta name="description" content="Independent Irish Category B theory test practice with free preview questions, estimated high-yield drills, road signs, mock exams, progress tracking, and restore access.">
+    <meta name="theme-color" content="#1e7a5d">
+    <link rel="canonical" href="https://irish-theory-test-coach.com/">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="./icons/app-icon.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Irish Theory Test Coach">
+    <meta property="og:title" content="Irish Theory Test Coach">
+    <meta property="og:description" content="Independent Irish Category B theory test practice with road signs, mock exams, estimated high-yield drills, and progress tracking.">
+    <meta property="og:url" content="https://irish-theory-test-coach.com/">
+    <meta property="og:image" content="https://irish-theory-test-coach.com/data/assets/img/quiz-img/a_0P6qm.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Irish Theory Test Coach">
+    <meta name="twitter:description" content="Independent Irish Category B theory test practice with road signs, mock exams, and estimated high-yield drills.">
+    <meta name="twitter:image" content="https://irish-theory-test-coach.com/data/assets/img/quiz-img/a_0P6qm.png">
+    <link rel="stylesheet" href="./styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Irish Theory Test Coach",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web",
+        "url": "https://irish-theory-test-coach.com/",
+        "description": "Independent Irish Category B theory test practice app with preview questions, road signs, mock exams, estimated high-yield drills, and progress tracking.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0.99",
+          "priceCurrency": "EUR"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Irish Theory Test Coach"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Category B car learner practice</p>
+          <h1>Irish Theory Test Coach</h1>
+        </div>
+        <nav class="site-nav" aria-label="Study pages">
+          <a href="./category-b-theory-test.html">Category B</a>
+          <a href="./irish-theory-test-road-signs.html">Road signs</a>
+          <a href="./car-theory-test-mock-exam.html">Mock exam</a>
+          <a href="./rules-of-the-road-practice.html">Rules</a>
+          <a href="./theory-test-study-plan.html">Study plan</a>
+        </nav>
+        <div class="exam-chip" aria-label="Exam format">
+          <span id="questionCountChip">849 questions</span>
+          <span>40 questions</span>
+          <span>35 pass</span>
+          <span>45 min</span>
+          <span>EUR 0.99 ready</span>
+        </div>
+      </header>
+
+      <section class="trust-strip" aria-label="Practice highlights">
+        <div>
+          <strong id="trustQuestionCount">849</strong>
+          <span>practice questions</span>
+        </div>
+        <div>
+          <strong>40</strong>
+          <span>question mocks</span>
+        </div>
+        <div>
+          <strong>243</strong>
+          <span>road-sign drills</span>
+        </div>
+        <div>
+          <strong>Independent</strong>
+          <span>practice tool</span>
+        </div>
+      </section>
+
+      <main class="layout">
+        <aside class="sidebar" aria-label="Practice controls">
+          <section class="panel plan-panel" aria-label="Study plan">
+            <div class="panel-heading">
+              <h2>Today</h2>
+              <span id="targetStat">0/25</span>
+            </div>
+            <div class="meter" aria-hidden="true">
+              <span id="targetMeter"></span>
+            </div>
+            <p id="coachCopy">Start with high-yield questions, then finish with one mock test.</p>
+          </section>
+
+          <section class="panel study-flow-panel" aria-label="Recommended study flow">
+            <div class="panel-heading">
+              <h2>Fast study flow</h2>
+              <span>25 min</span>
+            </div>
+            <ol class="study-flow-list">
+              <li>Drill 25 high-yield questions</li>
+              <li>Clear missed questions</li>
+              <li>Take one mock test</li>
+              <li>Repeat road signs</li>
+            </ol>
+          </section>
+
+          <section id="unlock" class="panel unlock-panel" aria-label="Access">
+            <div class="panel-heading">
+              <h2>Access</h2>
+              <span id="unlockBadge">Preview</span>
+            </div>
+            <p id="unlockStatus">Unlock every question, high-yield drills, road signs, and mock tests.</p>
+            <button id="checkoutBtn" class="primary" type="button">Unlock for EUR 0.99</button>
+            <a id="restoreAccessLink" class="restore-access-link" href="#restoreEmail">Already paid? Restore access</a>
+            <form id="restoreForm" class="restore-form">
+              <label class="field restore-field">
+                <span>Restore access</span>
+                <input id="restoreEmail" type="email" autocomplete="email" placeholder="you@example.com">
+              </label>
+              <button id="restoreBtn" type="submit">Send login link</button>
+              <p id="restoreStatus" class="restore-status" role="status" aria-live="polite"></p>
+            </form>
+            <button id="logoutBtn" class="hidden" type="button">Log out</button>
+          </section>
+
+          <div class="panel">
+            <label class="field">
+              <span>Search</span>
+              <input id="searchInput" type="search" placeholder="Motorway, sign, lights...">
+            </label>
+
+            <label class="field">
+              <span>Category</span>
+              <select id="categorySelect"></select>
+            </label>
+
+            <div class="segmented" role="group" aria-label="Mode">
+              <button id="modeRevise" class="active" type="button">Revise</button>
+              <button id="modeHighYield" type="button">High yield</button>
+              <button id="modeHardest" type="button">Hardest</button>
+              <button id="modeSigns" type="button">Signs</button>
+              <button id="modeExam" type="button">Mock test</button>
+              <button id="modeReview" type="button">Review</button>
+            </div>
+
+            <div class="actions">
+              <button id="startExamBtn" class="primary" type="button">Start mock test</button>
+              <button id="resetProgressBtn" type="button">Reset progress</button>
+            </div>
+          </div>
+
+          <section class="panel stats-panel" aria-label="Progress">
+            <h2>Progress</h2>
+            <dl class="stats-grid">
+              <div>
+                <dt>Answered</dt>
+                <dd id="answeredStat">0</dd>
+              </div>
+              <div>
+                <dt>Accuracy</dt>
+                <dd id="accuracyStat">0%</dd>
+              </div>
+              <div>
+                <dt>Missed</dt>
+                <dd id="missedStat">0</dd>
+              </div>
+              <div>
+                <dt>Flagged</dt>
+                <dd id="flaggedStat">0</dd>
+              </div>
+              <div>
+                <dt>High yield</dt>
+                <dd id="highYieldStat">0</dd>
+              </div>
+              <div>
+                <dt>Signs</dt>
+                <dd id="signsStat">0</dd>
+              </div>
+            </dl>
+            <div id="categorySummary" class="category-summary" aria-label="Category progress"></div>
+          </section>
+        </aside>
+
+        <section class="workspace" aria-live="polite">
+          <div id="statusBar" class="status-bar"></div>
+          <section id="insightBar" class="insight-bar hidden">
+            <div>
+              <strong id="insightTitle">High-yield study map</strong>
+              <p id="insightCopy"></p>
+            </div>
+            <button id="jumpHighYieldBtn" type="button">Drill top questions</button>
+          </section>
+          <div id="examBar" class="exam-bar hidden">
+            <div>
+              <strong id="examProgress">Question 1 of 40</strong>
+              <span id="examTimer">45:00</span>
+            </div>
+            <button id="finishExamBtn" type="button">Finish test</button>
+          </div>
+          <div id="questionMount">
+            <div class="loading-state" role="status" aria-live="polite">
+              <span class="loading-spinner" aria-hidden="true"></span>
+              <span>Loading question bank...</span>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <div id="mobileStickyCta" class="mobile-sticky-cta hidden" aria-label="Unlock full access">
+        <div>
+          <strong>Ready for full practice?</strong>
+          <span>Mocks, road signs, weak areas, review mode.</span>
+        </div>
+        <button id="stickyCheckoutBtn" class="primary" type="button">Unlock full coach</button>
+        <a id="stickyRestoreLink" href="#restoreEmail">Restore</a>
+      </div>
+
+      <footer class="site-footer">
+        <p>Independent practice tool. Not affiliated with RSA or Prometric.</p>
+        <nav aria-label="Legal and support links">
+          <a href="./privacy.html">Privacy</a>
+          <a href="./terms.html">Terms</a>
+          <a href="./refunds.html">Refunds</a>
+          <a href="./contact.html">Contact</a>
+          <a href="./category-b-theory-test.html">Category B guide</a>
+          <a href="./irish-theory-test-road-signs.html">Road signs</a>
+          <a href="./car-theory-test-mock-exam.html">Mock exam</a>
+          <a data-support-email href="mailto:support@irish-theory-test-coach.com">support@irish-theory-test-coach.com</a>
+        </nav>
+      </footer>
+    </div>
+
+    <template id="paywallTemplate">
+      <section class="question-view paywall-view">
+        <div class="question-meta">
+          <span class="category-pill">Premium</span>
+          <span class="priority-pill priority-high">EUR 0.99</span>
+        </div>
+        <h2 class="question-title">Unlock the full Irish Theory Test Coach.</h2>
+        <p class="result-copy">Move faster through weak areas: unlock estimated high-yield drills, missed-question review, road-sign practice, 40-question mocks, and full review mode.</p>
+        <div class="paywall-grid">
+          <div><strong>849</strong><span>questions</span></div>
+          <div><strong>111</strong><span>high-yield</span></div>
+          <div><strong>243</strong><span>sign drills</span></div>
+          <div><strong>40</strong><span>timed exam</span></div>
+        </div>
+        <div class="question-actions">
+          <button class="paywall-checkout-btn primary" type="button">Unlock for EUR 0.99</button>
+          <a class="restore-access-link paywall-restore-link" href="#restoreEmail">Restore access</a>
+        </div>
+      </section>
+    </template>
+
+    <template id="questionTemplate">
+      <article class="question-view">
+        <div class="question-meta">
+          <span class="category-pill"></span>
+          <span class="priority-pill"></span>
+          <span class="question-number"></span>
+        </div>
+        <div class="priority-meta"></div>
+        <h2 class="question-title"></h2>
+        <div class="question-image-wrap hidden">
+          <img class="question-image" alt="">
+        </div>
+        <div class="answer-list"></div>
+        <div class="signal-list"></div>
+        <div class="feedback hidden"></div>
+        <div class="question-actions">
+          <button class="flag-btn" type="button">Flag</button>
+          <button class="prev-btn" type="button">Previous</button>
+          <button class="next-btn primary" type="button">Next</button>
+        </div>
+      </article>
+    </template>
+
+    <script src="./config.js"></script>
+    <script src="./trust.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
