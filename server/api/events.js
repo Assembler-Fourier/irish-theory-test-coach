@@ -1,10 +1,10 @@
-import { getSessionUser, readJsonBody } from "../lib/auth.js";
-import { withDb } from "../lib/db.js";
+import { getSessionUser, readJsonBody } from "../../lib/auth.js";
+import { withDb } from "../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 
 const MAX_EVENTS_PER_REQUEST = 20;
 const MAX_PROPERTY_STRING_LENGTH = 180;

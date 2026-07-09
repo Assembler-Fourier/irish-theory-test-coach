@@ -5,17 +5,17 @@ import {
   requireAdmin,
   sendAdminError,
   writeAdminAuditLog,
-} from "../../lib/admin.js";
-import { readJsonBody } from "../../lib/auth.js";
-import { withDb, withTransaction } from "../../lib/db.js";
+} from "../../../lib/admin.js";
+import { readJsonBody } from "../../../lib/auth.js";
+import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../../lib/server-env.js";
+} from "../../../lib/server-env.js";
 
 const __filename = fileURLToPath(import.meta.url);
-const root = path.resolve(path.dirname(__filename), "..", "..");
+const root = path.resolve(path.dirname(__filename), "..", "..", "..");
 
 export default async function handler(req, res) {
   if (!["GET", "POST"].includes(req.method)) {

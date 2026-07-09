@@ -2,14 +2,14 @@ import {
   requireAdmin,
   sendAdminError,
   writeAdminAuditLog,
-} from "../../lib/admin.js";
-import { normalizeEmail, readJsonBody } from "../../lib/auth.js";
-import { withDb, withTransaction } from "../../lib/db.js";
+} from "../../../lib/admin.js";
+import { normalizeEmail, readJsonBody } from "../../../lib/auth.js";
+import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../../lib/server-env.js";
+} from "../../../lib/server-env.js";
 
 const PRODUCT = "irish-theory-test-coach";
 

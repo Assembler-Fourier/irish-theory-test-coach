@@ -3,12 +3,12 @@ import {
   getRequiredServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 import {
   getCheckoutSessionEmail,
   isPaidCheckoutSession,
   recordStripeCheckoutSession,
-} from "../lib/stripe-entitlements.js";
+} from "../../lib/stripe-entitlements.js";
 
 const SIGNATURE_TOLERANCE_SECONDS = 300;
 

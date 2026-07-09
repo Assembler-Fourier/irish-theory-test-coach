@@ -1,12 +1,12 @@
 import {
   getRequiredServerEnv,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 import {
   getCheckoutSessionEmail,
   isPaidCheckoutSession,
   recordStripeCheckoutSession,
-} from "../lib/stripe-entitlements.js";
+} from "../../lib/stripe-entitlements.js";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 

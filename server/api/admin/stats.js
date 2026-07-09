@@ -1,16 +1,16 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { requireAdmin, sendAdminError } from "../../lib/admin.js";
-import { withDb } from "../../lib/db.js";
+import { requireAdmin, sendAdminError } from "../../../lib/admin.js";
+import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../../lib/server-env.js";
+} from "../../../lib/server-env.js";
 
 const __filename = fileURLToPath(import.meta.url);
-const root = path.resolve(path.dirname(__filename), "..", "..");
+const root = path.resolve(path.dirname(__filename), "..", "..", "..");
 const FUNNEL_EVENTS = [
   "page_view",
   "preview_started",

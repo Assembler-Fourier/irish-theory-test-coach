@@ -1,4 +1,4 @@
-import { getRequiredServerEnv, sendSafeConfigError } from "../lib/server-env.js";
+import { getRequiredServerEnv, sendSafeConfigError } from "../../lib/server-env.js";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 

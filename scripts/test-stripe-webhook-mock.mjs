@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { handleStripeEvent } from "../api/stripe-webhook.js";
+import { handleStripeEvent } from "../server/api/stripe-webhook.js";
 import { getCheckoutSessionEmail } from "../lib/stripe-entitlements.js";
 
 const sampleEvent = {

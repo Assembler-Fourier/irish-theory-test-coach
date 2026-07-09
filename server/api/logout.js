@@ -1,12 +1,12 @@
 import {
   buildClearSessionCookie,
   revokeSession,
-} from "../lib/auth.js";
+} from "../../lib/auth.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {

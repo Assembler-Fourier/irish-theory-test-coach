@@ -1,11 +1,11 @@
 import crypto from "node:crypto";
-import { getSessionUser, readJsonBody } from "../lib/auth.js";
-import { withDb } from "../lib/db.js";
+import { getSessionUser, readJsonBody } from "../../lib/auth.js";
+import { withDb } from "../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 
 const AI_TIMEOUT_MS = 12000;
 const RATE_WINDOW_MS = 60 * 60 * 1000;

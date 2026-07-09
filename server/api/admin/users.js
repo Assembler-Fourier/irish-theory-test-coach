@@ -1,10 +1,10 @@
-import { requireAdmin, sendAdminError } from "../../lib/admin.js";
-import { withDb } from "../../lib/db.js";
+import { requireAdmin, sendAdminError } from "../../../lib/admin.js";
+import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../../lib/server-env.js";
+} from "../../../lib/server-env.js";
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {

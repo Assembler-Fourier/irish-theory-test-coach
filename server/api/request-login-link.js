@@ -5,12 +5,12 @@ import {
   isValidEmail,
   normalizeEmail,
   readJsonBody,
-} from "../lib/auth.js";
+} from "../../lib/auth.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 
 const SAFE_MESSAGE = "If that email has access, a login link has been sent.";
 

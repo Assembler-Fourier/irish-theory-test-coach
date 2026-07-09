@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import createCheckoutSession from "../api/create-checkout-session.js";
-import verifySession from "../api/verify-session.js";
-import stripeWebhook from "../api/stripe-webhook.js";
+import createCheckoutSession from "../server/api/create-checkout-session.js";
+import verifySession from "../server/api/verify-session.js";
+import stripeWebhook from "../server/api/stripe-webhook.js";
 
 const ENV_KEYS = [
   "STRIPE_SECRET_KEY",

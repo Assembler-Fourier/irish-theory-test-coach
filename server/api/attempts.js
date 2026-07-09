@@ -1,10 +1,10 @@
-import { getSessionUser, readJsonBody } from "../lib/auth.js";
-import { withDb } from "../lib/db.js";
+import { getSessionUser, readJsonBody } from "../../lib/auth.js";
+import { withDb } from "../../lib/db.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
   sendSafeConfigError,
-} from "../lib/server-env.js";
+} from "../../lib/server-env.js";
 
 const MAX_ATTEMPTS_PER_REQUEST = 100;
 
