@@ -1,52 +1,167 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://irish-theory-test-coach.com/</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/category-b-theory-test.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/irish-theory-test-practice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/driver-theory-test-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/category-b-theory-test-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/mock-theory-test-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/irish-road-signs-test.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/rules-of-the-road-practice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/theory-test-study-plan.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/failed-theory-test-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/theory-test-questions-and-answers-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/hardest-theory-test-questions-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/theory-test-ireland-40-questions.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/category-b-theory-test.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/irish-theory-test-road-signs.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/car-theory-test-mock-exam.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/legal-matters-rules-of-the-road.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/safe-and-responsible-driving.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/control-of-vehicle-practice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/managing-risk-theory-test.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/technical-matters-theory-test.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/traffic-signs-regulatory-matters.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/road-markings-ireland-practice.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/regulatory-signs-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/warning-signs-ireland.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/learn.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/irish-theory-test-road-signs.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/pricing.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://irish-theory-test-coach.vercel.app/for-driving-instructors.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/car-theory-test-mock-exam.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/free-road-signs-quiz.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/rules-of-the-road-practice.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/irish-theory-test-study-checklist.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/theory-test-study-plan.html</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://irish-theory-test-coach.com/privacy.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/privacy.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/terms.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/terms.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/refunds.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/refunds.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://irish-theory-test-coach.com/contact.html</loc>
+    <loc>https://irish-theory-test-coach.vercel.app/contact.html</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

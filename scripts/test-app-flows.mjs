@@ -39,7 +39,7 @@ try {
 async function checkPreviewLoads({ html, appJs, questions }) {
   assert.match(html, /id="questionMount"/, "Preview workspace is missing.");
   assert.match(html, /id="questionTemplate"/, "Question template is missing.");
-  assert.match(html, /src="\.\/app\.js"/, "Frontend app script is missing.");
+  assert.match(html, /src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app script is missing.");
   assert.match(appJs, /DATA_URLS = \["\.\/data\/questions\.enriched\.json"/, "App is not loading the enriched question bank first.");
   assert.ok(Array.isArray(questions), "Question bank should be a JSON array.");
   assert.ok(questions.length >= 500, `Expected a substantial question bank, got ${questions.length}.`);
@@ -64,7 +64,9 @@ function checkPremiumPaywallContract({ html, appJs }) {
   assert.match(html, /id="modeHardest"/, "Hardest premium mode button is missing.");
   assert.match(html, /id="modeSigns"/, "Road-sign premium mode button is missing.");
   assert.match(html, /id="modeExam"/, "Mock-test premium mode button is missing.");
-  assert.match(html, /Unlock for EUR 0\.99/, "Paywall price copy is missing.");
+  assert.match(html, /Unlock for EUR 4\.99/, "Paywall price copy is missing.");
+  assert.match(html, /pricing-config\.js/, "Frontend pricing config is missing.");
+  assert.match(html, /Have a code\?/, "Referral code form is missing.");
   assert.match(appJs, /function requiresAccess\(mode\)/, "Premium access guard is missing.");
   assert.match(appJs, /\["highYield", "hardest", "signs", "exam", "review"\]\.includes\(mode\)/, "Premium modes are not guarded.");
   assert.match(appJs, /trackEvent\("paywall_viewed"/, "Paywall analytics event is missing.");

@@ -8,11 +8,14 @@ import logout from "../server/api/logout.js";
 import me from "../server/api/me.js";
 import progress from "../server/api/progress.js";
 import requestLoginLink from "../server/api/request-login-link.js";
+import referralCode from "../server/api/referral-code.js";
 import stripeWebhook from "../server/api/stripe-webhook.js";
 import verifySession from "../server/api/verify-session.js";
 import adminEntitlements from "../server/api/admin/entitlements.js";
+import adminExport from "../server/api/admin/export.js";
 import adminGenerateQuestions from "../server/api/admin/generate-questions.js";
 import adminQuestions from "../server/api/admin/questions.js";
+import adminReferrals from "../server/api/admin/referrals.js";
 import adminStats from "../server/api/admin/stats.js";
 import adminUsers from "../server/api/admin/users.js";
 
@@ -33,13 +36,23 @@ const routes = new Map([
   ["me", me],
   ["progress", progress],
   ["request-login-link", requestLoginLink],
+  ["referral-code", referralCode],
   ["stripe-webhook", stripeWebhook],
   ["verify-session", verifySession],
   ["admin/entitlements", adminEntitlements],
+  ["admin-entitlements", adminEntitlements],
+  ["admin/export", adminExport],
+  ["admin-export", adminExport],
   ["admin/generate-questions", adminGenerateQuestions],
+  ["admin-generate-questions", adminGenerateQuestions],
   ["admin/questions", adminQuestions],
+  ["admin-questions", adminQuestions],
+  ["admin/referrals", adminReferrals],
+  ["admin-referrals", adminReferrals],
   ["admin/stats", adminStats],
+  ["admin-stats", adminStats],
   ["admin/users", adminUsers],
+  ["admin-users", adminUsers],
 ]);
 
 export default async function handler(req, res) {

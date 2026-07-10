@@ -6,6 +6,8 @@ const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
 const sitemapPath = path.join(publicDir, "sitemap.xml");
+const siteUrl = new URL(process.env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app").origin;
+const canonicalPattern = new RegExp(`<link\\s+rel="canonical"\\s+href="${escapeRegExp(siteUrl)}\\/[^\"]*"`, "i");
 
 const sitemap = fs.readFileSync(sitemapPath, "utf8");
 const locs = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g)).map((match) => match[1]);
@@ -31,14 +33,14 @@ for (const loc of locs) {
   for (const check of [
     [/<title>[^<]{12,}<\/title>/i, "title"],
     [/<meta\s+name="description"\s+content="[^"]{50,}"/i, "meta description"],
-    [/<link\s+rel="canonical"\s+href="https:\/\/irish-theory-test-coach\.com\/[^"]*"/i, "canonical"],
+    [canonicalPattern, "canonical"],
   ]) {
     if (!check[0].test(html)) {
       errors.push(`${relative} is missing ${check[1]}.`);
     }
   }
 
-  if (isLandingPage(relative) && !/"@type": "FAQPage"/.test(html)) {
+  if (isLandingPage(relative) && !/"@type"\s*:\s*"FAQPage"/.test(html)) {
     errors.push(`${relative} is missing FAQPage JSON-LD.`);
   }
 
@@ -48,7 +50,7 @@ for (const loc of locs) {
 }
 
 const robots = fs.readFileSync(path.join(publicDir, "robots.txt"), "utf8");
-if (!robots.includes("Sitemap: https://irish-theory-test-coach.com/sitemap.xml")) {
+if (!robots.includes(`Sitemap: ${siteUrl}/sitemap.xml`)) {
   errors.push("robots.txt does not point to sitemap.xml.");
 }
 
@@ -89,4 +91,8 @@ function containsBlockedClaim(html) {
     const before = text.slice(Math.max(0, index - 60), index);
     return !/(not|no|does not|do not|without)[^.]{0,55}$/.test(before);
   });
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

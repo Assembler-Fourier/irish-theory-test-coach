@@ -41,7 +41,10 @@ create table if not exists purchases (
 );
 
 alter table purchases
-  add column if not exists stripe_payment_intent_id text;
+  add column if not exists stripe_payment_intent_id text,
+  add column if not exists plan_key text,
+  add column if not exists stripe_price_id text,
+  add column if not exists referral_code text;
 
 create table if not exists entitlements (
   id uuid primary key default gen_random_uuid(),
@@ -59,6 +62,69 @@ create table if not exists entitlements (
 alter table entitlements
   add column if not exists expires_at timestamptz,
   add column if not exists revoked_at timestamptz;
+
+create table if not exists instructor_accounts (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  name text,
+  organisation text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists referral_codes (
+  code text primary key,
+  instructor_account_id uuid references instructor_accounts(id) on delete set null,
+  description text,
+  discount_percent integer not null default 0,
+  fixed_price_plan text,
+  commission_note text,
+  max_redemptions integer not null default 0,
+  expires_at timestamptz,
+  entitlement_duration_days integer not null default 90,
+  grant_entitlement boolean not null default false,
+  active boolean not null default true,
+  created_by uuid,
+  created_by_email text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table referral_codes
+  add column if not exists instructor_account_id uuid,
+  add column if not exists description text,
+  add column if not exists discount_percent integer not null default 0,
+  add column if not exists fixed_price_plan text,
+  add column if not exists commission_note text,
+  add column if not exists max_redemptions integer not null default 0,
+  add column if not exists expires_at timestamptz,
+  add column if not exists entitlement_duration_days integer not null default 90,
+  add column if not exists grant_entitlement boolean not null default false,
+  add column if not exists active boolean not null default true,
+  add column if not exists created_by uuid,
+  add column if not exists created_by_email text,
+  add column if not exists updated_at timestamptz not null default now();
+
+create table if not exists referral_redemptions (
+  id uuid primary key default gen_random_uuid(),
+  code text not null references referral_codes(code) on delete cascade,
+  email text,
+  anonymous_id text,
+  stripe_checkout_session_id text,
+  status text not null default 'applied',
+  plan_key text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table referral_redemptions
+  add column if not exists email text,
+  add column if not exists anonymous_id text,
+  add column if not exists stripe_checkout_session_id text,
+  add column if not exists status text not null default 'applied',
+  add column if not exists plan_key text,
+  add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists login_tokens (
   id uuid primary key default gen_random_uuid(),
@@ -410,3 +476,13 @@ create unique index if not exists flags_user_question_idx
 create unique index if not exists purchases_stripe_payment_intent_id_idx
   on purchases (stripe_payment_intent_id)
   where stripe_payment_intent_id is not null;
+create index if not exists purchases_plan_key_idx on purchases (plan_key);
+create index if not exists purchases_referral_code_idx on purchases (referral_code) where referral_code is not null;
+create index if not exists referral_codes_active_idx on referral_codes (active, expires_at);
+create index if not exists referral_redemptions_code_created_idx on referral_redemptions (code, created_at desc);
+create index if not exists referral_redemptions_session_idx
+  on referral_redemptions (stripe_checkout_session_id)
+  where stripe_checkout_session_id is not null;
+create unique index if not exists referral_redemptions_session_unique_idx
+  on referral_redemptions (stripe_checkout_session_id)
+  where stripe_checkout_session_id is not null;

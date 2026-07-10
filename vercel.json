@@ -1,5 +1,14 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "public",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/api/admin/entitlements", "destination": "/api/admin-entitlements" },
+    { "source": "/api/admin/export", "destination": "/api/admin-export" },
+    { "source": "/api/admin/generate-questions", "destination": "/api/admin-generate-questions" },
+    { "source": "/api/admin/questions", "destination": "/api/admin-questions" },
+    { "source": "/api/admin/referrals", "destination": "/api/admin-referrals" },
+    { "source": "/api/admin/stats", "destination": "/api/admin-stats" },
+    { "source": "/api/admin/users", "destination": "/api/admin-users" }
+  ]
 }

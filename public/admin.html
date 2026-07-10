@@ -1,10 +1,11 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Irish Theory Test Coach</title>
-    <link rel="stylesheet" href="./styles.css">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
   </head>
   <body>
     <div class="shell admin-shell">
@@ -21,6 +22,17 @@
 
       <main class="admin-layout">
         <section id="adminStatus" class="status-bar">Checking admin access...</section>
+        <section id="adminProtectedState" class="admin-protected hidden" aria-labelledby="adminProtectedHeading">
+          <div>
+            <p class="eyebrow">Protected area</p>
+            <h2 id="adminProtectedHeading">Admin access required</h2>
+            <p id="adminProtectedCopy">You need an admin session to view this workspace.</p>
+          </div>
+          <div class="admin-protected-actions">
+            <a class="button-primary" href="./#restoreEmail">Sign in or restore access</a>
+            <a class="button-secondary" href="./contact.html">Contact support</a>
+          </div>
+        </section>
 
         <section class="admin-section" aria-labelledby="dashboardHeading">
           <div class="panel-heading">
@@ -28,6 +40,16 @@
             <button id="refreshBtn" type="button">Refresh</button>
           </div>
           <div id="metricGrid" class="metric-grid"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="readinessHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="readinessHeading">Launch readiness</h2>
+              <p class="admin-section-note">Quick operational checks for access, payments, content review, analytics, and auditability.</p>
+            </div>
+          </div>
+          <div id="launchReadinessMount" class="launch-readiness-grid"></div>
         </section>
 
         <section class="admin-grid">
@@ -38,9 +60,9 @@
             <form id="userSearchForm" class="admin-form">
               <label class="field">
                 <span>Email search</span>
-                <input id="userSearchInput" type="search" placeholder="email@example.com">
+                <input id="userSearchInput" type="search" autocomplete="email" placeholder="Find a learner by email">
               </label>
-              <button type="submit">Search users</button>
+              <button type="submit">Search</button>
             </form>
             <div id="usersMount" class="admin-list"></div>
           </section>
@@ -51,8 +73,8 @@
             </div>
             <form id="entitlementForm" class="admin-form">
               <label class="field">
-                <span>Email</span>
-                <input id="entitlementEmail" type="email" placeholder="email@example.com" required>
+                <span>Learner email</span>
+                <input id="entitlementEmail" type="email" autocomplete="email" placeholder="email@example.com" required>
               </label>
               <label class="field">
                 <span>Action</span>
@@ -66,7 +88,7 @@
                 <span>Days</span>
                 <input id="entitlementDays" type="number" min="0" step="1" placeholder="365">
               </label>
-              <button class="primary" type="submit">Save entitlement</button>
+              <button id="entitlementSubmitBtn" class="primary" type="submit">Save entitlement</button>
             </form>
             <div id="entitlementsMount" class="admin-list"></div>
           </section>
@@ -75,8 +97,72 @@
         <section class="admin-section" aria-labelledby="purchasesHeading">
           <div class="panel-heading">
             <h2 id="purchasesHeading">Purchases</h2>
+            <div class="admin-export-actions">
+              <a class="button-secondary" href="/api/admin/export?type=purchases">Export purchases CSV</a>
+              <a class="button-secondary" href="/api/admin/export?type=referrals">Export referrals CSV</a>
+            </div>
           </div>
           <div id="purchasesMount" class="admin-table-wrap"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="revenueHeading">
+          <div class="panel-heading">
+            <h2 id="revenueHeading">Revenue and pricing</h2>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Revenue metrics</h3>
+              <div id="revenueMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Sales by plan</h3>
+              <div id="planSalesMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Referral performance</h3>
+              <div id="referralPerformanceMount" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="referralsHeading">
+          <div class="panel-heading">
+            <h2 id="referralsHeading">Referral codes</h2>
+          </div>
+          <form id="referralCodeForm" class="admin-form admin-form-wide">
+            <label class="field">
+              <span>Code</span>
+              <input id="referralCodeInput" type="text" placeholder="INSTRUCTOR10" required>
+            </label>
+            <label class="field">
+              <span>Description</span>
+              <input id="referralDescriptionInput" type="text" placeholder="Instructor launch code">
+            </label>
+            <label class="field">
+              <span>Fixed plan</span>
+              <select id="referralPlanInput">
+                <option value="">No fixed plan</option>
+                <option value="launch_offer">Launch offer</option>
+                <option value="full_study_pass">Full Study Pass</option>
+                <option value="instructor_10">Instructor 10</option>
+                <option value="instructor_25">Instructor 25</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Max redemptions</span>
+              <input id="referralMaxInput" type="number" min="0" step="1" placeholder="100">
+            </label>
+            <label class="field">
+              <span>Days</span>
+              <input id="referralDaysInput" type="number" min="1" max="365" step="1" value="90">
+            </label>
+            <label class="field check-field">
+              <span>Grant access</span>
+              <input id="referralGrantInput" type="checkbox">
+            </label>
+            <button class="primary" type="submit">Save code</button>
+          </form>
+          <div id="referralsMount" class="admin-list"></div>
         </section>
 
         <section class="admin-section" aria-labelledby="analyticsHeading">
@@ -153,7 +239,7 @@
             </label>
             <div class="review-actions">
               <button data-review-action="needs_official_cross_check" type="button">Needs check</button>
-              <button data-review-action="reject" type="button">Reject</button>
+              <button data-review-action="reject" class="danger" type="button">Reject</button>
               <button data-review-action="approve" class="primary" type="button">Approve</button>
             </div>
           </form>
@@ -240,6 +326,6 @@
       </footer>
     </div>
 
-    <script src="./admin.js"></script>
+    <script src="./admin.js?v=20260710-rebuild"></script>
   </body>
 </html>

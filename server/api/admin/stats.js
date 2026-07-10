@@ -18,6 +18,11 @@ const FUNNEL_EVENTS = [
   "checkout_clicked",
   "checkout_success",
   "restore_access_clicked",
+  "restore_access_started",
+  "restore_access_success",
+  "pricing_page_viewed",
+  "referral_code_applied",
+  "referral_checkout_started",
   "mock_started",
   "mock_completed",
 ];
@@ -55,6 +60,9 @@ async function loadDbStats(databaseUrl) {
       attemptSummary,
       recentPurchases,
       recentAudit,
+      revenue,
+      planSales,
+      referralPerformance,
     ] = await Promise.all([
       client.query(`
         select
@@ -123,7 +131,7 @@ async function loadDbStats(databaseUrl) {
         limit 10
       `),
       client.query(`
-        select email, stripe_checkout_session_id, stripe_payment_intent_id, amount, currency, status, created_at
+        select email, stripe_checkout_session_id, stripe_payment_intent_id, plan_key, referral_code, amount, currency, status, created_at
         from purchases
         order by created_at desc
         limit 8
@@ -134,11 +142,68 @@ async function loadDbStats(databaseUrl) {
         order by created_at desc
         limit 10
       `),
+      client.query(`
+        select coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0)::int as gross_revenue,
+               round((coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0) * 0.015) + (count(*) filter (where status in ('paid', 'complete', 'succeeded')) * 25))::int as estimated_stripe_fees,
+               count(*) filter (where status in ('refunded'))::int as refund_count,
+               coalesce(sum(amount) filter (where referral_code is not null and status in ('paid', 'complete', 'succeeded')), 0)::int as referral_revenue
+        from purchases
+      `),
+      client.query(`
+        select coalesce(nullif(plan_key, ''), 'unknown') as plan_key,
+               count(*)::int as sales,
+               coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0)::int as revenue
+        from purchases
+        group by 1
+        order by revenue desc, sales desc
+      `),
+      client.query(`
+        select rc.code,
+               rc.description,
+               rc.fixed_price_plan,
+               count(rr.id)::int as redemptions,
+               count(rr.id) filter (where rr.status = 'checkout_started')::int as checkout_starts,
+               count(rr.id) filter (where rr.status = 'purchased')::int as purchases,
+               coalesce(sum(p.amount) filter (where p.status in ('paid', 'complete', 'succeeded')), 0)::int as revenue
+        from referral_codes rc
+        left join referral_redemptions rr on rr.code = rc.code
+        left join purchases p on p.stripe_checkout_session_id = rr.stripe_checkout_session_id
+        group by rc.code
+        order by revenue desc, redemptions desc
+        limit 20
+      `),
     ]);
     const analytics = await loadAnalyticsStats(client);
+    const revenueRow = revenue.rows[0] || {};
+    const grossRevenue = Number(revenueRow.gross_revenue || 0);
+    const estimatedStripeFees = Number(revenueRow.estimated_stripe_fees || 0);
 
     return {
       totals: totals.rows[0],
+      revenue: {
+        grossRevenue,
+        estimatedStripeFees,
+        estimatedNetRevenue: Math.max(0, grossRevenue - estimatedStripeFees),
+        refundCount: Number(revenueRow.refund_count || 0),
+        referralRevenue: Number(revenueRow.referral_revenue || 0),
+        salesByPlan: planSales.rows.map((row) => ({
+          planKey: row.plan_key,
+          sales: Number(row.sales || 0),
+          revenue: Number(row.revenue || 0),
+        })),
+        referralPerformance: referralPerformance.rows.map((row) => ({
+          code: row.code,
+          description: row.description || "",
+          fixedPricePlan: row.fixed_price_plan || "",
+          redemptions: Number(row.redemptions || 0),
+          checkoutStarts: Number(row.checkout_starts || 0),
+          purchases: Number(row.purchases || 0),
+          revenue: Number(row.revenue || 0),
+          conversionRate: Number(row.checkout_starts || 0)
+            ? Math.round((Number(row.purchases || 0) / Number(row.checkout_starts || 0)) * 100)
+            : 0,
+        })),
+      },
       attemptSummary: attemptSummary.rows.map((row) => ({
         category: row.category,
         answered: row.answered,

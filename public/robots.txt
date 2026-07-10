@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
-
-Sitemap: https://irish-theory-test-coach.com/sitemap.xml
+Disallow: /admin
+Sitemap: https://irish-theory-test-coach.vercel.app/sitemap.xml

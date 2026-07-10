@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { getPublicPricingConfig } from "../shared/pricing-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
@@ -46,9 +47,20 @@ for (const file of files) {
 copyDir(path.join(sourceData, "assets"), path.join(publicData, "assets"));
 
 const supportEmail = process.env.SUPPORT_EMAIL || "support@irish-theory-test-coach.com";
+const pricingConfig = getPublicPricingConfig(process.env);
 fs.writeFileSync(
   path.join(root, "public", "config.js"),
   `window.APP_CONFIG = ${JSON.stringify({ supportEmail }, null, 2)};\n`,
+  "utf8"
+);
+fs.writeFileSync(
+  path.join(root, "public", "pricing-config.js"),
+  `window.PRICING_CONFIG = ${JSON.stringify(pricingConfig, null, 2)};\n`,
+  "utf8"
+);
+fs.writeFileSync(
+  path.join(root, "public", "pricing.json"),
+  `${JSON.stringify(pricingConfig, null, 2)}\n`,
   "utf8"
 );
 

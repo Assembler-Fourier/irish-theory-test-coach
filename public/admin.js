@@ -11,8 +11,11 @@
 
   const els = {
     status: document.getElementById("adminStatus"),
+    protectedState: document.getElementById("adminProtectedState"),
+    protectedCopy: document.getElementById("adminProtectedCopy"),
     refreshBtn: document.getElementById("refreshBtn"),
     metricGrid: document.getElementById("metricGrid"),
+    launchReadinessMount: document.getElementById("launchReadinessMount"),
     userSearchForm: document.getElementById("userSearchForm"),
     userSearchInput: document.getElementById("userSearchInput"),
     usersMount: document.getElementById("usersMount"),
@@ -20,8 +23,20 @@
     entitlementEmail: document.getElementById("entitlementEmail"),
     entitlementAction: document.getElementById("entitlementAction"),
     entitlementDays: document.getElementById("entitlementDays"),
+    entitlementSubmitBtn: document.getElementById("entitlementSubmitBtn"),
     entitlementsMount: document.getElementById("entitlementsMount"),
     purchasesMount: document.getElementById("purchasesMount"),
+    revenueMount: document.getElementById("revenueMount"),
+    planSalesMount: document.getElementById("planSalesMount"),
+    referralPerformanceMount: document.getElementById("referralPerformanceMount"),
+    referralCodeForm: document.getElementById("referralCodeForm"),
+    referralCodeInput: document.getElementById("referralCodeInput"),
+    referralDescriptionInput: document.getElementById("referralDescriptionInput"),
+    referralPlanInput: document.getElementById("referralPlanInput"),
+    referralMaxInput: document.getElementById("referralMaxInput"),
+    referralDaysInput: document.getElementById("referralDaysInput"),
+    referralGrantInput: document.getElementById("referralGrantInput"),
+    referralsMount: document.getElementById("referralsMount"),
     analyticsFunnelMount: document.getElementById("analyticsFunnelMount"),
     missedCategoriesMount: document.getElementById("missedCategoriesMount"),
     missedQuestionsMount: document.getElementById("missedQuestionsMount"),
@@ -58,6 +73,7 @@
 
   function init() {
     bindEvents();
+    updateEntitlementActionTone();
     refreshAll();
   }
 
@@ -84,6 +100,11 @@
       event.preventDefault();
       await saveEntitlement();
     });
+    els.referralCodeForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await saveReferralCode();
+    });
+    els.entitlementAction.addEventListener("change", updateEntitlementActionTone);
     els.questionReviewForm.addEventListener("click", async (event) => {
       const button = event.target.closest("[data-review-action]");
       if (!button) return;
@@ -93,16 +114,19 @@
 
   async function refreshAll() {
     if (state.locked) return;
-    setStatus("Loading admin dashboard...");
+    setProtectedState(false);
+    setStatus("Loading admin dashboard...", "loading");
+    renderAdminSkeletons();
     try {
       await Promise.all([
         loadStats(),
         loadUsers(),
         loadEntitlements(),
+        loadReferrals(),
         loadQuestions(),
         loadGeneratedPipeline(),
       ]);
-      setStatus("Admin dashboard ready.");
+      setStatus("Admin dashboard ready.", "success");
     } catch (error) {
       handleError(error);
     }
@@ -112,7 +136,9 @@
     const payload = await fetchJson("/api/admin/stats");
     state.stats = payload.stats;
     renderMetrics(payload.stats);
+    renderLaunchReadiness(payload.stats);
     renderPurchases(payload.stats.recentPurchases || []);
+    renderRevenue(payload.stats.revenue || {});
     renderAnalytics(payload.stats.analytics || {});
     renderAttemptSummary(payload.stats.attemptSummary || []);
     renderAudit(payload.stats.recentAudit || []);
@@ -128,6 +154,11 @@
     const q = encodeURIComponent(els.entitlementEmail.value.trim());
     const payload = await fetchJson(`/api/admin/entitlements?q=${q}`);
     renderEntitlements(payload.entitlements || []);
+  }
+
+  async function loadReferrals() {
+    const payload = await fetchJson("/api/admin/referrals");
+    renderReferrals(payload.referrals || []);
   }
 
   async function loadQuestions() {
@@ -163,6 +194,31 @@
       });
       setStatus(`Entitlement ${payload.entitlement.active ? "active" : "inactive"} for ${payload.entitlement.email}.`);
       await Promise.all([loadStats(), loadUsers(), loadEntitlements()]);
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function saveReferralCode() {
+    setStatus("Saving referral code...");
+    try {
+      await fetchJson("/api/admin/referrals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: els.referralCodeInput.value.trim(),
+          description: els.referralDescriptionInput.value.trim(),
+          fixedPricePlan: els.referralPlanInput.value,
+          maxRedemptions: Number(els.referralMaxInput.value || 0),
+          entitlementDurationDays: Number(els.referralDaysInput.value || 90),
+          grantEntitlement: els.referralGrantInput.checked,
+          active: true,
+        }),
+      });
+      els.referralCodeForm.reset();
+      els.referralDaysInput.value = "90";
+      await Promise.all([loadStats(), loadReferrals()]);
+      setStatus("Referral code saved.", "success");
     } catch (error) {
       handleError(error);
     }
@@ -276,8 +332,9 @@
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const error = new Error(payload.error || "Admin request failed");
+      const error = new Error("admin_request_failed");
       error.status = response.status;
+      error.code = typeof payload.error === "string" ? payload.error : "";
       throw error;
     }
     return payload;
@@ -287,57 +344,150 @@
     const totals = stats.totals || {};
     const questions = stats.questions || {};
     const metrics = [
-      ["Users", totals.users || 0],
-      ["Admins", totals.admins || 0],
-      ["Purchases", totals.purchases || 0],
-      ["Active access", totals.active_entitlements || 0],
-      ["Inactive access", totals.inactive_entitlements || 0],
-      ["Attempts", totals.attempts || 0],
-      ["Flags", totals.flags || 0],
-      ["Analytics events", stats.analytics?.last30DaysEventCount || 0],
-      ["Source notes", totals.source_documents || 0],
-      ["Draft queue", totals.generated_question_drafts || 0],
-      ["Questions", questions.total || 0],
-      ["Needs review", questions.byReviewStatus?.needs_official_cross_check || 0],
-      ["Generated drafts", questions.generatedDrafts || 0],
+      ["Users", totals.users || 0, "Learner accounts"],
+      ["Admins", totals.admins || 0, "Server-authorized"],
+      ["Purchases", totals.purchases || 0, "Stripe records"],
+      ["Active access", totals.active_entitlements || 0, "Current unlocks"],
+      ["Inactive access", totals.inactive_entitlements || 0, "Expired or revoked"],
+      ["Attempts", totals.attempts || 0, "Synced answers"],
+      ["Flags", totals.flags || 0, "Saved review marks"],
+      ["Analytics events", stats.analytics?.last30DaysEventCount || 0, "Last 30 days"],
+      ["Source notes", totals.source_documents || 0, "Admin notes"],
+      ["Draft queue", totals.generated_question_drafts || 0, "AI drafts"],
+      ["Questions", questions.total || 0, "Public bank"],
+      ["Needs review", questions.byReviewStatus?.needs_official_cross_check || 0, "Content QA"],
+      ["Generated drafts", questions.generatedDrafts || 0, "Question pipeline"],
     ];
 
     els.metricGrid.innerHTML = "";
-    metrics.forEach(([label, value]) => {
+    metrics.forEach(([label, value, caption], index) => {
       const card = document.createElement("div");
       card.className = "metric-card";
-      card.innerHTML = "<span></span><strong></strong>";
+      if (index < 4) card.classList.add("metric-card-primary");
+      card.innerHTML = "<span></span><strong></strong><em></em>";
       card.querySelector("span").textContent = label;
-      card.querySelector("strong").textContent = value;
+      card.querySelector("strong").textContent = formatNumber(value);
+      card.querySelector("em").textContent = caption;
       els.metricGrid.append(card);
+    });
+  }
+
+  function renderAdminSkeletons() {
+    const metricSkeletons = Array.from({ length: 8 }, () => `
+      <div class="metric-card skeleton-card admin-skeleton-card">
+        <span class="skeleton-line short"></span>
+        <strong class="skeleton-line title"></strong>
+        <em class="skeleton-line medium"></em>
+      </div>
+    `).join("");
+    els.metricGrid.innerHTML = metricSkeletons;
+
+    els.launchReadinessMount.innerHTML = `
+      <div class="admin-skeleton-list">
+        <span class="skeleton-card"></span>
+        <span class="skeleton-card"></span>
+        <span class="skeleton-card"></span>
+      </div>
+    `;
+
+    [
+      els.usersMount,
+      els.entitlementsMount,
+      els.purchasesMount,
+      els.revenueMount,
+      els.planSalesMount,
+      els.referralPerformanceMount,
+      els.referralsMount,
+      els.analyticsFunnelMount,
+      els.missedCategoriesMount,
+      els.missedQuestionsMount,
+      els.questionsMount,
+      els.sourceDocumentsMount,
+      els.generatedQuestionsMount,
+      els.attemptSummaryMount,
+      els.auditMount,
+    ].forEach((mount) => {
+      mount.innerHTML = `
+        <div class="admin-empty-state skeleton-block" aria-hidden="true">
+          <span class="skeleton-line medium"></span>
+          <span class="skeleton-line"></span>
+        </div>
+      `;
+    });
+  }
+
+  function renderLaunchReadiness(stats) {
+    const totals = stats.totals || {};
+    const questions = stats.questions || {};
+    const analyticsEvents = stats.analytics?.last30DaysEventCount || 0;
+    const needsReview = questions.byReviewStatus?.needs_official_cross_check || 0;
+    const draftCount = totals.generated_question_drafts || questions.generatedDrafts || 0;
+    const cards = [
+      {
+        title: "Admin authorization",
+        ready: Number(totals.admins || 0) > 0,
+        readyText: `${totals.admins || 0} admin user${Number(totals.admins || 0) === 1 ? "" : "s"} configured`,
+        actionText: "Promote at least one admin in Neon before launch.",
+      },
+      {
+        title: "Payment records",
+        ready: Number(totals.purchases || 0) > 0,
+        readyText: `${totals.purchases || 0} purchase record${Number(totals.purchases || 0) === 1 ? "" : "s"} found`,
+        actionText: "Run a Stripe checkout test and confirm webhook purchase recording.",
+      },
+      {
+        title: "Content QA",
+        ready: needsReview === 0 && Number(questions.total || 0) > 0,
+        readyText: needsReview === 0 ? "No questions currently flagged for cross-check" : `${needsReview} question${needsReview === 1 ? "" : "s"} need review`,
+        actionText: "Review priority questions before expanding public content.",
+      },
+      {
+        title: "Analytics signal",
+        ready: analyticsEvents > 0,
+        readyText: `${analyticsEvents} event${analyticsEvents === 1 ? "" : "s"} in the last 30 days`,
+        actionText: "Open the app preview and checkout flow once after deployment.",
+      },
+      {
+        title: "AI draft workflow",
+        ready: draftCount > 0 || Number(totals.source_documents || 0) > 0,
+        readyText: `${totals.source_documents || 0} source note${Number(totals.source_documents || 0) === 1 ? "" : "s"}, ${draftCount} draft${draftCount === 1 ? "" : "s"}`,
+        actionText: "Keep generated questions draft-only until admin review.",
+      },
+    ];
+
+    els.launchReadinessMount.innerHTML = "";
+    cards.forEach((card) => {
+      const item = document.createElement("article");
+      item.className = "readiness-card";
+      item.append(statusBadge(card.ready ? "Ready" : "Needs check", card.ready ? "success" : "warning"));
+      const title = document.createElement("strong");
+      title.textContent = card.title;
+      const copy = document.createElement("p");
+      copy.textContent = card.ready ? card.readyText : card.actionText;
+      item.append(title, copy);
+      els.launchReadinessMount.append(item);
     });
   }
 
   function renderUsers(users) {
     els.usersMount.innerHTML = "";
     if (!users.length) {
-      renderEmpty(els.usersMount, "No users found.");
+      renderEmpty(els.usersMount, "No users found", "Try another email search or wait for the first magic-link login or purchase.");
       return;
     }
 
     users.forEach((user) => {
-      const item = document.createElement("article");
-      item.className = "admin-item";
-      item.innerHTML = `
-        <div>
-          <strong></strong>
-          <span></span>
-        </div>
-        <dl></dl>
-      `;
-      item.querySelector("strong").textContent = user.email;
-      item.querySelector("span").textContent = `${user.role} | ${entitlementLabel(user.entitlement)}`;
-      item.querySelector("dl").append(
-        detail("Purchases", user.purchaseCount),
-        detail("Attempts", user.attemptCount),
-        detail("Flags", user.flagCount),
-        detail("Last login", formatDate(user.lastLoginAt))
-      );
+      const item = adminItem({
+        title: user.email,
+        subtitle: "Click to inspect purchase IDs and prepare an entitlement change.",
+        badges: [roleBadge(user.role), entitlementBadge(user.entitlement)],
+        details: [
+          detail("Purchases", user.purchaseCount),
+          detail("Attempts", user.attemptCount),
+          detail("Flags", user.flagCount),
+          detail("Last login", formatDate(user.lastLoginAt)),
+        ],
+      });
       item.addEventListener("click", () => {
         els.entitlementEmail.value = user.email;
         renderPurchases(user.purchases || []);
@@ -349,28 +499,22 @@
   function renderEntitlements(entitlements) {
     els.entitlementsMount.innerHTML = "";
     if (!entitlements.length) {
-      renderEmpty(els.entitlementsMount, "No entitlements found.");
+      renderEmpty(els.entitlementsMount, "No entitlements found", "Search by email or grant access from the form above.");
       return;
     }
 
     entitlements.slice(0, 12).forEach((entitlement) => {
-      const item = document.createElement("article");
-      item.className = "admin-item";
-      item.innerHTML = `
-        <div>
-          <strong></strong>
-          <span></span>
-        </div>
-        <dl></dl>
-      `;
-      item.querySelector("strong").textContent = entitlement.email;
-      item.querySelector("span").textContent = entitlementLabel(entitlement);
-      item.querySelector("dl").append(
-        detail("Source", entitlement.source || "unknown"),
-        detail("Expires", formatDate(entitlement.expiresAt)),
-        detail("Revoked", formatDate(entitlement.revokedAt)),
-        detail("Updated", formatDate(entitlement.updatedAt))
-      );
+      const item = adminItem({
+        title: entitlement.email,
+        subtitle: entitlement.source ? `Source: ${entitlement.source}` : "Source: unknown",
+        badges: [entitlementBadge(entitlement), roleBadge(entitlement.role || "user")],
+        details: [
+          detail("Expires", formatDate(entitlement.expiresAt)),
+          detail("Revoked", formatDate(entitlement.revokedAt)),
+          detail("Updated", formatDate(entitlement.updatedAt)),
+          detail("Product", entitlement.product || "coach"),
+        ],
+      });
       item.addEventListener("click", () => {
         els.entitlementEmail.value = entitlement.email;
       });
@@ -380,7 +524,7 @@
 
   function renderPurchases(purchases) {
     if (!purchases.length) {
-      renderEmpty(els.purchasesMount, "No purchases found.");
+      renderEmpty(els.purchasesMount, "No purchases yet", "Completed Stripe checkouts and webhook-recorded purchases will appear here.");
       return;
     }
 
@@ -391,6 +535,8 @@
             <th>Email</th>
             <th>Checkout session</th>
             <th>Payment intent</th>
+            <th>Plan</th>
+            <th>Code</th>
             <th>Status</th>
             <th>Amount</th>
             <th>Created</th>
@@ -402,19 +548,80 @@
     const body = els.purchasesMount.querySelector("tbody");
     purchases.forEach((purchase) => {
       const row = document.createElement("tr");
-      [
-        purchase.email,
-        purchase.stripe_checkout_session_id || purchase.checkoutSessionId || "",
-        purchase.stripe_payment_intent_id || purchase.paymentIntentId || "",
-        purchase.status,
-        formatMoney(purchase.amount, purchase.currency),
-        formatDate(purchase.created_at || purchase.createdAt),
-      ].forEach((value) => {
-        const cell = document.createElement("td");
-        cell.textContent = value || "";
-        row.append(cell);
-      });
+      appendCell(row, purchase.email);
+      appendCell(row, purchase.stripe_checkout_session_id || purchase.checkoutSessionId || "");
+      appendCell(row, purchase.stripe_payment_intent_id || purchase.paymentIntentId || "");
+      appendCell(row, labelPlan(purchase.plan_key || purchase.planKey || ""));
+      appendCell(row, purchase.referral_code || purchase.referralCode || "");
+      appendCell(row, statusBadge(purchase.status || "unknown", purchaseStatusTone(purchase.status)));
+      appendCell(row, formatMoney(purchase.amount, purchase.currency));
+      appendCell(row, formatDate(purchase.created_at || purchase.createdAt));
       body.append(row);
+    });
+  }
+
+  function renderRevenue(revenue) {
+    const metrics = [
+      ["Gross revenue", formatMoney(revenue.grossRevenue, "eur"), "Before estimated Stripe fees"],
+      ["Estimated Stripe fees", formatMoney(revenue.estimatedStripeFees, "eur"), "Approximate, not accounting advice"],
+      ["Estimated net", formatMoney(revenue.estimatedNetRevenue, "eur"), "Gross minus estimated fees"],
+      ["Refunds", formatNumber(revenue.refundCount || 0), "Refund records if available"],
+      ["Referral revenue", formatMoney(revenue.referralRevenue, "eur"), "Purchases linked to referral codes"],
+    ];
+    renderAdminItems(els.revenueMount, metrics.map(([title, value, subtitle]) => ({ title, subtitle, badges: [statusBadge(value, "primary")] })), "No revenue yet", "Revenue appears after paid Stripe purchases are recorded.");
+
+    renderAdminItems(
+      els.planSalesMount,
+      (revenue.salesByPlan || []).map((plan) => ({
+        title: labelPlan(plan.planKey),
+        subtitle: `${formatNumber(plan.sales)} sale${Number(plan.sales) === 1 ? "" : "s"} | ${formatMoney(plan.revenue, "eur")}`,
+        badges: [statusBadge("Plan", "info")],
+      })),
+      "No plan sales yet",
+      "Plan breakdown appears after checkout records include plan metadata."
+    );
+
+    renderAdminItems(
+      els.referralPerformanceMount,
+      (revenue.referralPerformance || []).map((item) => ({
+        title: item.code,
+        subtitle: `${formatNumber(item.redemptions)} redemptions | ${formatNumber(item.purchases)} purchases | ${item.conversionRate}% checkout conversion | ${formatMoney(item.revenue, "eur")}`,
+        badges: [statusBadge(item.fixedPricePlan || "Referral", "warning")],
+      })),
+      "No referral performance yet",
+      "Create a referral code, then send traffic through it to see conversion."
+    );
+  }
+
+  function renderReferrals(referrals) {
+    renderAdminItems(
+      els.referralsMount,
+      referrals.map((referral) => ({
+        title: referral.code,
+        subtitle: `${referral.description || "No description"} | ${formatNumber(referral.redemptions)} redemptions | ${formatNumber(referral.purchases)} purchases | ${formatMoney(referral.revenue, "eur")}`,
+        badges: [
+          statusBadge(referral.active ? "Active" : "Disabled", referral.active ? "success" : "neutral"),
+          statusBadge(referral.fixed_price_plan || "No fixed plan", "info"),
+        ],
+      })),
+      "No referral codes yet",
+      "Create an instructor or launch code using the form above."
+    );
+  }
+
+  function renderAdminItems(mount, items, emptyTitle, emptyCopy) {
+    mount.innerHTML = "";
+    if (!items.length) {
+      renderEmpty(mount, emptyTitle, emptyCopy);
+      return;
+    }
+    items.forEach((item) => {
+      mount.append(adminItem({
+        title: item.title,
+        subtitle: item.subtitle,
+        badges: item.badges || [],
+        details: item.details || [],
+      }));
     });
   }
 
@@ -427,41 +634,40 @@
   function renderFunnel(funnel, paywall) {
     els.analyticsFunnelMount.innerHTML = "";
     if (!funnel.length) {
-      renderEmpty(els.analyticsFunnelMount, "No analytics events yet.");
+      renderEmpty(els.analyticsFunnelMount, "No analytics yet", "Privacy-safe funnel events will appear after visitors use the app.");
       return;
     }
 
     funnel.forEach((item) => {
-      const row = document.createElement("article");
-      row.className = "admin-item";
-      row.innerHTML = "<div><strong></strong><span></span></div>";
-      row.querySelector("strong").textContent = labelEvent(item.eventName);
-      row.querySelector("span").textContent = `${item.events || 0} events | ${item.visitors || 0} anonymous visitors`;
+      const row = adminItem({
+        title: labelEvent(item.eventName),
+        subtitle: `${formatNumber(item.events || 0)} events from ${formatNumber(item.visitors || 0)} anonymous visitor${Number(item.visitors || 0) === 1 ? "" : "s"}`,
+        badges: [statusBadge("Analytics", "info")],
+      });
       els.analyticsFunnelMount.append(row);
     });
 
-    const paywallRow = document.createElement("article");
-    paywallRow.className = "admin-item";
-    paywallRow.innerHTML = "<div><strong></strong><span></span></div>";
-    paywallRow.querySelector("strong").textContent = "Paywall to checkout";
-    paywallRow.querySelector("span").textContent =
-      `${paywall.checkoutClicks || 0}/${paywall.views || 0} clicks (${paywall.clickRate || 0}%)`;
+    const paywallRow = adminItem({
+      title: "Paywall to checkout",
+      subtitle: `${paywall.checkoutClicks || 0}/${paywall.views || 0} clicks (${paywall.clickRate || 0}%)`,
+      badges: [statusBadge("Funnel", "primary")],
+    });
     els.analyticsFunnelMount.append(paywallRow);
   }
 
   function renderMissedCategories(categories) {
     els.missedCategoriesMount.innerHTML = "";
     if (!categories.length) {
-      renderEmpty(els.missedCategoriesMount, "No missed-category analytics yet.");
+      renderEmpty(els.missedCategoriesMount, "No missed categories yet", "Wrong-answer category trends will appear after logged-in attempts sync.");
       return;
     }
 
     categories.forEach((item) => {
-      const row = document.createElement("article");
-      row.className = "admin-item";
-      row.innerHTML = "<div><strong></strong><span></span></div>";
-      row.querySelector("strong").textContent = item.category;
-      row.querySelector("span").textContent = `${item.misses || 0} wrong answers`;
+      const row = adminItem({
+        title: item.category,
+        subtitle: `${formatNumber(item.misses || 0)} wrong answer${Number(item.misses || 0) === 1 ? "" : "s"}`,
+        badges: [statusBadge("Missed", "warning")],
+      });
       els.missedCategoriesMount.append(row);
     });
   }
@@ -469,23 +675,23 @@
   function renderMissedQuestions(questions) {
     els.missedQuestionsMount.innerHTML = "";
     if (!questions.length) {
-      renderEmpty(els.missedQuestionsMount, "No missed-question analytics yet.");
+      renderEmpty(els.missedQuestionsMount, "No missed questions yet", "The most missed question list appears once learners answer questions.");
       return;
     }
 
     questions.forEach((item) => {
-      const row = document.createElement("article");
-      row.className = "admin-item";
-      row.innerHTML = "<div><strong></strong><span></span></div>";
-      row.querySelector("strong").textContent = `Question ${item.questionId}`;
-      row.querySelector("span").textContent = `${item.misses || 0} wrong | ${item.category}`;
+      const row = adminItem({
+        title: `Question ${item.questionId}`,
+        subtitle: `${formatNumber(item.misses || 0)} wrong answer${Number(item.misses || 0) === 1 ? "" : "s"} | ${item.category}`,
+        badges: [statusBadge("Review", "warning")],
+      });
       els.missedQuestionsMount.append(row);
     });
   }
 
   function renderQuestions(questions) {
     if (!questions.length) {
-      renderEmpty(els.questionsMount, "No questions found.");
+      renderEmpty(els.questionsMount, "No questions found", "Adjust search, category, review, or high-yield filters and try again.");
       return;
     }
 
@@ -510,19 +716,13 @@
       const row = document.createElement("tr");
       row.className = "admin-question-row";
       row.tabIndex = 0;
-      [
-        question.id,
-        question.status,
-        question.reviewedStatus,
-        question.category,
-        question.question,
-        question.priorityScore || question.priorityLabel || "",
-        question.hasImage ? "Image" : "",
-      ].forEach((value) => {
-        const cell = document.createElement("td");
-        cell.textContent = String(value || "");
-        row.append(cell);
-      });
+      appendCell(row, question.id);
+      appendCell(row, statusBadge(question.status || "unknown", questionStatusTone(question.status)));
+      appendCell(row, statusBadge(question.reviewedStatus || "unreviewed", reviewStatusTone(question.reviewedStatus)));
+      appendCell(row, question.category);
+      appendCell(row, question.question);
+      appendCell(row, question.priorityScore || question.priorityLabel || "");
+      appendCell(row, question.hasImage ? statusBadge("Image", "info") : "");
       row.addEventListener("click", () => selectQuestion(question));
       row.addEventListener("keydown", (event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -541,7 +741,7 @@
     const approved = sources.filter((source) => source.status === "approved");
     if (!approved.length) {
       els.sourceDocumentSelect.append(new Option("No approved source notes", ""));
-      renderEmpty(els.sourceDocumentsMount, "No source notes saved.");
+      renderEmpty(els.sourceDocumentsMount, "No approved source notes", "Save a source note, then approve it before generating draft questions.");
       return;
     }
 
@@ -550,15 +750,15 @@
     });
 
     sources.slice(0, 8).forEach((source) => {
-      const item = document.createElement("article");
-      item.className = "admin-item";
-      item.innerHTML = "<div><strong></strong><span></span></div><dl></dl>";
-      item.querySelector("strong").textContent = source.title;
-      item.querySelector("span").textContent = `${source.category} | ${source.topic || "No topic"} | ${source.status}`;
-      item.querySelector("dl").append(
-        detail("Created", formatDate(source.createdAt)),
-        detail("Approved", formatDate(source.approvedAt))
-      );
+      const item = adminItem({
+        title: source.title,
+        subtitle: `${source.category} | ${source.topic || "No topic"}`,
+        badges: [statusBadge(source.status || "draft", source.status === "approved" ? "success" : "warning")],
+        details: [
+          detail("Created", formatDate(source.createdAt)),
+          detail("Approved", formatDate(source.approvedAt)),
+        ],
+      });
       item.addEventListener("click", () => {
         els.sourceDocumentSelect.value = source.id;
       });
@@ -569,7 +769,7 @@
   function renderGeneratedQuestions(questions) {
     els.generatedQuestionsMount.innerHTML = "";
     if (!questions.length) {
-      renderEmpty(els.generatedQuestionsMount, "No generated question drafts yet.");
+      renderEmpty(els.generatedQuestionsMount, "No generated drafts yet", "Drafts created from approved source notes will appear here for admin review.");
       return;
     }
 
@@ -578,12 +778,15 @@
       item.className = "admin-item generated-question-card";
 
       const heading = document.createElement("div");
+      heading.className = "admin-item-heading";
       const title = document.createElement("strong");
       title.textContent = question.questionText;
       const meta = document.createElement("span");
-      meta.textContent =
-        `${question.status} | ${question.category} | ${question.difficulty} | duplicate ${(question.duplicateScore * 100).toFixed(0)}%`;
-      heading.append(title, meta);
+      meta.textContent = `${question.category} | ${question.difficulty} | duplicate ${(question.duplicateScore * 100).toFixed(0)}%`;
+      const badges = document.createElement("div");
+      badges.className = "admin-badge-row";
+      badges.append(statusBadge(question.status || "draft", questionStatusTone(question.status)));
+      heading.append(title, badges, meta);
 
       const options = document.createElement("ol");
       options.className = "generated-options";
@@ -611,6 +814,7 @@
       if (question.status === "draft") {
         const reject = document.createElement("button");
         reject.type = "button";
+        reject.className = "danger";
         reject.textContent = "Reject";
         reject.addEventListener("click", () => reviewGeneratedQuestion(question.id, "reject"));
 
@@ -623,6 +827,7 @@
         actions.append(reject, approve);
       } else {
         const reviewed = document.createElement("span");
+        reviewed.className = "admin-review-note";
         reviewed.textContent = `${question.status} by ${question.reviewedByEmail || "admin"} | ${formatDate(question.reviewedAt)}`;
         actions.append(reviewed);
       }
@@ -640,7 +845,11 @@
   function renderSelectedQuestion(question) {
     els.questionReviewForm.classList.remove("hidden");
     els.selectedQuestionLabel.textContent = `#${question.id} ${question.category}`;
-    els.selectedQuestionStatus.textContent = `${question.reviewedStatus} | ${question.safeToShow ? "safe to show" : "hidden"}`;
+    els.selectedQuestionStatus.textContent = "";
+    els.selectedQuestionStatus.append(
+      statusBadge(question.reviewedStatus || "unreviewed", reviewStatusTone(question.reviewedStatus)),
+      statusBadge(question.safeToShow ? "Safe to show" : "Hidden", question.safeToShow ? "success" : "warning")
+    );
     els.questionExplanationInput.value = question.explanation || "";
     els.questionNotesInput.value = question.notes || "";
   }
@@ -648,17 +857,19 @@
   function renderAttemptSummary(summary) {
     els.attemptSummaryMount.innerHTML = "";
     if (!summary.length) {
-      renderEmpty(els.attemptSummaryMount, "No attempt summary yet.");
+      renderEmpty(els.attemptSummaryMount, "No attempt summary yet", "Category accuracy appears after logged-in learners answer questions.");
       return;
     }
 
     summary.forEach((item) => {
-      const row = document.createElement("article");
-      row.className = "admin-item";
-      row.innerHTML = "<div><strong></strong><span></span></div>";
-      row.querySelector("strong").textContent = item.category;
-      row.querySelector("span").textContent =
-        `${item.answered} answered | ${item.accuracy}% | ${item.missedCount} missed | ${item.flaggedCount} flagged`;
+      const row = adminItem({
+        title: item.category,
+        subtitle: `${formatNumber(item.answered)} answered | ${item.accuracy}% accuracy`,
+        badges: [
+          statusBadge(`${item.missedCount} missed`, Number(item.missedCount || 0) ? "warning" : "success"),
+          statusBadge(`${item.flaggedCount} flagged`, Number(item.flaggedCount || 0) ? "info" : "neutral"),
+        ],
+      });
       els.attemptSummaryMount.append(row);
     });
   }
@@ -666,17 +877,16 @@
   function renderAudit(rows) {
     els.auditMount.innerHTML = "";
     if (!rows.length) {
-      renderEmpty(els.auditMount, "No audit rows yet.");
+      renderEmpty(els.auditMount, "No audit rows yet", "Admin mutations will write audit entries here.");
       return;
     }
 
     rows.forEach((entry) => {
-      const item = document.createElement("article");
-      item.className = "admin-item";
-      item.innerHTML = "<div><strong></strong><span></span></div>";
-      item.querySelector("strong").textContent = entry.action;
-      item.querySelector("span").textContent =
-        `${entry.admin_email} -> ${entry.target_email || entry.target_id || entry.target_type} | ${formatDate(entry.created_at)}`;
+      const item = adminItem({
+        title: entry.action,
+        subtitle: `${entry.admin_email} -> ${entry.target_email || entry.target_id || entry.target_type} | ${formatDate(entry.created_at)}`,
+        badges: [statusBadge("Audit", "neutral")],
+      });
       els.auditMount.append(item);
     });
   }
@@ -691,23 +901,147 @@
     return wrap;
   }
 
-  function renderEmpty(mount, text) {
-    mount.innerHTML = `<div class="empty-state"></div>`;
-    mount.querySelector(".empty-state").textContent = text;
+  function adminItem({ title, subtitle = "", badges = [], details = [] }) {
+    const item = document.createElement("article");
+    item.className = "admin-item";
+
+    const heading = document.createElement("div");
+    heading.className = "admin-item-heading";
+    const titleNode = document.createElement("strong");
+    titleNode.textContent = title || "Untitled";
+    const badgeRow = document.createElement("div");
+    badgeRow.className = "admin-badge-row";
+    badges.filter(Boolean).forEach((badge) => badgeRow.append(badge));
+    heading.append(titleNode, badgeRow);
+
+    item.append(heading);
+    if (subtitle) {
+      const copy = document.createElement("span");
+      copy.textContent = subtitle;
+      item.append(copy);
+    }
+
+    if (details.length) {
+      const list = document.createElement("dl");
+      list.append(...details);
+      item.append(list);
+    }
+
+    return item;
+  }
+
+  function appendCell(row, value) {
+    const cell = document.createElement("td");
+    if (value instanceof Node) {
+      cell.append(value);
+    } else {
+      cell.textContent = value || "";
+    }
+    row.append(cell);
+  }
+
+  function statusBadge(label, tone = "neutral") {
+    const badge = document.createElement("span");
+    badge.className = `admin-status-badge ${tone}`;
+    badge.textContent = normalizeBadgeLabel(label);
+    return badge;
+  }
+
+  function roleBadge(role) {
+    const normalized = String(role || "user").toLowerCase();
+    return statusBadge(normalized === "admin" ? "Admin" : "User", normalized === "admin" ? "primary" : "neutral");
+  }
+
+  function entitlementBadge(entitlement) {
+    const label = entitlementLabel(entitlement);
+    return statusBadge(label, entitlementTone(label));
+  }
+
+  function entitlementTone(label) {
+    const normalized = String(label || "").toLowerCase();
+    if (normalized === "active") return "success";
+    if (normalized === "revoked") return "danger";
+    if (normalized === "expired") return "warning";
+    if (normalized === "inactive") return "neutral";
+    return "muted";
+  }
+
+  function purchaseStatusTone(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (["paid", "complete", "completed", "succeeded"].includes(normalized)) return "success";
+    if (["failed", "cancelled", "refunded"].includes(normalized)) return "danger";
+    if (["pending", "open", "processing"].includes(normalized)) return "warning";
+    return "neutral";
+  }
+
+  function questionStatusTone(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (["published", "approved", "active"].includes(normalized)) return "success";
+    if (["draft", "needs_review", "needs_official_cross_check"].includes(normalized)) return "warning";
+    if (["rejected", "revoked", "hidden", "disabled"].includes(normalized)) return "danger";
+    return "neutral";
+  }
+
+  function reviewStatusTone(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (["approved", "reviewed"].includes(normalized)) return "success";
+    if (["rejected"].includes(normalized)) return "danger";
+    if (["needs_official_cross_check", "unreviewed", "draft"].includes(normalized)) return "warning";
+    return "neutral";
+  }
+
+  function normalizeBadgeLabel(value) {
+    return String(value || "Unknown")
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function renderEmpty(mount, title, copy = "") {
+    mount.innerHTML = "";
+    const empty = document.createElement("div");
+    empty.className = "admin-empty-state";
+    const heading = document.createElement("strong");
+    heading.textContent = title;
+    empty.append(heading);
+    if (copy) {
+      const body = document.createElement("p");
+      body.textContent = copy;
+      empty.append(body);
+    }
+    mount.append(empty);
   }
 
   function handleError(error) {
     if (error.status === 401 || error.status === 403) {
       state.locked = true;
-      setStatus(error.status === 401 ? "Log in before opening admin." : "Admin access required.");
-      document.body.classList.add("admin-locked");
+      setProtectedState(true, error.status);
+      setStatus("Admin access required.", "warning");
       return;
     }
-    setStatus(error.message || "Admin request failed.");
+    setStatus(adminSafeErrorMessage(error), "error");
   }
 
-  function setStatus(message) {
+  function setStatus(message, tone = "") {
     els.status.textContent = message;
+    els.status.classList.toggle("success", tone === "success");
+    els.status.classList.toggle("error", tone === "error");
+    els.status.classList.toggle("warning", tone === "warning");
+    els.status.classList.toggle("loading", tone === "loading");
+  }
+
+  function setProtectedState(active, status) {
+    document.body.classList.toggle("admin-locked", Boolean(active));
+    els.protectedState.classList.toggle("hidden", !active);
+    if (!active) return;
+
+    els.protectedCopy.textContent = "You need an admin session to view this workspace.";
+  }
+
+  function adminSafeErrorMessage(error) {
+    if (Number(error?.status) === 400) return "That admin action could not be saved. Check the form fields and try again.";
+    if (Number(error?.status) === 429) return "Too many admin requests. Wait a moment, then try again.";
+    if (Number(error?.status) >= 500) return "Admin service is unavailable right now. Try again after checking deployment logs.";
+    return "Admin request could not be completed. Try again.";
   }
 
   function setGeneratedDraftStatus(message, tone) {
@@ -722,6 +1056,17 @@
     if (entitlement.revokedAt) return "Revoked";
     if (entitlement.expiresAt && new Date(entitlement.expiresAt).getTime() <= Date.now()) return "Expired";
     return "Inactive";
+  }
+
+  function updateEntitlementActionTone() {
+    const isRevoke = els.entitlementAction.value === "revoke";
+    els.entitlementSubmitBtn.classList.toggle("danger", isRevoke);
+    els.entitlementSubmitBtn.classList.toggle("primary", !isRevoke);
+    els.entitlementSubmitBtn.textContent = isRevoke ? "Revoke access" : "Save entitlement";
+  }
+
+  function formatNumber(value) {
+    return Number(value || 0).toLocaleString();
   }
 
   function formatMoney(amount, currency) {
@@ -744,9 +1089,25 @@
       checkout_clicked: "Checkout clicks",
       checkout_success: "Checkout success",
       restore_access_clicked: "Restore access",
+      restore_access_started: "Restore starts",
+      restore_access_success: "Restore successes",
+      pricing_page_viewed: "Pricing page views",
+      referral_code_applied: "Referral applied",
+      referral_checkout_started: "Referral checkout starts",
       mock_started: "Mocks started",
       mock_completed: "Mocks completed",
     };
     return labels[eventName] || String(eventName || "").replace(/_/g, " ");
+  }
+
+  function labelPlan(planKey) {
+    const labels = {
+      launch_offer: "Launch offer",
+      full_study_pass: "Full Study Pass",
+      instructor_10: "Instructor pack - 10",
+      instructor_25: "Instructor pack - 25",
+      unknown: "Unknown plan",
+    };
+    return labels[planKey] || normalizeBadgeLabel(planKey);
   }
 })();

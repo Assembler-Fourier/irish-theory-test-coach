@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-09-1";
+const CACHE_VERSION = "ittc-pwa-2026-07-10-3";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -8,13 +8,21 @@ const SHELL_ASSETS = [
   "./",
   "./index.html",
   "./offline.html",
-  "./styles.css",
-  "./app.js",
+  "./styles.css?v=20260710-rebuild",
+  "./app.js?v=20260710-rebuild",
   "./config.js",
+  "./pricing-config.js",
+  "./pricing.js",
   "./trust.js",
   "./manifest.webmanifest",
   "./icons/app-icon.svg",
   "./icons/maskable-icon.svg",
+  "./pricing.html",
+  "./learn.html",
+  "./irish-theory-test-practice.html",
+  "./mock-theory-test-ireland.html",
+  "./irish-road-signs-test.html",
+  "./theory-test-study-plan.html",
 ];
 
 const DATA_ASSETS = [

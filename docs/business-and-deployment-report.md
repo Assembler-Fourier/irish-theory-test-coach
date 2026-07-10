@@ -2,7 +2,7 @@
 
 ## Product position
 
-The site should be sold as a focused Irish category B theory-test practice coach, not as an official exam provider. The value at EUR 0.99 is speed and confidence:
+The site should be sold as a focused Irish category B theory-test practice coach, not as an official exam provider. The value at the EUR 2.99 launch offer and EUR 4.99 standard one-time pass is speed and confidence:
 
 - 849 recovered authorised practice questions.
 - 238 local image references for visual/sign practice.
@@ -51,12 +51,12 @@ Why not Supabase:
 
 ## Price reality
 
-EUR 0.99 works psychologically, but payment fees are meaningful. Stripe Ireland standard pricing lists 1.5% + EUR 0.25 for standard EEA cards, so a EUR 0.99 sale leaves about EUR 0.73 before VAT/tax/accounting overhead. UK/international cards cost more.
+Very low pricing works psychologically, but payment fees are meaningful. Stripe Ireland standard pricing lists 1.5% + EUR 0.25 for standard EEA cards, so a EUR 2.99 launch sale leaves materially more room than a sub-euro price before VAT/tax/accounting overhead. UK/international cards cost more.
 
 Recommendation:
 
-- Launch at EUR 0.99 as a limited early price.
-- Keep the normal price at EUR 2.99 or EUR 4.99 once the app has accounts, synced progress, and official-material QA.
+- Launch at EUR 2.99 as a beta/launch offer.
+- Keep the normal one-time price at EUR 4.99 for the Full Study Pass.
 - Offer free browse/demo with a paid unlock for mock tests, high-yield drill, and progress sync.
 
 ## Minimum paid architecture
@@ -81,7 +81,7 @@ Create or provide:
 1. GitHub repository access or a remote URL where this project should be pushed.
 2. Vercel project linked to that GitHub repo.
 3. Neon account and a new Postgres project.
-4. Stripe account with a EUR 0.99 product/price.
+4. Stripe account with launch, full-pass, and instructor-pack products/prices.
 5. Optional domain name.
 
 Environment variables for Vercel later:
@@ -91,6 +91,10 @@ DATABASE_URL=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 STRIPE_PRICE_ID=
+STRIPE_PRICE_ID_LAUNCH=
+STRIPE_PRICE_ID_FULL=
+STRIPE_PRICE_ID_INSTRUCTOR_10=
+STRIPE_PRICE_ID_INSTRUCTOR_25=
 PUBLIC_SITE_URL=
 ```
 
@@ -102,13 +106,17 @@ Neon is now connected locally and the schema migration has been applied. Before 
 - Production URL: https://irish-theory-test-coach.vercel.app
 - Latest deployment URL: https://irish-theory-test-coach-iqs2ms8q9-job-work.vercel.app
 - Stripe product: `prod_Ur6QkZQmuRJuka`
-- Stripe price: `price_1TrODGKAGqkvK3Tj9ow8tslb`
-- Price amount: EUR 0.99 one-time payment
+- Stripe price: legacy `STRIPE_PRICE_ID` configured; replace with the new plan-specific price IDs before relaunch.
+- Price amounts: EUR 2.99 launch offer, EUR 4.99 Full Study Pass, EUR 29 instructor 10-code pack, EUR 69 instructor 25-code pack.
 
 Production environment variables are configured in Vercel for:
 
 - `STRIPE_SECRET_KEY`
-- `STRIPE_PRICE_ID`
+- `STRIPE_PRICE_ID` legacy fallback
+- `STRIPE_PRICE_ID_LAUNCH`
+- `STRIPE_PRICE_ID_FULL`
+- `STRIPE_PRICE_ID_INSTRUCTOR_10`
+- `STRIPE_PRICE_ID_INSTRUCTOR_25`
 - `DATABASE_URL`
 - `PUBLIC_SITE_URL`
 

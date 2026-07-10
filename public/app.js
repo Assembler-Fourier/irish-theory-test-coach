@@ -7,6 +7,7 @@
   const EXAM_SECONDS = 45 * 60;
   const DAILY_TARGET = 25;
   const PREVIEW_LIMIT = 15;
+  const CELEBRATION_DURATION_MS = 3600;
   const STORAGE_KEY = "irish-theory-practice-progress-v2";
   const ACCESS_KEY = "irish-theory-practice-access-v1";
   const ANALYTICS_KEY = "irish-theory-practice-anonymous-id-v1";
@@ -39,8 +40,17 @@
       anonymousId: loadAnonymousId(),
       previewStartedTracked: false,
     },
+    referral: {
+      code: "",
+      planKey: "",
+    },
     exam: null,
     timerId: null,
+    celebrations: {
+      dailyTarget: "",
+      weakCategories: new Set(),
+      mockPass: "",
+    },
   };
 
   const els = {
@@ -63,19 +73,23 @@
     modeSigns: document.getElementById("modeSigns"),
     modeExam: document.getElementById("modeExam"),
     modeReview: document.getElementById("modeReview"),
+    modeAccessLabel: document.getElementById("modeAccessLabel"),
     startExamBtn: document.getElementById("startExamBtn"),
     finishExamBtn: document.getElementById("finishExamBtn"),
     resetProgressBtn: document.getElementById("resetProgressBtn"),
+    heroCheckoutBtn: document.getElementById("heroCheckoutBtn"),
     checkoutBtn: document.getElementById("checkoutBtn"),
     restoreAccessLink: document.getElementById("restoreAccessLink"),
     restoreForm: document.getElementById("restoreForm"),
     restoreEmail: document.getElementById("restoreEmail"),
     restoreBtn: document.getElementById("restoreBtn"),
     restoreStatus: document.getElementById("restoreStatus"),
+    restoreCloseBtn: document.getElementById("restoreCloseBtn"),
     logoutBtn: document.getElementById("logoutBtn"),
     mobileStickyCta: document.getElementById("mobileStickyCta"),
     stickyCheckoutBtn: document.getElementById("stickyCheckoutBtn"),
     stickyRestoreLink: document.getElementById("stickyRestoreLink"),
+    stickyProgressText: document.getElementById("stickyProgressText"),
     unlockBadge: document.getElementById("unlockBadge"),
     unlockStatus: document.getElementById("unlockStatus"),
     answeredStat: document.getElementById("answeredStat"),
@@ -86,8 +100,13 @@
     signsStat: document.getElementById("signsStat"),
     categorySummary: document.getElementById("categorySummary"),
     targetStat: document.getElementById("targetStat"),
+    targetRing: document.getElementById("targetRing"),
     targetMeter: document.getElementById("targetMeter"),
     coachCopy: document.getElementById("coachCopy"),
+    nextActionTitle: document.getElementById("nextActionTitle"),
+    nextActionCopy: document.getElementById("nextActionCopy"),
+    studyFlowList: document.getElementById("studyFlowList"),
+    flowStateLabel: document.getElementById("flowStateLabel"),
     questionCountChip: document.getElementById("questionCountChip"),
     trustQuestionCount: document.getElementById("trustQuestionCount"),
   };
@@ -95,6 +114,7 @@
   init();
 
   async function init() {
+    configureResponsivePanels();
     bindEvents();
     bindConnectivityEvents();
     registerServiceWorker();
@@ -160,6 +180,23 @@
     });
   }
 
+  function configureResponsivePanels() {
+    const query = window.matchMedia("(max-width: 860px)");
+    const panels = Array.from(document.querySelectorAll(".mobile-collapsible"));
+    const syncPanels = () => {
+      panels.forEach((panel) => {
+        panel.open = !query.matches;
+      });
+    };
+
+    syncPanels();
+    if (typeof query.addEventListener === "function") {
+      query.addEventListener("change", syncPanels);
+    } else if (typeof query.addListener === "function") {
+      query.addListener(syncPanels);
+    }
+  }
+
   async function registerServiceWorker() {
     if (!("serviceWorker" in navigator)) return;
 
@@ -192,17 +229,50 @@
     els.modeHighYield.addEventListener("click", () => setMode("highYield"));
     els.modeHardest.addEventListener("click", () => setMode("hardest"));
     els.modeSigns.addEventListener("click", () => setMode("signs"));
-    els.modeExam.addEventListener("click", () => setMode("exam"));
+    els.modeExam.addEventListener("click", startExam);
     els.modeReview.addEventListener("click", () => setMode("review"));
+    document.querySelectorAll(".mobile-mode-rail [data-mode-button]").forEach((button) => {
+      button.addEventListener("click", () => {
+        if (button.dataset.mode === "exam") {
+          startExam();
+          return;
+        }
+        setMode(button.dataset.mode);
+      });
+    });
     els.jumpHighYieldBtn.addEventListener("click", () => setMode("highYield"));
     els.startExamBtn.addEventListener("click", startExam);
     els.finishExamBtn.addEventListener("click", finishExam);
     els.resetProgressBtn.addEventListener("click", resetProgress);
+    els.heroCheckoutBtn?.addEventListener("click", () => startCheckout("hero_unlock"));
     els.checkoutBtn.addEventListener("click", () => startCheckout("sidebar_unlock"));
     els.stickyCheckoutBtn.addEventListener("click", () => startCheckout("mobile_sticky"));
-    els.restoreAccessLink.addEventListener("click", (event) => focusRestoreAccess(event, "sidebar_unlock"));
-    els.stickyRestoreLink.addEventListener("click", (event) => focusRestoreAccess(event, "mobile_sticky"));
+    document.addEventListener("click", (event) => {
+      const trigger = event.target.closest("[data-restore-trigger]");
+      if (!trigger) return;
+      focusRestoreAccess(event, trigger.dataset.restoreSource || "restore_link");
+    });
+    els.restoreCloseBtn?.addEventListener("click", closeRestoreAccess);
     els.restoreForm.addEventListener("submit", requestLoginLink);
+    document.addEventListener("submit", (event) => {
+      const form = event.target.closest(".referral-form");
+      if (!form) return;
+      event.preventDefault();
+      applyReferralCode(form);
+    });
+    els.restoreForm.addEventListener("focusout", () => {
+      window.setTimeout(() => setRestoreFocusActive(els.restoreForm.contains(document.activeElement)), 0);
+    });
+    els.restoreEmail.addEventListener("focus", () => setRestoreFocusActive(true));
+    els.restoreEmail.addEventListener("input", () => {
+      const emailIssue = validateRestoreEmail(els.restoreEmail.value.trim());
+      if (!emailIssue) {
+        setRestoreEmailValidity(true);
+      }
+      if (els.restoreForm.dataset.restoreState === "error" && !emailIssue) {
+        setRestoreStatus("idle");
+      }
+    });
     els.logoutBtn.addEventListener("click", logout);
   }
 
@@ -363,14 +433,61 @@
   }
 
   function updateModeButtons() {
-    [
+    const modeButtons = [
       [els.modeRevise, "revise"],
       [els.modeHighYield, "highYield"],
       [els.modeHardest, "hardest"],
       [els.modeSigns, "signs"],
       [els.modeExam, "exam"],
       [els.modeReview, "review"],
-    ].forEach(([button, mode]) => button.classList.toggle("active", state.mode === mode));
+    ];
+
+    modeButtons.forEach(([button, mode]) => {
+      if (!button) return;
+      const isActive = state.mode === mode;
+      const isLocked = requiresAccess(mode) && !hasAccess();
+      button.classList.toggle("active", isActive);
+      button.classList.toggle("is-locked", isLocked);
+      button.setAttribute("aria-pressed", String(isActive));
+      button.setAttribute("aria-label", `${modeLabel(mode)}: ${modeBenefit(mode)}${isLocked ? ". Premium mode" : ""}`);
+    });
+
+    document.querySelectorAll("[data-mode-button]").forEach((button) => {
+      const isActive = button.dataset.mode === state.mode;
+      const isLocked = requiresAccess(button.dataset.mode) && !hasAccess();
+      button.classList.toggle("active", isActive);
+      button.classList.toggle("is-locked", isLocked);
+      button.setAttribute("aria-pressed", String(isActive));
+      button.querySelectorAll("[data-premium-badge]").forEach((badge) => {
+        badge.textContent = isLocked ? "Premium" : "Full";
+      });
+    });
+
+    if (els.modeAccessLabel) {
+      els.modeAccessLabel.textContent = hasAccess() ? "Full access" : "Preview";
+    }
+  }
+
+  function modeLabel(mode) {
+    return {
+      revise: "Revise",
+      highYield: "High-yield",
+      hardest: "Hardest",
+      signs: "Signs",
+      exam: "Mock test",
+      review: "Review",
+    }[mode] || "Mode";
+  }
+
+  function modeBenefit(mode) {
+    return {
+      revise: "Work through the bank",
+      highYield: "Focus on estimated priority",
+      hardest: "Challenge weak spots",
+      signs: "Drill road signs",
+      exam: "40 questions, 45 minutes",
+      review: "Clear missed and flagged",
+    }[mode] || "";
   }
 
   function render() {
@@ -408,6 +525,7 @@
     const article = fragment.querySelector(".question-view");
     const category = fragment.querySelector(".category-pill");
     const priority = fragment.querySelector(".priority-pill");
+    const highYieldBadge = fragment.querySelector(".high-yield-reason-badge");
     const priorityMeta = fragment.querySelector(".priority-meta");
     const number = fragment.querySelector(".question-number");
     const title = fragment.querySelector(".question-title");
@@ -419,18 +537,26 @@
     const flagBtn = fragment.querySelector(".flag-btn");
     const prevBtn = fragment.querySelector(".prev-btn");
     const nextBtn = fragment.querySelector(".next-btn");
+    const finishExamBtn = fragment.querySelector(".finish-exam-inline-btn");
 
     category.textContent = question.category;
     priority.textContent = `${question.priorityLabel} ${question.priorityScore}`;
     priority.classList.add(`priority-${question.priorityLabel.toLowerCase()}`);
     number.textContent = `Question ${question.id} - ${config.positionLabel}`;
     title.textContent = question.question;
+    article.classList.toggle("is-exam-question", Boolean(config.isExam));
 
     const metaParts = [];
     if (question.hardestRank) metaParts.push(`#${question.hardestRank} on archived hardest list`);
     if (question.communityCorrectRate !== null) metaParts.push(`${question.communityCorrectRate.toFixed(1)}% answered correctly`);
     if (question.isRoadSign) metaParts.push("visual/sign practice");
     priorityMeta.textContent = metaParts.join(" - ");
+
+    const highYieldReasons = highYieldReasonItems(question);
+    if (question.priorityScore >= 68 && highYieldReasons.length) {
+      highYieldBadge.textContent = highYieldReasons[0].label;
+      highYieldBadge.classList.remove("hidden");
+    }
 
     const highYieldPanel = buildHighYieldPanel(question);
     if (highYieldPanel) {
@@ -478,7 +604,7 @@
     renderSignals(signalList, question);
 
     const flagged = state.progress.flagged.has(question.id);
-    flagBtn.textContent = flagged ? "Flagged" : "Flag";
+    flagBtn.textContent = flagged ? "Flagged for review" : "Flag for review";
     flagBtn.classList.toggle("flagged", flagged);
     flagBtn.addEventListener("click", () => {
       toggleFlag(question.id);
@@ -489,6 +615,10 @@
     nextBtn.disabled = !canMove(1);
     prevBtn.addEventListener("click", config.onPrevious);
     nextBtn.addEventListener("click", config.onNext);
+    if (config.isExam && config.onFinish) {
+      finishExamBtn.classList.remove("hidden");
+      finishExamBtn.addEventListener("click", config.onFinish);
+    }
 
     els.questionMount.innerHTML = "";
     els.questionMount.append(fragment);
@@ -568,6 +698,7 @@
     Array.from(answerList.children).forEach((button, index) => {
       button.disabled = true;
       const option = question.options[index];
+      button.classList.toggle("selected", index === selectedIndex);
       button.classList.toggle("correct", option.isCorrect);
       button.classList.toggle("wrong", index === selectedIndex && !option.isCorrect);
     });
@@ -577,19 +708,193 @@
     const selected = question.options[selectedIndex];
     const correct = selected && selected.isCorrect;
     feedback.classList.remove("hidden");
+    feedback.classList.toggle("is-correct", Boolean(correct));
+    feedback.classList.toggle("is-wrong", !correct);
+    feedback.closest(".question-view")?.classList.add(correct ? "answered-correct" : "answered-wrong");
     feedback.innerHTML = "";
 
-    const heading = document.createElement("strong");
-    heading.textContent = correct ? "Correct" : `Correct answer: ${question.correctAnswer}`;
-    feedback.append(heading);
+    const header = document.createElement("div");
+    header.className = "feedback-header";
 
-    if (question.explanation) {
-      const body = document.createElement("span");
-      body.textContent = question.explanation;
-      feedback.append(body);
+    const icon = document.createElement("span");
+    icon.className = "feedback-status-icon";
+    icon.setAttribute("aria-hidden", "true");
+    icon.textContent = correct ? "OK" : "!";
+
+    const titleWrap = document.createElement("div");
+    const heading = document.createElement("strong");
+    heading.textContent = correct ? "Correct" : "Not quite";
+    const subheading = document.createElement("p");
+    subheading.textContent = correct
+      ? "Good answer. Now lock in the rule so it sticks."
+      : `Saved correct answer: ${question.correctAnswer}`;
+    titleWrap.append(heading, subheading);
+    header.append(icon, titleWrap);
+    feedback.append(header);
+
+    const explanation = document.createElement("p");
+    explanation.className = "feedback-explanation";
+    explanation.textContent = buildCoachingExplanation(question, selected, correct);
+    feedback.append(explanation);
+
+    const why = document.createElement("p");
+    why.className = "feedback-why";
+    why.innerHTML = `<strong>Why this matters:</strong> <span></span>`;
+    why.querySelector("span").textContent = buildWhyThisMatters(question, correct);
+    feedback.append(why);
+
+    const memoryTip = buildMemoryTip(question);
+    if (memoryTip) {
+      const tip = document.createElement("section");
+      tip.className = "feedback-tip";
+      tip.innerHTML = "<strong>Memory tip</strong><p></p>";
+      tip.querySelector("p").textContent = memoryTip;
+      feedback.append(tip);
     }
 
+    const reasonPanel = buildFeedbackHighYieldPanel(question);
+    if (reasonPanel) feedback.append(reasonPanel);
+
     appendAiExplanationControls(feedback, question, selectedIndex);
+    appendFeedbackActions(feedback, question, selectedIndex);
+  }
+
+  function buildCoachingExplanation(question, selected, correct) {
+    const explanation = firstMeaningfulSentence(question.explanation, 280);
+    if (explanation) return explanation;
+
+    if (correct) {
+      return "Your answer matches the saved correct answer. Keep practising the rule, not just the wording.";
+    }
+
+    return shortText(
+      `You chose ${selected?.text || "that option"}. Compare it with ${question.correctAnswer || "the saved correct answer"} and look for the rule or safety detail that changes the answer.`,
+      280
+    );
+  }
+
+  function buildWhyThisMatters(question, correct) {
+    const reasons = highYieldReasonItems(question);
+    const labels = reasons.map((reason) => reason.label.toLowerCase());
+
+    if (labels.includes("road sign/image")) {
+      return "Visual questions reward quick recognition, so repeat the image or road-marking cue until it feels automatic.";
+    }
+
+    if (labels.includes("safety-critical")) {
+      return "Safety-critical wording is about the safest action first, especially where other road users may be affected.";
+    }
+
+    if (labels.includes("legal/rules")) {
+      return "Rules questions often turn on exact words like must, should, first, only, and except.";
+    }
+
+    if (labels.includes("commonly missed")) {
+      return "This is estimated high-yield because learners often miss this kind of wording in archived practice data.";
+    }
+
+    return correct
+      ? "You are building recognition. Repeat the same rule in a few different questions so it transfers."
+      : "A wrong answer is useful here: save the rule, then clear it again in review mode.";
+  }
+
+  function buildMemoryTip(question) {
+    const signals = question.studySignals || [];
+    if (signals.some((signal) => /must|never|only|except|first/i.test(signal))) {
+      return "Slow down on absolute words like must, never, only, except, and first before choosing.";
+    }
+
+    if (question.isRoadSign || signals.some((signal) => /sign|marking|visual/i.test(signal))) {
+      return "Name the sign or marking in your head first, then choose the action it requires.";
+    }
+
+    if (signals.some((signal) => /emergency|danger|hazard|safe|risk/i.test(signal))) {
+      return "When the wording mentions danger or risk, choose the option that reduces risk before convenience.";
+    }
+
+    if (question.category) {
+      return `For ${question.category} questions, identify the rule being tested before comparing the options.`;
+    }
+
+    return "";
+  }
+
+  function buildFeedbackHighYieldPanel(question) {
+    const reasons = highYieldReasonItems(question).slice(0, 4);
+    if (question.priorityScore < 68 || !reasons.length) return null;
+
+    const panel = document.createElement("section");
+    panel.className = "feedback-high-yield";
+    panel.setAttribute("aria-label", "Estimated high-yield reasons");
+
+    const title = document.createElement("strong");
+    title.textContent = "Estimated high-yield signals";
+    const list = document.createElement("div");
+    list.className = "feedback-reason-list";
+
+    reasons.forEach((reason) => {
+      const item = document.createElement("span");
+      item.innerHTML = "<strong></strong><em></em>";
+      item.querySelector("strong").textContent = reason.label;
+      item.querySelector("em").textContent = reason.detail;
+      list.append(item);
+    });
+
+    panel.append(title, list);
+    return panel;
+  }
+
+  function firstMeaningfulSentence(value, maxLength = 240) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (!text) return "";
+
+    const sentence = text.match(/^(.+?[.!?])(\s|$)/);
+    return shortText(sentence ? sentence[1] : text, maxLength);
+  }
+
+  function shortText(value, maxLength = 240) {
+    const text = String(value || "").replace(/\s+/g, " ").trim();
+    if (text.length <= maxLength) return text;
+
+    const clipped = text.slice(0, maxLength - 3);
+    const lastSpace = clipped.lastIndexOf(" ");
+    return `${clipped.slice(0, lastSpace > 80 ? lastSpace : clipped.length).trim()}...`;
+  }
+
+  function appendFeedbackActions(feedback, question, selectedIndex) {
+    if (feedback.querySelector(".feedback-next-actions")) return;
+
+    const actions = document.createElement("div");
+    actions.className = "feedback-next-actions";
+
+    const nextButton = document.createElement("button");
+    nextButton.type = "button";
+    nextButton.className = "primary";
+    nextButton.textContent = "Next question";
+    nextButton.disabled = !canMove(1);
+    nextButton.addEventListener("click", () => move(1));
+    actions.append(nextButton);
+
+    const reviewButton = document.createElement("button");
+    reviewButton.type = "button";
+    reviewButton.className = "secondary";
+    reviewButton.textContent = "Review missed";
+    const currentAnswerIsWrong = !question.options[selectedIndex]?.isCorrect;
+    reviewButton.disabled = state.exam ? true : state.progress.missed.size === 0 && !currentAnswerIsWrong;
+    reviewButton.addEventListener("click", () => setMode("review"));
+    actions.append(reviewButton);
+
+    const attemptsAfterThisAnswer = totalAttemptCount() + 1;
+    if (!state.exam && state.questions.length >= EXAM_SIZE && attemptsAfterThisAnswer >= DAILY_TARGET) {
+      const mockButton = document.createElement("button");
+      mockButton.type = "button";
+      mockButton.className = "secondary feedback-mock-action";
+      mockButton.textContent = "Start mock test";
+      mockButton.addEventListener("click", startExam);
+      actions.append(mockButton);
+    }
+
+    feedback.append(actions);
   }
 
   function appendAiExplanationControls(feedback, question, selectedIndex) {
@@ -601,7 +906,7 @@
     const button = document.createElement("button");
     button.type = "button";
     button.className = "ai-explain-btn";
-    button.textContent = "Explain this";
+    button.textContent = "Explain this simply";
 
     const panel = document.createElement("div");
     panel.className = "ai-explain-panel hidden";
@@ -617,8 +922,8 @@
 
     button.dataset.loading = "true";
     button.disabled = true;
-    button.textContent = "Explaining...";
-    renderAiExplanationStatus(panel, "Building a short coach note.", "");
+    button.textContent = "Explaining simply...";
+    renderAiExplanationStatus(panel, "Building a simple coach note.", "loading");
 
     try {
       const response = await fetch("/api/ai-explain", {
@@ -630,15 +935,24 @@
       const payload = await response.json().catch(() => ({}));
 
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Could not load explanation.");
+        const error = new Error(payload.error || "Could not load explanation.");
+        error.status = response.status;
+        throw error;
       }
 
-      renderAiExplanation(panel, payload.explanation);
-      button.textContent = "Explanation ready";
+      renderAiExplanation(panel, payload.explanation, {
+        cached: Boolean(payload.cached),
+        fallback: Boolean(payload.fallback),
+      });
+      button.textContent = payload.cached
+        ? "Cached explanation"
+        : payload.fallback
+          ? "Fallback ready"
+          : "Explanation ready";
     } catch (error) {
-      renderAiExplanationStatus(panel, error.message, "error");
+      renderAiExplanationStatus(panel, safeAiErrorMessage(error), "error");
       button.disabled = false;
-      button.textContent = "Explain this";
+      button.textContent = "Explain this simply";
     } finally {
       button.dataset.loading = "false";
     }
@@ -659,12 +973,30 @@
     };
   }
 
-  function renderAiExplanation(panel, explanation) {
-    panel.classList.remove("hidden", "error");
+  function renderAiExplanation(panel, explanation, meta = {}) {
+    panel.classList.remove("hidden", "error", "status");
+    panel.classList.toggle("cached", Boolean(meta.cached));
+    panel.classList.toggle("fallback", Boolean(meta.fallback));
     panel.innerHTML = "";
 
+    const metaRow = document.createElement("div");
+    metaRow.className = "ai-explain-meta";
+    const metaTitle = document.createElement("strong");
+    metaTitle.textContent = "Simple explanation";
+    const badge = document.createElement("span");
+    badge.textContent = meta.fallback ? "Fallback coach note" : meta.cached ? "Cached" : "Fresh";
+    metaRow.append(metaTitle, badge);
+    panel.append(metaRow);
+
+    if (meta.fallback) {
+      const fallbackNote = document.createElement("p");
+      fallbackNote.className = "ai-explain-note";
+      fallbackNote.textContent = "AI is unavailable right now, so this uses the saved answer and supplied question content.";
+      panel.append(fallbackNote);
+    }
+
     [
-      ["Explanation", explanation.shortExplanation],
+      ["Simple version", explanation.shortExplanation],
       ["Your answer", explanation.selectedAnswerReview],
       ["Memory tip", explanation.memoryTip],
     ].forEach(([label, text]) => {
@@ -693,9 +1025,24 @@
   }
 
   function renderAiExplanationStatus(panel, message, tone) {
-    panel.classList.remove("hidden");
+    panel.classList.remove("hidden", "cached", "fallback");
     panel.classList.toggle("error", tone === "error");
-    panel.textContent = message;
+    panel.classList.toggle("status", tone !== "error");
+    panel.innerHTML = "";
+
+    const status = document.createElement("div");
+    status.className = "ai-explain-loading";
+    status.textContent = message;
+    panel.append(status);
+  }
+
+  function safeAiErrorMessage(error) {
+    const status = Number(error?.status || 0);
+    const message = String(error?.message || "");
+    if (status === 429 || /too many|rate limit/i.test(message)) {
+      return "Too many explanation requests. Try again later.";
+    }
+    return "Could not load an explanation right now. Try again in a moment.";
   }
 
   function appendPreviewAnswerCta(feedback) {
@@ -734,6 +1081,9 @@
 
   function recordAnswer(question, selectedIndex) {
     const isCorrect = Boolean(question.options[selectedIndex] && question.options[selectedIndex].isCorrect);
+    const today = dayKey();
+    const beforeToday = state.progress.daily[today] || 0;
+    const beforeCategory = getCategorySnapshot(question.category);
     const attemptEvent = createAttemptEvent(question, selectedIndex, isCorrect);
     trackQuestionAnswer(question, selectedIndex, isCorrect);
     const existing = state.progress.answers[String(question.id)] || { attempts: 0, correct: 0, wrong: 0 };
@@ -752,12 +1102,51 @@
       state.exam.answers[String(question.id)] = selectedIndex;
     }
 
-    state.progress.daily[dayKey()] = (state.progress.daily[dayKey()] || 0) + 1;
+    state.progress.daily[today] = beforeToday + 1;
     state.progress.pendingAttempts.push(attemptEvent);
     state.categorySummary = [];
     saveProgress();
     syncPendingAttempts();
     updateStats();
+    maybeCelebrateAnswerProgress(question, isCorrect, beforeToday, state.progress.daily[today], beforeCategory, getCategorySnapshot(question.category));
+  }
+
+  function maybeCelebrateAnswerProgress(question, isCorrect, beforeToday, afterToday, beforeCategory, afterCategory) {
+    const today = dayKey();
+    if (beforeToday < DAILY_TARGET && afterToday >= DAILY_TARGET && state.celebrations.dailyTarget !== today) {
+      state.celebrations.dailyTarget = today;
+      showCelebration("Daily target complete", "25 answers logged today. Nice momentum for the next short review round.");
+    }
+
+    const category = question.category || "";
+    const categoryKey = `${today}:${category}`;
+    if (
+      isCorrect &&
+      category &&
+      beforeCategory.answered >= 3 &&
+      beforeCategory.accuracy < 70 &&
+      afterCategory.accuracy >= 70 &&
+      !state.celebrations.weakCategories.has(categoryKey)
+    ) {
+      state.celebrations.weakCategories.add(categoryKey);
+      showCelebration("Weak category improved", `${category} is trending stronger now. Keep one more short round going.`);
+    }
+  }
+
+  function getCategorySnapshot(category) {
+    const target = category || "Uncategorised";
+    const questionById = buildQuestionMap();
+    return Object.entries(state.progress.answers).reduce(
+      (snapshot, [questionId, answer]) => {
+        const question = questionById.get(Number(questionId));
+        if ((question?.category || "Uncategorised") !== target) return snapshot;
+        snapshot.answered += Number(answer.attempts || 0);
+        snapshot.correct += Number(answer.correct || 0);
+        snapshot.accuracy = snapshot.answered ? Math.round((snapshot.correct / snapshot.answered) * 100) : 0;
+        return snapshot;
+      },
+      { answered: 0, correct: 0, accuracy: 0 }
+    );
   }
 
   function move(delta) {
@@ -785,6 +1174,7 @@
       state.mode = "exam";
       updateModeButtons();
       renderPaywall();
+      scrollQuestionIntoView();
       return;
     }
 
@@ -811,6 +1201,11 @@
     startTimer();
     renderInsight();
     renderExamQuestion();
+    scrollQuestionIntoView();
+  }
+
+  function scrollQuestionIntoView() {
+    els.questionMount?.scrollIntoView({ behavior: "auto", block: "start" });
   }
 
   function buildExam(pool) {
@@ -853,9 +1248,11 @@
     renderQuestion(question, {
       positionLabel: `${state.exam.index + 1} of ${state.exam.questions.length}`,
       selectedIndex: Number.isInteger(selected) ? selected : null,
+      isExam: true,
       onAnswer: (index) => recordAnswer(question, index),
       onNext: () => move(1),
       onPrevious: () => move(-1),
+      onFinish: finishExam,
     });
   }
 
@@ -874,8 +1271,9 @@
       }
     });
 
-    saveProgress();
     const passed = correct >= PASS_MARK;
+    recordMockResult(correct, passed, Object.keys(answers).length);
+    saveProgress();
     trackEvent("mock_completed", {
       score: correct,
       total: EXAM_SIZE,
@@ -901,7 +1299,7 @@
           <span class="question-number">Mock test result</span>
         </div>
         <h2 class="question-title">${passed ? "You hit the pass mark." : "Close the gaps and go again."}</h2>
-        <p class="result-copy">${passed ? "You reached 35 out of 40. Keep drilling high-yield questions so the pass is repeatable." : "The real pass mark is 35. Review missed questions, then try another mock test."}</p>
+        <p class="result-copy">${passed ? "You reached 35 out of 40. Keep drilling estimated high-yield questions so your practice stays consistent." : "The practice pass mark is 35. Review missed questions, then try another mock test."}</p>
         <div class="result-list" id="resultList"></div>
         <div class="question-actions">
           <button id="reviewMissedBtn" type="button">Review missed</button>
@@ -925,6 +1323,23 @@
     document.getElementById("newExamBtn").addEventListener("click", startExam);
     state.exam = null;
     updateStats();
+    if (passed) {
+      const mockKey = `${dayKey()}:${correct}:${Date.now()}`;
+      state.celebrations.mockPass = mockKey;
+      showCelebration("Mock pass mark reached", `You scored ${correct}/${EXAM_SIZE}. Repeat it once more to make the routine feel solid.`);
+    }
+  }
+
+  function recordMockResult(score, passed, answered) {
+    const results = Array.isArray(state.progress.mockResults) ? state.progress.mockResults.slice() : [];
+    results.unshift({
+      score,
+      total: EXAM_SIZE,
+      passed: Boolean(passed),
+      answered,
+      finishedAt: new Date().toISOString(),
+    });
+    state.progress.mockResults = results.slice(0, 10);
   }
 
   function renderInsight() {
@@ -939,7 +1354,7 @@
     const signs = state.questions.filter((question) => question.isRoadSign).length;
     els.insightBar.classList.toggle("hidden", state.mode === "exam" && Boolean(state.exam));
     els.insightTitle.textContent = modeTitle();
-    els.insightCopy.textContent = `${highYield} high-yield questions, ${critical} critical, ${hardest} archived hardest, ${signs} road-sign/image drills. Scores estimate study priority, not official exam frequency.`;
+    els.insightCopy.textContent = `${highYield} estimated high-yield questions, ${critical} critical, ${hardest} archived hardest, ${signs} road-sign/image drills. Scores estimate study priority, not official exam frequency.`;
     renderAccess();
   }
 
@@ -956,7 +1371,7 @@
     if (state.mode === "review") return "No missed or flagged questions yet.";
     if (state.mode === "hardest") return "No archived hardest-question signals match these filters.";
     if (state.mode === "signs") return "No road-sign questions match these filters.";
-    if (state.mode === "highYield") return "No high-yield questions match these filters.";
+    if (state.mode === "highYield") return "No estimated high-yield questions match these filters.";
     return "No questions match the current filters.";
   }
 
@@ -971,21 +1386,36 @@
     trackEvent("paywall_viewed", { mode: state.mode, source: "locked_mode" });
     const fragment = els.paywallTemplate.content.cloneNode(true);
     const button = fragment.querySelector(".paywall-checkout-btn");
-    const restoreLink = fragment.querySelector(".paywall-restore-link");
     button.addEventListener("click", () => startCheckout("paywall"));
-    restoreLink.addEventListener("click", (event) => focusRestoreAccess(event, "paywall"));
     els.questionMount.innerHTML = "";
     els.questionMount.append(fragment);
     renderAccess();
+    els.mobileStickyCta.classList.add("hidden");
+    document.body.classList.remove("has-mobile-sticky-cta");
   }
 
   async function startCheckout(source = "unknown") {
-    trackEvent("checkout_clicked", { source: cleanAnalyticsText(source), mode: state.mode });
+    const planKey = currentCheckoutPlan().key;
+    const referralCode = state.referral.code || "";
+    trackEvent("checkout_clicked", {
+      source: cleanAnalyticsText(source),
+      mode: state.mode,
+      planKey,
+      referralCode,
+    });
+    if (referralCode) {
+      trackEvent("referral_checkout_started", { source: cleanAnalyticsText(source), planKey });
+    }
     setCheckoutLoading(true);
     try {
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planKey,
+          referralCode,
+          anonymousId: state.analytics.anonymousId,
+        }),
       });
       const payload = await response.json();
       if (!response.ok || !payload.url) {
@@ -999,12 +1429,24 @@
   }
 
   function setCheckoutLoading(isLoading) {
-    [
-      [els.checkoutBtn, "Unlock for EUR 0.99"],
+    const checkoutButtons = [
+      [els.checkoutBtn, checkoutCtaText()],
+      [els.heroCheckoutBtn, "Unlock full coach"],
       [els.stickyCheckoutBtn, "Unlock full coach"],
-    ].forEach(([button, readyText]) => {
+    ];
+    document.querySelectorAll(".paywall-checkout-btn").forEach((button) => {
+      checkoutButtons.push([button, "Unlock full coach"]);
+    });
+    document.querySelectorAll(".preview-answer-cta .primary").forEach((button) => {
+      checkoutButtons.push([button, "Unlock full coach"]);
+    });
+
+    document.body.classList.toggle("checkout-loading", isLoading);
+    checkoutButtons.forEach(([button, readyText]) => {
       if (!button) return;
       button.disabled = isLoading;
+      button.classList.toggle("is-loading", isLoading);
+      button.setAttribute("aria-busy", isLoading ? "true" : "false");
       button.textContent = isLoading ? "Opening checkout..." : readyText;
     });
   }
@@ -1012,9 +1454,22 @@
   function focusRestoreAccess(event, source = "unknown") {
     if (event) event.preventDefault();
     trackEvent("restore_access_clicked", { source: cleanAnalyticsText(source) });
+    els.restoreForm.dataset.restoreOpen = "true";
     els.restoreForm.classList.remove("hidden");
+    if (!["sending", "sent"].includes(els.restoreForm.dataset.restoreState)) {
+      setRestoreStatus("idle");
+    }
     document.getElementById("unlock")?.scrollIntoView({ behavior: "smooth", block: "center" });
     window.setTimeout(() => els.restoreEmail.focus(), 180);
+  }
+
+  function closeRestoreAccess() {
+    els.restoreForm.dataset.restoreOpen = "false";
+    if (!["sending", "sent"].includes(els.restoreForm.dataset.restoreState)) {
+      els.restoreForm.classList.add("hidden");
+      setRestoreStatus("idle");
+    }
+    setRestoreFocusActive(false);
   }
 
   async function handleCheckoutReturn() {
@@ -1045,7 +1500,10 @@
       };
       saveEntitlement();
       window.history.replaceState({}, "", window.location.pathname);
-      trackEvent("checkout_success", { source: "stripe_return" });
+      trackEvent("checkout_success", { source: "stripe_return", planKey: currentCheckoutPlan().key, referralCode: state.referral.code || "" });
+      if (state.referral.code) {
+        trackEvent("referral_purchase_completed", { source: "stripe_return", planKey: currentCheckoutPlan().key });
+      }
       setStatus("Payment verified. Full access unlocked.");
     } catch (error) {
       setStatus(`Payment verification error: ${error.message}`);
@@ -1251,16 +1709,20 @@
   async function requestLoginLink(event) {
     event.preventDefault();
     const email = els.restoreEmail.value.trim();
-    setRestoreStatus("", "");
+    const emailIssue = validateRestoreEmail(email);
 
-    if (!email) {
-      setRestoreStatus("Enter the email used at checkout.", "error");
+    if (emailIssue) {
+      setRestoreEmailValidity(false);
+      setRestoreStatus("error", emailIssue.title, emailIssue.copy);
+      els.restoreEmail.focus();
       return;
     }
 
-    trackEvent("restore_access_clicked", { source: "restore_form" });
+    setRestoreEmailValidity(true);
+    trackEvent("restore_access_started", { source: "restore_form" });
     els.restoreBtn.disabled = true;
     els.restoreBtn.textContent = "Sending...";
+    setRestoreStatus("sending", "Sending secure link", "Checking the email and preparing a one-time access link.");
     try {
       const response = await fetch("/api/request-login-link", {
         method: "POST",
@@ -1268,16 +1730,33 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),
       });
-      const payload = await response.json();
-      if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Could not request login link.");
+      let payload = {};
+      try {
+        payload = await response.json();
+      } catch {
+        payload = {};
       }
-      setRestoreStatus(payload.message || "Check your email for a login link.", "success");
+      if (!response.ok || !payload.ok) {
+        const restoreError = new Error("restore_request_failed");
+        restoreError.status = response.status;
+        restoreError.code = typeof payload.error === "string" ? payload.error : "";
+        throw restoreError;
+      }
+      setRestoreStatus("sent", "Check your inbox", "The link expires soon for security.");
+      trackEvent("restore_access_success", { source: "restore_form" });
     } catch (error) {
-      setRestoreStatus(error.message, "error");
+      if (isRestoreRateLimited(error)) {
+        setRestoreStatus("rate-limited", "Too many attempts", "Wait a little, then try again.");
+      } else {
+        setRestoreStatus(
+          "error",
+          "We could not send the link",
+          "Check the email address and try again. Contact support if it keeps happening."
+        );
+      }
     } finally {
       els.restoreBtn.disabled = false;
-      els.restoreBtn.textContent = "Send login link";
+      els.restoreBtn.textContent = els.restoreForm.dataset.restoreState === "sent" ? "Send another link" : "Send secure link";
     }
   }
 
@@ -1435,6 +1914,7 @@
         daily: parsed.daily || {},
         pendingAttempts: Array.isArray(parsed.pendingAttempts) ? parsed.pendingAttempts : [],
         pendingFlags: Array.isArray(parsed.pendingFlags) ? parsed.pendingFlags : [],
+        mockResults: Array.isArray(parsed.mockResults) ? parsed.mockResults : [],
         syncedLegacyAttemptKeys: Array.isArray(parsed.syncedLegacyAttemptKeys)
           ? parsed.syncedLegacyAttemptKeys
           : [],
@@ -1454,6 +1934,7 @@
       daily: {},
       pendingAttempts: [],
       pendingFlags: [],
+      mockResults: [],
       syncedLegacyAttemptKeys: [],
       legacyMergeNeeded: false,
     };
@@ -1567,6 +2048,7 @@
         schemaVersion: PROGRESS_SCHEMA_VERSION,
         pendingAttempts: state.progress.pendingAttempts,
         pendingFlags: state.progress.pendingFlags,
+        mockResults: state.progress.mockResults,
         syncedLegacyAttemptKeys: state.progress.syncedLegacyAttemptKeys,
         legacyMergeNeeded: state.progress.legacyMergeNeeded,
       })
@@ -1583,43 +2065,237 @@
   }
 
   function updateStats() {
-    const answers = Object.values(state.progress.answers);
-    const answered = answers.reduce((sum, item) => sum + item.attempts, 0);
-    const correct = answers.reduce((sum, item) => sum + item.correct, 0);
+    const metrics = buildProgressMetrics();
     const highYield = state.questions.filter((question) => question.priorityScore >= 68).length;
     const signs = state.questions.filter((question) => question.isRoadSign).length;
-    const today = state.progress.daily[dayKey()] || 0;
-    const targetRatio = Math.min(1, today / DAILY_TARGET);
 
-    els.answeredStat.textContent = String(answered);
-    els.accuracyStat.textContent = answered ? `${Math.round((correct / answered) * 100)}%` : "0%";
+    els.answeredStat.textContent = String(metrics.answered);
+    els.accuracyStat.textContent = metrics.answered ? `${metrics.accuracy}%` : "0%";
     els.missedStat.textContent = String(state.progress.missed.size);
     els.flaggedStat.textContent = String(state.progress.flagged.size);
     els.highYieldStat.textContent = String(highYield);
     els.signsStat.textContent = String(signs);
-    els.targetStat.textContent = `${Math.min(today, DAILY_TARGET)}/${DAILY_TARGET}`;
-    els.targetMeter.style.width = `${Math.round(targetRatio * 100)}%`;
+    els.targetStat.textContent = `${Math.min(metrics.today, DAILY_TARGET)}/${DAILY_TARGET}`;
+    if (els.stickyProgressText) {
+      els.stickyProgressText.textContent = `Today ${Math.min(metrics.today, DAILY_TARGET)}/${DAILY_TARGET}`;
+    }
+    els.targetMeter.style.width = `${Math.round(metrics.targetRatio * 100)}%`;
+    els.targetRing?.style.setProperty("--target-progress", `${Math.round(metrics.targetRatio * 100)}%`);
     els.questionCountChip.textContent = `${state.questions.length || 849} questions`;
     els.trustQuestionCount.textContent = String(state.questions.length || 849);
-    els.coachCopy.textContent = coachCopy(answered, today);
-    renderCategorySummary();
+    els.coachCopy.textContent = coachCopy(metrics);
+    renderNextAction(metrics);
+    renderStudyFlow(metrics);
+    renderCategorySummary(metrics.categorySummaries);
     renderAccess();
   }
 
-  function renderCategorySummary() {
-    const summaries = (state.categorySummary.length ? state.categorySummary : buildLocalCategorySummary())
+  function buildProgressMetrics() {
+    const answers = Object.values(state.progress.answers);
+    const answered = answers.reduce((sum, item) => sum + Number(item.attempts || 0), 0);
+    const correct = answers.reduce((sum, item) => sum + Number(item.correct || 0), 0);
+    const today = state.progress.daily[dayKey()] || 0;
+    const targetRatio = Math.min(1, today / DAILY_TARGET);
+    const signalCounts = buildAnsweredSignalCounts();
+    const mockResults = Array.isArray(state.progress.mockResults) ? state.progress.mockResults : [];
+    const categorySummaries = state.categorySummary.length ? state.categorySummary.slice() : buildLocalCategorySummary();
+
+    return {
+      answered,
+      correct,
+      accuracy: answered ? Math.round((correct / answered) * 100) : 0,
+      today,
+      targetRatio,
+      remainingToday: Math.max(0, DAILY_TARGET - today),
+      highYieldAnswered: signalCounts.highYieldAnswered,
+      signsAnswered: signalCounts.signsAnswered,
+      missedCount: state.progress.missed.size,
+      flaggedCount: state.progress.flagged.size,
+      mockResults,
+      mockPassCount: mockResults.filter((result) => result && result.passed).length,
+      mockCompletedCount: mockResults.length,
+      categorySummaries,
+    };
+  }
+
+  function buildAnsweredSignalCounts() {
+    const questionById = buildQuestionMap();
+    return Object.entries(state.progress.answers).reduce(
+      (counts, [questionId, answer]) => {
+        const attempts = Number(answer.attempts || 0);
+        const question = questionById.get(Number(questionId));
+        if (!question || !attempts) return counts;
+        if (question.priorityScore >= 68) counts.highYieldAnswered += attempts;
+        if (question.isRoadSign) counts.signsAnswered += attempts;
+        return counts;
+      },
+      { highYieldAnswered: 0, signsAnswered: 0 }
+    );
+  }
+
+  function renderNextAction(metrics) {
+    if (!els.nextActionTitle || !els.nextActionCopy) return;
+
+    const next = nextRecommendedAction(metrics);
+    els.nextActionTitle.textContent = next.title;
+    els.nextActionCopy.textContent = next.copy;
+  }
+
+  function nextRecommendedAction(metrics) {
+    if (!metrics.answered) {
+      return {
+        title: "Drill estimated high-yield",
+        copy: "Start with estimated priority questions to build a quick baseline.",
+      };
+    }
+
+    if (metrics.today < DAILY_TARGET) {
+      return {
+        title: "Keep the daily target moving",
+        copy: `${metrics.remainingToday} more to hit today's target.`,
+      };
+    }
+
+    if (metrics.missedCount || metrics.flaggedCount) {
+      return {
+        title: "Clear missed",
+        copy: `${metrics.missedCount + metrics.flaggedCount} missed or flagged item${metrics.missedCount + metrics.flaggedCount === 1 ? "" : "s"} waiting in review.`,
+      };
+    }
+
+    if (metrics.signsAnswered < 12) {
+      return {
+        title: "Road signs",
+        copy: "Road signs need another round before the next timed mock.",
+      };
+    }
+
+    if (metrics.mockPassCount < 2) {
+      return {
+        title: "Mock exam",
+        copy: "Mock-ready when you hit 35/40 twice.",
+      };
+    }
+
+    return {
+      title: "Maintain the rhythm",
+      copy: "Daily target done. Rotate review mode, road signs, and mock tests to keep weak areas fresh.",
+    };
+  }
+
+  function renderStudyFlow(metrics) {
+    if (!els.studyFlowList) return;
+
+    const steps = buildStudyFlow(metrics);
+    steps.forEach((step) => {
+      const item = els.studyFlowList.querySelector(`[data-flow-step="${step.key}"]`);
+      if (!item) return;
+      item.dataset.state = step.state;
+      item.querySelector(".flow-state").textContent = labelFlowState(step.state);
+      item.querySelector("p").textContent = step.copy;
+    });
+
+    const doneCount = steps.filter((step) => step.state === "done").length;
+    if (els.flowStateLabel) {
+      els.flowStateLabel.textContent = doneCount === steps.length ? "Done" : `${doneCount}/${steps.length} done`;
+    }
+  }
+
+  function buildStudyFlow(metrics) {
+    return [
+      {
+        key: "highYield",
+        state: flowState(metrics.highYieldAnswered, DAILY_TARGET, state.mode === "highYield"),
+        copy: metrics.highYieldAnswered
+          ? `${Math.min(metrics.highYieldAnswered, DAILY_TARGET)}/${DAILY_TARGET} estimated high-yield answers logged.`
+          : "Focus on estimated priority.",
+      },
+      {
+        key: "review",
+        state: reviewFlowState(metrics),
+        copy: metrics.missedCount || metrics.flaggedCount
+          ? `${metrics.missedCount + metrics.flaggedCount} missed or flagged item${metrics.missedCount + metrics.flaggedCount === 1 ? "" : "s"} to clear.`
+          : metrics.answered
+            ? "No missed questions waiting right now."
+            : "Wrong answers will collect here.",
+      },
+      {
+        key: "signs",
+        state: flowState(metrics.signsAnswered, 12, state.mode === "signs"),
+        copy: metrics.signsAnswered >= 12
+          ? "Road-sign round complete for today."
+          : "Road signs need another round.",
+      },
+      {
+        key: "mock",
+        state: mockFlowState(metrics),
+        copy: metrics.mockPassCount >= 2
+          ? "Two 35/40 mock pass marks logged."
+          : "Mock-ready when you hit 35/40 twice.",
+      },
+    ];
+  }
+
+  function flowState(count, doneAt, active) {
+    if (count >= doneAt) return "done";
+    if (count > 0 || active) return "in-progress";
+    return "not-started";
+  }
+
+  function reviewFlowState(metrics) {
+    if (metrics.answered && !metrics.missedCount && !metrics.flaggedCount) return "done";
+    if (metrics.missedCount || metrics.flaggedCount || state.mode === "review") return "in-progress";
+    return "not-started";
+  }
+
+  function mockFlowState(metrics) {
+    if (metrics.mockPassCount >= 2) return "done";
+    if (state.exam || metrics.mockCompletedCount) return "in-progress";
+    return "not-started";
+  }
+
+  function labelFlowState(value) {
+    if (value === "done") return "Done";
+    if (value === "in-progress") return "In progress";
+    return "Not started";
+  }
+
+  function renderCategorySummary(inputSummaries) {
+    const summaries = normalizeCategorySummaries(inputSummaries);
+    const meaningful = summaries.filter((summary) => summary.answered || summary.missedCount || summary.flaggedCount);
+
+    els.categorySummary.innerHTML = "";
+
+    const strongest = findStrongestCategory(meaningful);
+    const weakest = findWeakestCategory(meaningful);
+    const recommended = findRecommendedCategory(meaningful) || starterCategorySummary();
+
+    const overview = document.createElement("div");
+    overview.className = "category-summary-overview";
+    overview.append(
+      buildCategoryHighlight("Strongest category", strongest, "Answer a few questions to reveal this."),
+      buildCategoryHighlight("Weakest category", weakest, "Missed questions will reveal this."),
+      buildCategoryHighlight("Recommended next category", recommended, "Start here to build coverage.")
+    );
+    els.categorySummary.append(overview);
+
+    if (!meaningful.length) {
+      const empty = document.createElement("p");
+      empty.className = "category-summary-empty";
+      empty.textContent = "Answer a few questions to reveal category accuracy and weak areas.";
+      els.categorySummary.append(empty);
+      return;
+    }
+
+    meaningful
       .slice()
       .sort((a, b) => {
         if (b.missedCount !== a.missedCount) return b.missedCount - a.missedCount;
         if (b.flaggedCount !== a.flaggedCount) return b.flaggedCount - a.flaggedCount;
         return a.accuracy - b.accuracy;
       })
-      .slice(0, 4);
-
-    els.categorySummary.innerHTML = "";
-    if (!summaries.length) return;
-
-    summaries.forEach((summary) => {
+      .slice(0, 3)
+      .forEach((summary) => {
       const row = document.createElement("div");
       row.className = "category-summary-row";
       row.innerHTML = "<strong></strong><span></span><em></em>";
@@ -1673,6 +2349,87 @@
     });
   }
 
+  function normalizeCategorySummaries(summaries) {
+    return (Array.isArray(summaries) ? summaries : []).map((summary) => ({
+      category: clean(summary.category) || "Uncategorised",
+      answered: Number(summary.answered || 0),
+      accuracy: Number(summary.accuracy || 0),
+      missedCount: Number(summary.missedCount || 0),
+      flaggedCount: Number(summary.flaggedCount || 0),
+      recommendedNextMode: summary.recommendedNextMode || recommendNextMode(summary),
+    }));
+  }
+
+  function findStrongestCategory(summaries) {
+    return summaries
+      .filter((summary) => summary.answered > 0)
+      .slice()
+      .sort((a, b) => {
+        if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+        return b.answered - a.answered;
+      })[0] || null;
+  }
+
+  function findWeakestCategory(summaries) {
+    return summaries
+      .slice()
+      .sort((a, b) => {
+        if (b.missedCount !== a.missedCount) return b.missedCount - a.missedCount;
+        if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
+        return b.flaggedCount - a.flaggedCount;
+      })[0] || null;
+  }
+
+  function findRecommendedCategory(summaries) {
+    return summaries
+      .slice()
+      .sort((a, b) => {
+        const aNeedsReview = a.missedCount + a.flaggedCount;
+        const bNeedsReview = b.missedCount + b.flaggedCount;
+        if (bNeedsReview !== aNeedsReview) return bNeedsReview - aNeedsReview;
+        if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
+        return b.answered - a.answered;
+      })[0] || null;
+  }
+
+  function starterCategorySummary() {
+    if (!state.questions.length) return null;
+    const counts = state.questions.reduce((map, question) => {
+      map.set(question.category, (map.get(question.category) || 0) + 1);
+      return map;
+    }, new Map());
+    const [category] = Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0] || [];
+    return category
+      ? {
+          category,
+          answered: 0,
+          accuracy: 0,
+          missedCount: 0,
+          flaggedCount: 0,
+          recommendedNextMode: "revise",
+        }
+      : null;
+  }
+
+  function buildCategoryHighlight(label, summary, emptyCopy) {
+    const card = document.createElement("div");
+    card.className = "category-highlight-card";
+    card.innerHTML = "<span></span><strong></strong><em></em>";
+    card.querySelector("span").textContent = label;
+
+    if (!summary) {
+      card.querySelector("strong").textContent = "Not enough data";
+      card.querySelector("em").textContent = emptyCopy;
+      return card;
+    }
+
+    card.querySelector("strong").textContent = summary.category;
+    card.querySelector("em").textContent = summary.answered
+      ? `${summary.accuracy}% accuracy | ${summary.answered} answered`
+      : `${labelMode(summary.recommendedNextMode)} recommended`;
+    return card;
+  }
+
   function getCategorySummaryBucket(map, category) {
     if (!map.has(category)) {
       map.set(category, {
@@ -1701,41 +2458,143 @@
   }
 
   function renderAccess() {
+    updatePricingText();
     if (state.session.entitlementActive) {
       els.unlockBadge.textContent = "Unlocked";
       els.unlockStatus.textContent = `Full access restored for ${state.session.email}.`;
+      els.heroCheckoutBtn?.classList.add("hidden");
       els.checkoutBtn.classList.add("hidden");
       els.restoreAccessLink.classList.add("hidden");
       els.restoreForm.classList.add("hidden");
+      els.restoreForm.dataset.restoreOpen = "false";
       els.logoutBtn.classList.remove("hidden");
     } else if (state.entitlement.active) {
       els.unlockBadge.textContent = "Unlocked";
       els.unlockStatus.textContent = state.entitlement.email
         ? `Full access active for ${state.entitlement.email}. Use Restore access to sync another device.`
         : "Full access active on this browser. Use Restore access to sync another device.";
+      els.heroCheckoutBtn?.classList.add("hidden");
       els.checkoutBtn.classList.add("hidden");
       els.restoreAccessLink.classList.add("hidden");
-      els.restoreForm.classList.remove("hidden");
+      els.restoreForm.classList.add("hidden");
+      els.restoreForm.dataset.restoreOpen = "false";
       els.logoutBtn.classList.toggle("hidden", !state.session.authenticated);
     } else {
       els.unlockBadge.textContent = state.session.authenticated ? "Signed in" : "Preview";
       els.unlockStatus.textContent = state.session.authenticated
         ? `Signed in as ${state.session.email}. Unlock full coach to practise weak areas, road signs, mocks, and review mode.`
-        : `Preview ${PREVIEW_LIMIT} questions. Unlock speed-focused high-yield drills, weak-area review, road signs, and mock tests.`;
+        : `Preview ${PREVIEW_LIMIT} questions. Unlock speed-focused estimated high-yield drills, weak-area review, road signs, and mock tests.`;
+      els.heroCheckoutBtn?.classList.remove("hidden");
+      if (els.heroCheckoutBtn) {
+        els.heroCheckoutBtn.disabled = false;
+        els.heroCheckoutBtn.textContent = "Unlock full coach";
+      }
       els.checkoutBtn.classList.remove("hidden");
       els.checkoutBtn.disabled = false;
-      els.checkoutBtn.textContent = "Unlock for EUR 0.99";
+      els.checkoutBtn.textContent = checkoutCtaText();
       els.restoreAccessLink.classList.remove("hidden");
-      els.restoreForm.classList.remove("hidden");
+      els.restoreForm.classList.toggle("hidden", !shouldShowRestoreForm());
       els.logoutBtn.classList.toggle("hidden", !state.session.authenticated);
     }
     renderPreviewConversionState(!hasAccess());
+    updateModeButtons();
     trackPreviewStarted();
   }
 
   function renderPreviewConversionState(isPreview) {
     els.mobileStickyCta.classList.toggle("hidden", !isPreview);
     document.body.classList.toggle("has-mobile-sticky-cta", isPreview);
+  }
+
+  function shouldShowRestoreForm() {
+    const restoreState = els.restoreForm.dataset.restoreState || "idle";
+    return els.restoreForm.dataset.restoreOpen === "true" || ["sending", "sent", "error", "rate-limited"].includes(restoreState);
+  }
+
+  async function applyReferralCode(form) {
+    const codeInput = form.querySelector("[name='referralCode']");
+    const emailInput = form.querySelector("[name='referralEmail']");
+    const status = form.querySelector(".referral-status");
+    const code = String(codeInput?.value || "").trim();
+    if (!code) {
+      renderReferralStatus(status, "Enter a code first.");
+      return;
+    }
+
+    trackEvent("referral_code_viewed", { source: form.dataset.source || "referral_form" });
+    form.classList.add("is-loading");
+    try {
+      const response = await fetch("/api/referral-code", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code,
+          email: emailInput?.value || "",
+          anonymousId: state.analytics.anonymousId,
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok || !payload.ok) throw new Error("referral_failed");
+      state.referral = {
+        code: payload.code || code.toUpperCase(),
+        planKey: payload.fixedPricePlan || "",
+      };
+      if (state.referral.planKey) renderReferralStatus(status, `Code applied. Checkout will use ${labelPricingPlan(state.referral.planKey)}.`);
+      else if (payload.grantEntitlement) renderReferralStatus(status, payload.message || "Code applied. Restore access with the same email.");
+      else renderReferralStatus(status, "Code applied. Continue to checkout when ready.");
+      trackEvent("referral_code_applied", { source: form.dataset.source || "referral_form", planKey: state.referral.planKey || currentCheckoutPlan().key });
+      updatePricingText();
+    } catch {
+      renderReferralStatus(status, "Code could not be applied. Check it and try again.");
+    } finally {
+      form.classList.remove("is-loading");
+    }
+  }
+
+  function renderReferralStatus(status, message) {
+    if (!status) return;
+    status.textContent = message;
+  }
+
+  function updatePricingText() {
+    const plan = currentCheckoutPlan();
+    document.querySelectorAll("[data-price-label]").forEach((item) => {
+      item.textContent = plan.displayPrice;
+    });
+    document.querySelectorAll("[data-plan-label]").forEach((item) => {
+      item.textContent = plan.label;
+    });
+    document.querySelectorAll(".paywall-checkout-btn").forEach((button) => {
+      if (!button.disabled) button.textContent = "Unlock full coach";
+    });
+  }
+
+  function pricingConfig() {
+    return window.PRICING_CONFIG || {
+      activeLearnerPlanKey: "full_study_pass",
+      plans: [
+        { key: "full_study_pass", label: "Full Study Pass", displayPrice: "EUR 4.99", amountCents: 499, currency: "EUR", enabled: true },
+      ],
+    };
+  }
+
+  function currentCheckoutPlan() {
+    const config = pricingConfig();
+    const key = state.referral.planKey || config.activeLearnerPlanKey || "full_study_pass";
+    return config.plans.find((plan) => plan.key === key && plan.enabled !== false)
+      || config.plans.find((plan) => plan.key === "full_study_pass")
+      || config.plans[0];
+  }
+
+  function checkoutCtaText() {
+    const plan = currentCheckoutPlan();
+    return `Unlock for ${plan.displayPrice}`;
+  }
+
+  function labelPricingPlan(planKey) {
+    const plan = pricingConfig().plans.find((item) => item.key === planKey);
+    return plan ? `${plan.label} (${plan.displayPrice})` : "the selected plan";
   }
 
   function applyServerSession(payload) {
@@ -1746,10 +2605,83 @@
     };
   }
 
-  function setRestoreStatus(message, type) {
-    els.restoreStatus.textContent = message;
-    els.restoreStatus.classList.toggle("success", type === "success");
-    els.restoreStatus.classList.toggle("error", type === "error");
+  function setRestoreStatus(type = "idle", title, copy) {
+    const content = restoreStatusContent(type, title, copy);
+    els.restoreForm.dataset.restoreState = content.type;
+    els.restoreStatus.className = `restore-status ${content.type}`;
+
+    const statusTitle = document.createElement("strong");
+    statusTitle.textContent = content.title;
+    const statusCopy = document.createElement("span");
+    statusCopy.textContent = content.copy;
+    els.restoreStatus.replaceChildren(statusTitle, statusCopy);
+  }
+
+  function restoreStatusContent(type, title, copy) {
+    const states = {
+      idle: {
+        title: "Secure email link",
+        copy: "No password needed. We only use this to restore access.",
+      },
+      sending: {
+        title: "Sending secure link",
+        copy: "Checking the email and preparing a one-time access link.",
+      },
+      sent: {
+        title: "Check your inbox",
+        copy: "The link expires soon for security.",
+      },
+      error: {
+        title: "Something went wrong",
+        copy: "Please check the email and try again.",
+      },
+      "rate-limited": {
+        title: "Too many attempts",
+        copy: "Wait a little, then try again.",
+      },
+    };
+    const safeType = Object.prototype.hasOwnProperty.call(states, type) ? type : "idle";
+    return {
+      type: safeType,
+      title: title || states[safeType].title,
+      copy: copy || states[safeType].copy,
+    };
+  }
+
+  function validateRestoreEmail(email) {
+    if (!email) {
+      return {
+        title: "Email required",
+        copy: "Enter the email you used at checkout.",
+      };
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return {
+        title: "Enter a valid email",
+        copy: "Use the email address you used when you unlocked the coach.",
+      };
+    }
+
+    return null;
+  }
+
+  function setRestoreEmailValidity(valid) {
+    if (valid) {
+      els.restoreEmail.removeAttribute("aria-invalid");
+    } else {
+      els.restoreEmail.setAttribute("aria-invalid", "true");
+    }
+    els.restoreEmail.setCustomValidity(valid ? "" : "Enter a valid email address.");
+  }
+
+  function setRestoreFocusActive(active) {
+    document.body.classList.toggle("restore-focus-active", Boolean(active));
+  }
+
+  function isRestoreRateLimited(error) {
+    const code = String(error && error.code ? error.code : "").toLowerCase();
+    return Number(error && error.status) === 429 || code.includes("rate") || code.includes("too many");
   }
 
   function removeUrlParams(names) {
@@ -1777,11 +2709,13 @@
     return `evt:${Date.now()}:${Math.random().toString(16).slice(2)}`;
   }
 
-  function coachCopy(answered, today) {
-    if (!answered) return "Start with High yield, then do one Mock test.";
-    if (today < DAILY_TARGET) return `${DAILY_TARGET - today} more answers to hit today's target.`;
-    if (state.progress.missed.size) return "Target hit. Clear missed questions before a new mock test.";
-    return "Target hit. Try a timed mock test while the material is fresh.";
+  function coachCopy(metrics) {
+    if (!metrics.answered) return "Start with estimated high-yield questions to find your baseline.";
+    if (metrics.today < DAILY_TARGET) return `${metrics.remainingToday} more to hit today's target.`;
+    if (metrics.missedCount || metrics.flaggedCount) return "Target hit. Clear missed questions before a new mock test.";
+    if (metrics.signsAnswered < 12) return "Road signs need another round.";
+    if (metrics.mockPassCount < 2) return "Mock-ready when you hit 35/40 twice.";
+    return "Target hit. Keep rotating road signs, review mode, and mock tests.";
   }
 
   function dayKey() {
@@ -1791,8 +2725,8 @@
   function buildStatusMessage(url) {
     const enriched = url.includes("enriched");
     return enriched
-      ? `${state.questions.length} questions loaded with high-yield scoring.`
-      : `${state.questions.length} recovered questions loaded. Run enrich_dataset.py for high-yield scoring.`;
+      ? `${state.questions.length} questions loaded with estimated high-yield scoring.`
+      : `${state.questions.length} recovered questions loaded. Run enrich_dataset.py for estimated high-yield scoring.`;
   }
 
   function setStatus(message) {
@@ -1805,14 +2739,49 @@
 
   function renderLoading(message) {
     els.questionMount.innerHTML = `
-      <div class="loading-state" role="status" aria-live="polite">
-        <span class="loading-spinner" aria-hidden="true"></span>
-        <span>${message}</span>
-      </div>
+      <section class="question-view question-skeleton" role="status" aria-live="polite">
+        <div class="loading-state">
+          <span class="loading-spinner" aria-hidden="true"></span>
+          <span>${message}</span>
+        </div>
+        <div class="skeleton-pill-row" aria-hidden="true">
+          <span class="skeleton-pill"></span>
+          <span class="skeleton-pill short"></span>
+        </div>
+        <div class="skeleton-line title" aria-hidden="true"></div>
+        <div class="skeleton-line medium" aria-hidden="true"></div>
+        <div class="question-skeleton-options" aria-hidden="true">
+          <span class="skeleton-card"></span>
+          <span class="skeleton-card"></span>
+          <span class="skeleton-card"></span>
+          <span class="skeleton-card"></span>
+        </div>
+      </section>
     `;
   }
 
   function renderEmpty(message) {
     els.questionMount.innerHTML = `<div class="empty-state">${message}</div>`;
+  }
+
+  function showCelebration(title, copy) {
+    document.querySelector(".celebration-toast")?.remove();
+    const toast = document.createElement("div");
+    toast.className = "celebration-toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+
+    const heading = document.createElement("strong");
+    heading.textContent = title;
+    const body = document.createElement("p");
+    body.textContent = copy;
+    toast.append(heading, body);
+    document.body.append(toast);
+
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    window.setTimeout(() => {
+      toast.classList.add("is-hiding");
+      window.setTimeout(() => toast.remove(), reducedMotion ? 20 : 220);
+    }, CELEBRATION_DURATION_MS);
   }
 })();

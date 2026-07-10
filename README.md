@@ -1,141 +1,127 @@
-# Irish Theory Test Rebuild
+# Irish Theory Test Coach
 
-This workspace is set up to recover the archived Theory Tester question bank and run a replacement practice app for the Irish category B car theory test.
+A mobile-first Category B theory-test practice product for Irish learner drivers. It combines a focused question experience, estimated priority drills, road-sign practice, timed mock exams, weak-area review, secure paid access, and an admin content workflow.
 
-## 1. Recover the data
+**Independent practice tool. Not affiliated with RSA or Prometric.** The project does not promise a guaranteed pass or claim official exam frequency.
 
-```powershell
-cd "C:\Users\uzair\OneDrive\Documents\theory tester"
+## Live Product
 
-$env:PYTHONUNBUFFERED = "1"
-$env:RECOVERY_WORKERS = "24"
+- **App:** [irish-theory-test-coach.vercel.app](https://irish-theory-test-coach.vercel.app)
+- **Pricing:** [View learner and instructor plans](https://irish-theory-test-coach.vercel.app/pricing)
+- **Learning hub:** [Browse study guides](https://irish-theory-test-coach.vercel.app/learn)
+- **Admin:** [Protected admin workspace](https://irish-theory-test-coach.vercel.app/admin)
+- **Sitemap:** [View the production sitemap](https://irish-theory-test-coach.vercel.app/sitemap.xml)
 
-python .\scripts\recover_theory_tester.py 2>&1 | Tee-Object -FilePath .\recovery.log
-```
+![Irish Theory Test Coach desktop interface](docs/images/portfolio-desktop.png)
 
-If the run stops, rerun the same command. The script resumes from `data/raw/questions/`.
+## Product Highlights
 
-If Wayback refuses a lot of connections or the report shows many warnings, use the fallback pass. It tries older archived snapshots for each missing question:
+- 849 practice questions with explanations and image support.
+- Six study modes: revise, estimated priority, hardest, road signs, mock test, and review.
+- 40-question, 45-minute mock flow with a 35-answer practice pass mark.
+- Daily target, missed-question cleanup, category accuracy, flags, and recommended next actions.
+- Mobile-first quiz UI with accessible answer states and coaching feedback.
+- Free 15-question preview and a EUR 4.99 one-time Full Study Pass with 90-day access.
+- Stripe Checkout, server-side entitlement verification, webhook endpoint, and restore-access flow.
+- Neon Postgres persistence for users, purchases, entitlements, sessions, progress, analytics, referrals, and content review.
+- Server-authorized admin dashboard for users, entitlements, revenue, referrals, questions, and generated drafts.
+- Privacy-safe first-party analytics, installable PWA support, offline shell caching, and 33 indexable public URLs.
 
-```powershell
-$env:PYTHONUNBUFFERED = "1"
-$env:RECOVERY_WORKERS = "8"
-$env:RECOVERY_SNAPSHOT_LIMIT = "20"
+<p align="center">
+  <img src="docs/images/portfolio-mobile.png" width="390" alt="Irish Theory Test Coach mobile question interface">
+</p>
 
-python .\scripts\recover_theory_tester.py 2>&1 | Tee-Object -FilePath .\recovery-fallback.log
-```
-
-Expected generated files:
-
-```text
-data/questions.json
-data/questions.csv
-data/recovery_report.json
-data/assets/
-```
-
-## 2. Validate the recovered dataset
-
-```powershell
-python .\scripts\validate_dataset.py
-```
-
-This checks for missing answer choices, missing correct answers, duplicate IDs, category counts, and missing local image files.
-
-## 3. Enrich the dataset
-
-```powershell
-python .\scripts\enrich_dataset.py
-```
-
-This creates:
+## Architecture
 
 ```text
-data/questions.enriched.json
-data/hardest_questions.json
-data/study_report.json
+public/                 Static product UI, PWA, legal pages, and SEO pages
+api/[...route].js       Consolidated Vercel Function router
+server/api/             Checkout, auth, progress, analytics, AI, and admin handlers
+lib/                    Database, auth, entitlement, referral, and environment helpers
+shared/                 Central pricing configuration
+database/schema.sql     Neon Postgres schema
+data/                   Question dataset, study reports, and local image assets
+scripts/                Build, QA, SEO, screenshot, migration, and recovery tools
+docs/                   Product, security, operations, content, and launch documentation
 ```
 
-The enrichment adds high-yield scores, archived hardest-question signals, road-sign labels, and study-priority notes.
+The current MVP deliberately uses static HTML, CSS, and JavaScript with Vercel serverless APIs. It avoids a framework migration so the app remains inexpensive to host and easy to inspect.
 
-## 4. Prepare deployable public data
+## Technology
+
+- HTML5, modern CSS, and vanilla JavaScript
+- Vercel static hosting and Functions
+- Neon Postgres via `pg`
+- Stripe Checkout and signed webhook handling
+- Secure HTTP-only magic-link sessions
+- Service worker and Web App Manifest
+- JSON-LD, sitemap, canonical metadata, and static SEO pages
+- Node.js and Python validation/build tooling
+
+## Local Development
+
+Requirements: Node.js, npm, and Python 3.
 
 ```powershell
+npm install
 npm run build
+npm run dev
 ```
 
-This copies the app-ready data and images into `public/data/`, which is the folder Vercel deploys.
+Open [http://localhost:5173/public/](http://localhost:5173/public/).
 
-## 5. Run the practice app
+Copy `.env.example` to `.env.local` for local serverless work and replace placeholders locally. Never commit `.env.local`, Stripe keys, Neon credentials, webhook secrets, or email-provider keys.
 
-Serve the repo root so the app can fetch `data/questions.json` and image files:
+## Quality Gate
 
 ```powershell
-python -m http.server 5173
+npm run qa
 ```
 
-Open:
+The full QA command validates:
 
-```text
-http://localhost:5173/public/
+- the 849-question dataset and high-yield score breakdowns
+- JavaScript syntax and deployable data generation
+- PWA assets and cache declarations
+- sitemap, canonical metadata, structured data, and internal links
+- HTML, image, and data performance budgets
+- obvious live-secret patterns
+- preview, answer, paywall, legal, restore-access, mock, and API safety flows
+
+Capture the responsive visual baseline with:
+
+```powershell
+npm run screenshots:ui
 ```
 
-For a Vercel-style local check after `npm run build`, the app loads:
+## Deployment
 
-```text
-public/data/questions.enriched.json
-public/data/assets/
-```
-
-## App features
-
-- Practice mode with instant feedback, explanations, category filtering, search, and image support.
-- High-yield drill using archived hardest-question data and category/safety/sign signals.
-- Hardest 50 drill from the archived Theory Tester stats page.
-- Road-sign/image drill.
-- Mock exam mode using the real car/bike theory-test shape: 40 questions, 45 minutes, pass mark 35.
-- Local progress tracking in the browser: attempts, misses, accuracy, flagged questions, and weak categories.
-- Review mode for missed or flagged questions.
-
-## Deploy to Vercel
-
-The project includes:
-
-```text
-package.json
-vercel.json
-scripts/prepare-public-data.mjs
-```
-
-Vercel should use:
+Vercel uses:
 
 ```text
 Build command: npm run build
 Output directory: public
 ```
 
-For paid accounts later, create a Neon Postgres project and run:
+Production configuration is documented in:
 
-```text
-database/schema.sql
-```
+- [`docs/release-checklist.md`](docs/release-checklist.md)
+- [`docs/secret-rotation-checklist.md`](docs/secret-rotation-checklist.md)
+- [`docs/stripe-webhook-setup.md`](docs/stripe-webhook-setup.md)
+- [`docs/admin-dashboard.md`](docs/admin-dashboard.md)
 
-Or run the migration script:
+The production checkout currently creates live EUR 4.99 Stripe sessions. Before accepting customer payments, configure the production `STRIPE_WEBHOOK_SECRET`, test `checkout.session.completed`, confirm the support mailbox, and rotate any credential previously shared in chat or terminal history.
 
-```powershell
-$env:DATABASE_URL = "postgresql://..."
-npm run db:migrate
-npm run db:check
-Remove-Item Env:\DATABASE_URL
-```
+## Content Safety
 
-Do not commit `.env.local` or real connection strings. This repo tracks `.env.example` only.
+- Do not copy competitor question text.
+- Keep provenance for imported or recovered material.
+- Existing recovered questions require official cross-checking where marked.
+- AI-generated questions remain drafts until an admin reviews and approves them.
+- “High-yield” means estimated study priority, not official exam frequency.
 
-## Official cross-check sources
+Current official cross-check sources include [TheoryTest.ie](https://theorytest.ie/), its [revision material](https://theorytest.ie/revision-material/), and the RSA [Rules of the Road](https://www.rsa.ie/services/learner-drivers/resources/rules-of-the-road).
 
-- RSA Driver Theory Test official site: https://theorytest.ie/
-- Car or bike test format: https://theorytest.ie/book-your-theory-test/driver-theory-test-car-or-bike/
-- Official revision material: https://theorytest.ie/revision-material/
-- RSA Rules of the Road: https://www.rsa.ie/services/learner-drivers/resources/rules-of-the-road
+## Repository Notes
 
-Use the recovered archive with your permission/licence. For live public publishing, cross-check critical answers against the current official RSA material before launch.
+Durable engineering and product rules live in [`AGENTS.md`](AGENTS.md). The detailed UI and release documentation is under [`docs/`](docs/).
