@@ -1,5 +1,7 @@
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { withDb } from "../../lib/db.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -21,13 +23,23 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
+  const origin = verifyStateChangingRequest(req, env);
+  if (!origin.ok) return rejectUnverifiedRequest(res);
+
+  const limit = checkRateLimit({
+    key: rateLimitKey(req, "attempts-write"),
+    limit: limitFromEnv("RATE_LIMIT_ATTEMPTS_WRITE", 240),
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) return sendRateLimited(res, limit);
+
   try {
     const user = await getSessionUser(req, env.databaseUrl);
     if (!user) {
       return res.status(401).json({ error: "Login required" });
     }
 
-    const body = await readJsonBody(req);
+    const body = await readJsonBody(req, { maxBytes: 24_576 });
     const attempts = normalizeAttempts(body.attempts || body.attempt || []);
     if (!attempts.length) {
       return res.status(400).json({ error: "No attempts provided" });

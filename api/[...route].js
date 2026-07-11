@@ -30,6 +30,14 @@ import adminReferrals from "../server/api/admin/referrals.js";
 import adminStats from "../server/api/admin/stats.js";
 import adminSupport from "../server/api/admin/support.js";
 import adminUsers from "../server/api/admin/users.js";
+import {
+  applyApiSecurityHeaders,
+  createRequestContext,
+  logRequestFinished,
+  rejectUnverifiedRequest,
+  verifyStateChangingRequest,
+} from "../lib/security.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../lib/rate-limit.js";
 
 export const config = {
   api: {
@@ -84,20 +92,69 @@ const routes = new Map([
 
 export default async function handler(req, res) {
   const route = normalizeRoute(req.query?.route, req.url);
-  if (route === "v1/study-sessions" || route.startsWith("v1/study-sessions/")) {
-    return v1StudySessions(req, res);
-  }
-  if (route === "v1/media" || route.startsWith("v1/media/")) {
-    return v1Media(req, res);
+  const context = createRequestContext(req, route);
+  applyApiSecurityHeaders(res, { requestId: context.requestId });
+  const originalEnd = res.end?.bind(res);
+  let logged = false;
+  if (originalEnd) {
+    res.end = (...args) => {
+      if (!logged) {
+        logged = true;
+        logRequestFinished(context, res);
+      }
+      return originalEnd(...args);
+    };
   }
 
-  const routeHandler = routes.get(route);
+  try {
+    if (requestBodyTooLarge(req)) {
+      return res.status(413).json({ error: "Request body too large" });
+    }
 
-  if (!routeHandler) {
-    return res.status(404).json({ error: "API route not found" });
+    if (isAdminRoute(route)) {
+      const limit = checkRateLimit({
+        key: rateLimitKey(req, "admin-api"),
+        limit: limitFromEnv("RATE_LIMIT_ADMIN_API", 120),
+        windowMs: 60_000,
+      });
+      if (!limit.allowed) return sendRateLimited(res, limit);
+
+      if (isStateChangingMethod(req.method)) {
+        const origin = verifyStateChangingRequest(req, {
+          publicSiteUrl: process.env.PUBLIC_SITE_URL || "http://localhost:5173",
+          isProduction: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
+        });
+        if (!origin.ok) return rejectUnverifiedRequest(res);
+      }
+    }
+
+    if (route === "v1/study-sessions" || route.startsWith("v1/study-sessions/")) {
+      return await v1StudySessions(req, res);
+    }
+    if (route === "v1/media" || route.startsWith("v1/media/")) {
+      return await v1Media(req, res);
+    }
+
+    const routeHandler = routes.get(route);
+
+    if (!routeHandler) {
+      return res.status(404).json({ error: "API route not found" });
+    }
+
+    return await routeHandler(req, res);
+  } catch (error) {
+    if (!logged) {
+      logged = true;
+      res.statusCode = res.statusCode >= 400 ? res.statusCode : 500;
+      logRequestFinished(context, res, error);
+    }
+    throw error;
+  } finally {
+    if (!logged) {
+      logged = true;
+      logRequestFinished(context, res);
+    }
   }
-
-  return routeHandler(req, res);
 }
 
 function normalizeRoute(queryRoute, requestUrl = "") {
@@ -115,4 +172,19 @@ function normalizeRoute(queryRoute, requestUrl = "") {
 
 function cleanSegment(value) {
   return String(value || "").replace(/^\/+|\/+$/g, "");
+}
+
+function isAdminRoute(route) {
+  return route === "admin" || route.startsWith("admin/") || route.startsWith("admin-");
+}
+
+function isStateChangingMethod(method) {
+  return ["POST", "PUT", "PATCH", "DELETE"].includes(String(method || "").toUpperCase());
+}
+
+function requestBodyTooLarge(req) {
+  const contentLength = Number.parseInt(String(req.headers?.["content-length"] || ""), 10);
+  if (!Number.isFinite(contentLength) || contentLength <= 0) return false;
+  const maxBytes = Number.parseInt(process.env.MAX_JSON_BODY_BYTES || "32768", 10);
+  return contentLength > Math.max(1024, maxBytes);
 }

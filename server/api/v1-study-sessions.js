@@ -7,7 +7,7 @@ import {
   toInitialQuestionPayload,
   cleanMode,
 } from "../../lib/question-bank.js";
-import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import { recordMockSession } from "../../lib/account-data.js";
 import {
   getStudySessionSecret,
@@ -18,6 +18,7 @@ import {
   verifySessionToken,
 } from "../../lib/study-session-tokens.js";
 import { getAuthServerEnv, safeErrorSummary, sendSafeConfigError } from "../../lib/server-env.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 
 const PREVIEW_LIMIT = 15;
 const PREMIUM_MODES = new Set(["highYield", "hardest", "signs", "review", "exam"]);
@@ -26,6 +27,14 @@ const PREVIEW_SESSION_TTL_MS = 30 * 60 * 1000;
 
 export default async function handler(req, res) {
   try {
+    if (req.method === "POST") {
+      const origin = verifyStateChangingRequest(req, {
+        publicSiteUrl: process.env.PUBLIC_SITE_URL || "http://localhost:5173",
+        isProduction: process.env.NODE_ENV === "production" || process.env.VERCEL_ENV === "production",
+      });
+      if (!origin.ok) return rejectUnverifiedRequest(res);
+    }
+
     if (req.method === "POST" && routeParts(req).length === 2) {
       return startStudySession(req, res);
     }
@@ -55,10 +64,10 @@ export default async function handler(req, res) {
 }
 
 async function startStudySession(req, res) {
-  if (!rateLimit(req, res, "study-session:start", 30, 60_000)) return;
+  if (!rateLimit(req, res, "study-session:start", limitFromEnv("RATE_LIMIT_STUDY_SESSION_START", 30), 60_000)) return;
 
   const secret = getStudySessionSecret(process.env);
-  const body = await readJsonBody(req);
+  const body = await readJsonBody(req, { maxBytes: 8192 });
   const mode = cleanMode(body.mode || "revise");
   const premiumRequired = PREMIUM_MODES.has(mode) || Boolean(body.premium);
   const user = await resolveStudyUser(req, premiumRequired);
@@ -104,7 +113,7 @@ async function startStudySession(req, res) {
 }
 
 async function getStudySession(req, res, sessionId) {
-  if (!rateLimit(req, res, "study-session:get", 80, 60_000)) return;
+  if (!rateLimit(req, res, "study-session:get", limitFromEnv("RATE_LIMIT_STUDY_SESSION_GET", 80), 60_000)) return;
   const secret = getStudySessionSecret(process.env);
   const payload = verifySessionToken(decodeURIComponent(sessionId), secret);
   if (payload.exp <= Date.now()) return res.status(410).json({ error: "Study session expired" });
@@ -130,7 +139,7 @@ async function getStudySession(req, res, sessionId) {
 }
 
 async function submitAnswer(req, res, sessionId) {
-  if (!rateLimit(req, res, "study-session:answer", 120, 60_000)) return;
+  if (!rateLimit(req, res, "study-session:answer", limitFromEnv("RATE_LIMIT_STUDY_SESSION_ANSWER", 120), 60_000)) return;
   const secret = getStudySessionSecret(process.env);
   const payload = verifySessionToken(decodeURIComponent(sessionId), secret);
   if (payload.exp <= Date.now()) return res.status(410).json({ error: "Study session expired" });
@@ -141,7 +150,7 @@ async function submitAnswer(req, res, sessionId) {
     }
   }
 
-  const body = await readJsonBody(req);
+  const body = await readJsonBody(req, { maxBytes: 8192 });
   const questionId = Number(body.questionId);
   const selectedIndex = Number(body.selectedIndex);
   if (!payload.q.includes(questionId) || !Number.isInteger(selectedIndex)) {
@@ -180,11 +189,11 @@ async function submitAnswer(req, res, sessionId) {
 }
 
 async function syncFlag(req, res, sessionId) {
-  if (!rateLimit(req, res, "study-session:flag", 60, 60_000)) return;
+  if (!rateLimit(req, res, "study-session:flag", limitFromEnv("RATE_LIMIT_STUDY_SESSION_FLAG", 60), 60_000)) return;
   const secret = getStudySessionSecret(process.env);
   const payload = verifySessionToken(decodeURIComponent(sessionId), secret);
   if (payload.exp <= Date.now()) return res.status(410).json({ error: "Study session expired" });
-  const body = await readJsonBody(req);
+  const body = await readJsonBody(req, { maxBytes: 4096 });
   const questionId = Number(body.questionId);
   if (!payload.q.includes(questionId)) {
     return res.status(400).json({ error: "Invalid flag request" });
@@ -197,7 +206,7 @@ async function syncFlag(req, res, sessionId) {
 }
 
 async function completeSession(req, res, sessionId) {
-  if (!rateLimit(req, res, "study-session:complete", 30, 60_000)) return;
+  if (!rateLimit(req, res, "study-session:complete", limitFromEnv("RATE_LIMIT_STUDY_SESSION_COMPLETE", 30), 60_000)) return;
   const secret = getStudySessionSecret(process.env);
   const payload = verifySessionToken(decodeURIComponent(sessionId), secret);
   if (payload.exp <= Date.now()) return res.status(410).json({ error: "Study session expired" });
@@ -209,7 +218,7 @@ async function completeSession(req, res, sessionId) {
     user = await resolveStudyUser(req, false);
   }
 
-  const body = await readJsonBody(req);
+  const body = await readJsonBody(req, { maxBytes: 8192 });
   const answerState = verifyAnswerStateSafely(body.answerStateToken, secret, payload, sessionPublicId(sessionId));
   const answers = Object.values(answerState).filter((answer) => payload.q.includes(answer.questionId));
   const correct = answers.filter((answer) => answer.correct).length;

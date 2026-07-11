@@ -1,5 +1,5 @@
 import { getRequiredServerEnv, sendSafeConfigError } from "../../lib/server-env.js";
-import { getSessionUser, readJsonBody } from "../../lib/auth.js";
+import { getSessionUser } from "../../lib/auth.js";
 import {
   createCheckoutAttempt,
   markCheckoutAttemptFailure,
@@ -7,6 +7,9 @@ import {
 } from "../../lib/payment-ledger.js";
 import { resolveCheckoutPlan } from "../../shared/pricing-config.js";
 import { applyReferralCodeToCheckoutPlan } from "../../lib/referrals.js";
+import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { readValidatedJson, fieldString } from "../../lib/request-validation.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -23,11 +26,34 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
+  const origin = verifyStateChangingRequest(req, {
+    publicSiteUrl: env.publicSiteUrl,
+    isProduction: env.paymentEnvironment === "production",
+  });
+  if (!origin.ok) {
+    return rejectUnverifiedRequest(res);
+  }
+
+  const ipLimit = checkRateLimit({
+    key: rateLimitKey(req, "checkout:create"),
+    limit: limitFromEnv("RATE_LIMIT_CHECKOUT_CREATE", 20),
+    windowMs: 10 * 60 * 1000,
+  });
+  if (!ipLimit.allowed) return sendRateLimited(res, ipLimit);
+
   let body = {};
   try {
-    body = await readJsonBody(req).catch(() => ({}));
-  } catch {
-    body = {};
+    body = await readValidatedJson(req, {
+      maxBytes: 4096,
+      fields: {
+        planKey: fieldString({ max: 80, pattern: /^[a-zA-Z0-9_-]{0,80}$/ }),
+        referralCode: fieldString({ max: 80, pattern: /^[a-zA-Z0-9_-]{0,80}$/ }),
+        anonymousId: fieldString({ max: 160, pattern: /^[a-zA-Z0-9:_-]{0,160}$/ }),
+        source: fieldString({ max: 80 }),
+      },
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ error: "Invalid checkout request" });
   }
 
   let plan;
@@ -38,6 +64,12 @@ export default async function handler(req, res) {
     sessionUser = await getSessionUser(req, env.databaseUrl).catch(() => null);
     plan = resolveCheckoutPlan(requestedPlanKey, process.env);
     if (body.referralCode) {
+      const referralLimit = checkRateLimit({
+        key: compoundRateLimitKey(req, "checkout:referral", body.referralCode),
+        limit: limitFromEnv("RATE_LIMIT_REFERRAL_CHECKOUT", 20),
+        windowMs: 10 * 60 * 1000,
+      });
+      if (!referralLimit.allowed) return sendRateLimited(res, referralLimit);
       const result = await applyReferralCodeToCheckoutPlan(env.databaseUrl, body.referralCode, plan, {
         anonymousId: body.anonymousId,
         email: sessionUser?.email,

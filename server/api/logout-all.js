@@ -3,6 +3,8 @@ import {
   getSessionUser,
   revokeAllSessionsForUser,
 } from "../../lib/auth.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -21,6 +23,16 @@ export default async function handler(req, res) {
   } catch (error) {
     return sendSafeConfigError(res, error);
   }
+
+  const origin = verifyStateChangingRequest(req, env);
+  if (!origin.ok) return rejectUnverifiedRequest(res);
+
+  const limit = checkRateLimit({
+    key: rateLimitKey(req, "logout-all"),
+    limit: limitFromEnv("RATE_LIMIT_LOGOUT_ALL", 20),
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) return sendRateLimited(res, limit);
 
   try {
     const session = await getSessionUser(req, env.databaseUrl);

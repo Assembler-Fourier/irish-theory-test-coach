@@ -6,10 +6,10 @@ import {
   loginRequestSafeMessage,
   markLoginTokenDelivery,
   normalizeEmail,
-  readJsonBody,
-  validateRequestOrigin,
 } from "../../lib/auth.js";
-import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { readValidatedJson, fieldEmail, fieldString } from "../../lib/request-validation.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -32,16 +32,22 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
-  const origin = validateRequestOrigin(req, env.publicSiteUrl, { isProduction: env.isProduction });
+  const origin = verifyStateChangingRequest(req, env);
   if (!origin.ok) {
-    return res.status(403).json({ error: "Request could not be verified" });
+    return rejectUnverifiedRequest(res);
   }
 
   let body;
   try {
-    body = await readJsonBody(req);
-  } catch {
-    return res.status(400).json({ error: "Invalid request" });
+    body = await readValidatedJson(req, {
+      maxBytes: 2048,
+      fields: {
+        email: fieldEmail({ required: true }),
+        source: fieldString({ max: 80 }),
+      },
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ error: "Invalid request" });
   }
 
   const email = normalizeEmail(body.email);
@@ -51,14 +57,14 @@ export default async function handler(req, res) {
 
   const ipLimit = checkRateLimit({
     key: rateLimitKey(req, "login-link:ip"),
-    limit: 8,
+    limit: limitFromEnv("RATE_LIMIT_LOGIN_IP", 8),
     windowMs: IP_LIMIT_WINDOW_MS,
   });
   if (!ipLimit.allowed) return sendRateLimited(res, ipLimit);
 
   const emailLimit = checkRateLimit({
-    key: `login-link:email:${email}`,
-    limit: 3,
+    key: compoundRateLimitKey(req, "login-link:email", email),
+    limit: limitFromEnv("RATE_LIMIT_LOGIN_EMAIL", 3),
     windowMs: EMAIL_LIMIT_WINDOW_MS,
   });
   if (!emailLimit.allowed) return sendRateLimited(res, emailLimit);

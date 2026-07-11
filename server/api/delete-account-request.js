@@ -1,5 +1,7 @@
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { requestAccountDeletion } from "../../lib/account-data.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -19,13 +21,23 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
+  const origin = verifyStateChangingRequest(req, env);
+  if (!origin.ok) return rejectUnverifiedRequest(res);
+
+  const limit = checkRateLimit({
+    key: rateLimitKey(req, "delete-account-request"),
+    limit: limitFromEnv("RATE_LIMIT_ACCOUNT_DELETE_REQUEST", 5),
+    windowMs: 60 * 60_000,
+  });
+  if (!limit.allowed) return sendRateLimited(res, limit);
+
   try {
     const session = await getSessionUser(req, env.databaseUrl);
     if (!session) {
       return res.status(401).json({ error: "Login required" });
     }
 
-    const body = await readJsonBody(req).catch(() => ({}));
+    const body = await readJsonBody(req, { maxBytes: 4096 }).catch(() => ({}));
     const request = await requestAccountDeletion(env.databaseUrl, session, body.reason || "");
     return res.status(200).json({
       ok: true,

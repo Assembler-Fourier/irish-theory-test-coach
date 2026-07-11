@@ -1,5 +1,7 @@
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { withDb } from "../../lib/db.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -78,7 +80,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = await readJsonBody(req);
+    const origin = verifyStateChangingRequest(req, env);
+    if (!origin.ok) {
+      return rejectUnverifiedRequest(res);
+    }
+
+    const limit = checkRateLimit({
+      key: rateLimitKey(req, "analytics:events"),
+      limit: limitFromEnv("RATE_LIMIT_ANALYTICS_EVENTS", 120),
+      windowMs: 60_000,
+    });
+    if (!limit.allowed) return sendRateLimited(res, limit);
+
+    const body = await readJsonBody(req, { maxBytes: 16_384 });
     const events = normalizeEvents(body);
     if (!events.length) {
       return res.status(400).json({ error: "No valid analytics events" });

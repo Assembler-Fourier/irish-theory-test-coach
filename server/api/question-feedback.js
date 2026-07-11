@@ -1,6 +1,7 @@
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { withDb } from "../../lib/db.js";
-import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -26,7 +27,7 @@ export default async function handler(req, res) {
 
   const limit = checkRateLimit({
     key: rateLimitKey(req, "question-feedback"),
-    limit: 8,
+    limit: limitFromEnv("RATE_LIMIT_QUESTION_FEEDBACK", 8),
     windowMs: 60_000,
   });
   if (!limit.allowed) return sendRateLimited(res, limit);
@@ -38,8 +39,13 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
+  const origin = verifyStateChangingRequest(req, env);
+  if (!origin.ok) {
+    return rejectUnverifiedRequest(res);
+  }
+
   try {
-    const body = await readJsonBody(req);
+    const body = await readJsonBody(req, { maxBytes: 8192 });
     const report = normalizeReport(body);
     if (!report) {
       return res.status(400).json({ error: "Question report could not be saved" });

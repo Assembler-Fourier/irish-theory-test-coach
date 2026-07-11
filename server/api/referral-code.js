@@ -1,9 +1,11 @@
-import { isValidEmail, readJsonBody } from "../../lib/auth.js";
+import { isValidEmail } from "../../lib/auth.js";
 import {
   lookupInstructorCode,
   redeemInstructorCode,
 } from "../../lib/instructor-codes.js";
-import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { checkRateLimit, compoundRateLimitKey, hashedClientIdentifier, limitFromEnv, sendRateLimited } from "../../lib/rate-limit.js";
+import { readValidatedJson, fieldEmail, fieldString } from "../../lib/request-validation.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   grantReferralEntitlement,
   lookupReferralCode,
@@ -29,10 +31,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = await readJsonBody(req);
+    const origin = verifyStateChangingRequest(req, env);
+    if (!origin.ok) {
+      return rejectUnverifiedRequest(res);
+    }
+
+    const body = await readValidatedJson(req, {
+      maxBytes: 4096,
+      fields: {
+        code: fieldString({ required: true, max: 80, pattern: /^[a-zA-Z0-9_-]{1,80}$/ }),
+        email: fieldEmail(),
+        anonymousId: fieldString({ max: 160, pattern: /^[a-zA-Z0-9:_-]{0,160}$/ }),
+      },
+    });
     const limit = checkRateLimit({
-      key: `${rateLimitKey(req, "code-redemption")}:${String(body.code || "").toUpperCase().slice(0, 24)}`,
-      limit: 12,
+      key: compoundRateLimitKey(req, body.email ? "code-redemption" : "code-lookup", body.code),
+      limit: body.email ? limitFromEnv("RATE_LIMIT_CODE_REDEMPTION", 8) : limitFromEnv("RATE_LIMIT_CODE_LOOKUP", 20),
       windowMs: 10 * 60 * 1000,
     });
     if (!limit.allowed) {
@@ -99,7 +113,7 @@ async function tryGrantCode(env, body, req) {
   try {
     const grant = await redeemInstructorCode(env.databaseUrl, body.code, body.email, {
       anonymousId: body.anonymousId,
-      ipAddress: String(req.headers?.["x-forwarded-for"] || "").split(",")[0].trim(),
+      ipAddress: `client_${hashedClientIdentifier(req)}`,
       userAgent: req.headers?.["user-agent"],
     });
     return { code: grant.code, type: "instructor_code" };

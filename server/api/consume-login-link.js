@@ -1,10 +1,11 @@
 import {
   buildSessionCookie,
   consumeLoginToken,
-  readJsonBody,
   revokeSession,
-  validateRequestOrigin,
 } from "../../lib/auth.js";
+import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { readValidatedJson, fieldString } from "../../lib/request-validation.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -24,22 +25,41 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
-  const origin = validateRequestOrigin(req, env.publicSiteUrl, { isProduction: env.isProduction });
+  const origin = verifyStateChangingRequest(req, env);
   if (!origin.ok) {
-    return res.status(403).json({ error: "Request could not be verified" });
+    return rejectUnverifiedRequest(res);
   }
 
   let body;
   try {
-    body = await readJsonBody(req);
-  } catch {
-    return res.status(400).json({ error: "Invalid request" });
+    body = await readValidatedJson(req, {
+      maxBytes: 4096,
+      fields: {
+        token: fieldString({ required: true, max: 300, pattern: /^[A-Za-z0-9_-]{24,300}$/ }),
+      },
+    });
+  } catch (error) {
+    return res.status(error.statusCode || 400).json({ error: "Invalid request" });
   }
 
   const token = String(body.token || "");
   if (token.length < 24) {
     return res.status(400).json({ error: "Login link is invalid or expired." });
   }
+
+  const ipLimit = checkRateLimit({
+    key: rateLimitKey(req, "consume-login:ip"),
+    limit: limitFromEnv("RATE_LIMIT_CONSUME_LOGIN_IP", 20),
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!ipLimit.allowed) return sendRateLimited(res, ipLimit);
+
+  const tokenLimit = checkRateLimit({
+    key: compoundRateLimitKey(req, "consume-login:token", token.slice(0, 48)),
+    limit: limitFromEnv("RATE_LIMIT_CONSUME_LOGIN_TOKEN", 5),
+    windowMs: 15 * 60 * 1000,
+  });
+  if (!tokenLimit.allowed) return sendRateLimited(res, tokenLimit);
 
   try {
     const session = await consumeLoginToken(token, env.databaseUrl, { req });

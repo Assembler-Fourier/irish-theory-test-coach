@@ -10,5 +10,7 @@ data/raw/
 .env.*
 !.env.example
 output/
-reports/
+reports/*
+!reports/security/
+!reports/security/*.md
 tmp/

@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import { SESSION_COOKIE, getSessionUser } from "../../lib/auth.js";
 import { contentTypeForMedia, sourceAssetPath } from "../../lib/question-bank.js";
-import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import { getStudySessionSecret, verifyMediaToken } from "../../lib/study-session-tokens.js";
 import { getAuthServerEnv, safeErrorSummary, sendSafeConfigError } from "../../lib/server-env.js";
 
@@ -11,7 +11,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const limit = checkRateLimit({ key: rateLimitKey(req, "study-media"), limit: 160, windowMs: 60_000 });
+  const limit = checkRateLimit({
+    key: rateLimitKey(req, "study-media"),
+    limit: limitFromEnv("RATE_LIMIT_PROTECTED_MEDIA", 160),
+    windowMs: 60_000,
+  });
   if (!limit.allowed) return sendRateLimited(res, limit);
 
   try {
@@ -28,6 +32,7 @@ export default async function handler(req, res) {
     if (!fs.existsSync(filePath)) return res.status(404).json({ error: "Media not found" });
 
     res.setHeader("Content-Type", contentTypeForMedia(filePath));
+    res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Cache-Control", "private, max-age=300");
     return res.status(200).send(fs.readFileSync(filePath));
   } catch (error) {

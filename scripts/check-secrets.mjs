@@ -9,7 +9,6 @@ const EXCLUDED_DIRS = new Set([
   ".git",
   ".vercel",
   "node_modules",
-  "reports",
 ]);
 
 const EXCLUDED_PATH_PARTS = [
@@ -83,6 +82,15 @@ function scanDirectory(directory) {
 }
 
 function isExcludedPath(relativePath) {
+  const securityReports = path.join("reports", "security");
+  if (
+    relativePath === "reports" ||
+    (relativePath.startsWith(`reports${path.sep}`) &&
+      relativePath !== securityReports &&
+      !relativePath.startsWith(`${securityReports}${path.sep}`))
+  ) {
+    return true;
+  }
   return EXCLUDED_PATH_PARTS.some(
     (part) => relativePath === part || relativePath.startsWith(`${part}${path.sep}`)
   );
