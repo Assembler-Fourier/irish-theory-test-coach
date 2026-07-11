@@ -33,14 +33,22 @@ if (errors.length) {
 console.log("Stale build check passed.");
 
 function checkGeneratedDataCopies() {
-  for (const file of ["questions.json", "questions.enriched.json", "hardest_questions.json", "study_report.json", "recovery_report.json"]) {
-    const source = path.join(root, "data", file);
-    const generated = path.join(publicDir, "data", file);
-    if (!fs.existsSync(source)) continue;
-    requireFile(generated, `public/data/${file} was not generated.`);
-    if (hashFile(source) !== hashFile(generated)) {
-      errors.push(`public/data/${file} differs from data/${file}; rerun npm run build.`);
+  const previewPath = path.join(publicDir, "data", "preview-questions.json");
+  requireFile(previewPath, "public/data/preview-questions.json was not generated.");
+  for (const forbidden of ["questions.json", "questions.enriched.json", "hardest_questions.json", "study_report.json", "recovery_report.json"]) {
+    if (fs.existsSync(path.join(publicDir, "data", forbidden))) {
+      errors.push(`public/data/${forbidden} must not be generated into the public build.`);
     }
+  }
+  if (fs.existsSync(path.join(publicDir, "data", "assets"))) {
+    errors.push("public/data/assets must not expose the full image asset tree.");
+  }
+  const preview = readJson(previewPath);
+  if (!Array.isArray(preview.questions)) errors.push("preview-questions.json must include a questions array.");
+  if (preview.questions.length > preview.previewLimit) errors.push("preview package exceeds its preview limit.");
+  const text = JSON.stringify(preview);
+  if (/"correct(Index|Answer)"|"correct_index"|"isCorrect"|"is_correct"|"explanation"/i.test(text)) {
+    errors.push("preview-questions.json exposes answer keys or explanations.");
   }
 }
 

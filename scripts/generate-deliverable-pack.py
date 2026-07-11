@@ -1041,13 +1041,16 @@ def available_screenshots() -> list[tuple[Path, str]]:
 def live_data_check() -> dict[str, Any]:
     node_code = """
 const https = require('https');
-https.get('https://irish-theory-test-coach.vercel.app/data/questions.enriched.json', res => {
+https.get('https://irish-theory-test-coach.vercel.app/data/preview-questions.json', res => {
   let data='';
   res.on('data', d => data += d);
   res.on('end', () => {
-    const rows = JSON.parse(data);
-    const imported = rows.filter(q => q.source_type === 'owner_provided_paste').length;
-    console.log(JSON.stringify({status: res.statusCode, total: rows.length, imported}));
+    const payload = JSON.parse(data);
+    console.log(JSON.stringify({
+      status: res.statusCode,
+      preview: Array.isArray(payload.questions) ? payload.questions.length : 0,
+      limit: payload.previewLimit
+    }));
   });
 }).on('error', err => { console.log(JSON.stringify({error: err.message})); });
 """

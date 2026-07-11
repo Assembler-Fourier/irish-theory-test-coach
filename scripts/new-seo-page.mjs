@@ -32,11 +32,11 @@ const html = `<!doctype html>
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="Placeholder description. Replace before publishing.">
     <meta property="og:url" content="${siteUrl}/${slug}">
-    <meta property="og:image" content="${siteUrl}/data/assets/img/quiz-img/a_0P6qm.png">
+    <meta property="og:image" content="${siteUrl}/marketing/og-preview.svg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="Placeholder description. Replace before publishing.">
-    <meta name="twitter:image" content="${siteUrl}/data/assets/img/quiz-img/a_0P6qm.png">
+    <meta name="twitter:image" content="${siteUrl}/marketing/og-preview.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
   </head>
   <body>

@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-11-commercial-1";
+const CACHE_VERSION = "ittc-pwa-2026-07-11-premium-delivery-1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -10,6 +10,12 @@ const SHELL_ASSETS = [
   "./offline.html",
   "./styles.css?v=20260710-rebuild",
   "./app.js?v=20260710-rebuild",
+  "./api-client.js",
+  "./session-store.js",
+  "./question-renderer.js",
+  "./progress-controller.js",
+  "./access-controller.js",
+  "./analytics-client.js",
   "./config.js",
   "./product-summary.js",
   "./pricing-config.js",
@@ -20,6 +26,7 @@ const SHELL_ASSETS = [
   "./manifest.webmanifest",
   "./icons/app-icon.svg",
   "./icons/maskable-icon.svg",
+  "./marketing/og-preview.svg",
   "./pricing.html",
   "./learn.html",
   "./irish-theory-test-practice.html",
@@ -29,15 +36,11 @@ const SHELL_ASSETS = [
 ];
 
 const DATA_ASSETS = [
-  "./data/questions.enriched.json",
-  "./data/questions.json",
-  "./data/study_report.json",
+  "./data/preview-questions.json",
 ];
 
 const COMMON_IMAGE_ASSETS = [
-  "./data/assets/img/quiz-img/a_0P6qm.png",
-  "./data/assets/img/quiz-img/a_1oKgq.png",
-  "./data/assets/img/quiz-img/motorwayahead.jpg",
+  "./marketing/og-preview.svg",
 ];
 
 self.addEventListener("install", (event) => {
@@ -153,5 +156,6 @@ function isQuestionData(url) {
 }
 
 function isImageAsset(url) {
-  return url.pathname.includes("/data/assets/") && /\.(png|jpe?g|webp|gif|svg)$/i.test(url.pathname);
+  return (url.pathname.includes("/data/preview-assets/") || url.pathname.includes("/marketing/"))
+    && /\.(png|jpe?g|webp|gif|svg)$/i.test(url.pathname);
 }

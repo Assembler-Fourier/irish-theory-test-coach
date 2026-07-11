@@ -1,8 +1,15 @@
+import { createApiClient } from "./api-client.js";
+import { createSessionStore } from "./session-store.js";
+import { applyAnswerReveal, labelForScore as scoreLabel, normalizeClientQuestion, resolveImageSrc } from "./question-renderer.js";
+import { createAccessController } from "./access-controller.js";
+import { createAnalyticsClient } from "./analytics-client.js";
+import { createProgressController } from "./progress-controller.js";
+
 (function () {
   "use strict";
 
   const PRODUCT_SUMMARY = window.PRODUCT_SUMMARY || {};
-  const DATA_URLS = ["./data/questions.enriched.json", "./data/questions.json"];
+  const DATA_URLS = ["./data/preview-questions.json"];
   const EXAM_SIZE = positiveNumber(PRODUCT_SUMMARY.mockSize, 40);
   const PASS_MARK = 35;
   const EXAM_SECONDS = positiveNumber(PRODUCT_SUMMARY.mockDurationSeconds, 45 * 60);
@@ -13,6 +20,11 @@
   const ACCESS_KEY = "irish-theory-practice-access-v1";
   const ANALYTICS_KEY = "irish-theory-practice-anonymous-id-v1";
   const PROGRESS_SCHEMA_VERSION = 3;
+  const store = createSessionStore(window.localStorage);
+  const studyApi = createApiClient();
+  const progressController = createProgressController({ dailyTarget: DAILY_TARGET });
+  let analyticsClient = null;
+  let accessController = null;
   const CATEGORY_MIX = [
     ["Safe and Responsible Driving", 13],
     ["Legal Matters/Rules of the Road", 8],
@@ -45,6 +57,8 @@
       code: "",
       planKey: "",
     },
+    studySession: null,
+    answerStateToken: "",
     exam: null,
     timerId: null,
     celebrations: {
@@ -114,6 +128,13 @@
     trustSignImageCount: document.getElementById("trustSignImageCount"),
   };
 
+  analyticsClient = createAnalyticsClient({ anonymousId: state.analytics.anonymousId });
+  accessController = createAccessController({
+    pricingConfig,
+    productSummary: PRODUCT_SUMMARY,
+    hasAccess,
+  });
+
   init();
 
   function positiveNumber(value, fallback) {
@@ -128,8 +149,8 @@
     registerServiceWorker();
     trackEvent("page_view", { path: window.location.pathname || "/" });
     setLoading(true);
-    renderLoading("Loading question bank...");
-    setStatus("Loading recovered questions...");
+    renderLoading("Loading preview questions...");
+    setStatus("Loading secure preview...");
     await handleLoginReturn();
     await refreshServerSession();
     await handleCheckoutReturn();
@@ -148,11 +169,11 @@
       render();
     } catch (error) {
       const offline = !navigator.onLine;
-      setStatus(offline ? "Offline. Cached questions were not available yet." : "Waiting for the recovered dataset.");
+      setStatus(offline ? "Offline. Cached preview was not available yet." : "Waiting for the preview package.");
       renderEmpty(
         offline
-          ? "You are offline and this device does not have the question bank cached yet. Reconnect once, then the app can reopen faster."
-          : "Let the recovery script finish, then refresh this page."
+          ? "You are offline and this device does not have the preview package cached yet. Reconnect once, then the app can reopen faster."
+          : "Run the build step to generate the preview package, then refresh this page."
       );
       console.error(error);
     } finally {
@@ -168,7 +189,12 @@
       try {
         const response = await fetch(url, { cache: "default" });
         if (!response.ok) throw new Error(`Status ${response.status}`);
-        return { questions: await response.json(), url };
+        const payload = await response.json();
+        return {
+          questions: Array.isArray(payload) ? payload : payload.questions,
+          previewPackage: Array.isArray(payload) ? null : payload,
+          url,
+        };
       } catch (error) {
         lastError = error;
       }
@@ -286,45 +312,8 @@
 
   function normalizeQuestions(payload) {
     return payload
-      .filter((question) => question && Number.isInteger(question.id))
-      .map((question) => {
-        const options = Array.isArray(question.options) ? question.options : [];
-        const score = Number.isFinite(question.priority_score) ? question.priority_score : 50;
-        return {
-          id: question.id,
-          category: clean(question.category) || "Uncategorised",
-          question: clean(question.question),
-          explanation: clean(question.explanation),
-          correctIndex: Number.isInteger(question.correct_index)
-            ? question.correct_index
-            : options.findIndex((option) => option.is_correct),
-          correctAnswer: clean(question.correct_answer),
-          options: options.map((option, index) => ({
-            index,
-            text: clean(option.text),
-            isCorrect: Boolean(option.is_correct),
-          })),
-          images: Array.isArray(question.local_image_paths) ? question.local_image_paths : [],
-          coachVisuals: Array.isArray(question.coach_visual_paths) ? question.coach_visual_paths : [],
-          priorityScore: score,
-          priorityLabel: clean(question.priority_label) || labelForScore(score),
-          studySignals: Array.isArray(question.study_signals) ? question.study_signals.map(clean) : [],
-          scoreBreakdown: normalizeScoreBreakdown(question.score_breakdown),
-          sourceType: clean(question.source_type) || "recovered_archive",
-          sourceReference: clean(question.source_reference || question.source_url || question.archive_url),
-          reviewedStatus: clean(question.reviewed_status) || "needs_official_cross_check",
-          reviewedBy: clean(question.reviewed_by),
-          reviewedAt: clean(question.reviewed_at),
-          reviewNotes: clean(question.notes),
-          safeToShow: question.safe_to_show !== false,
-          hardestRank: Number.isFinite(question.hardest_rank) ? question.hardest_rank : null,
-          communityCorrectRate: Number.isFinite(question.community_correct_rate)
-            ? question.community_correct_rate
-            : null,
-          isRoadSign: Boolean(question.is_road_sign) || Boolean(question.local_image_paths && question.local_image_paths.length),
-          importanceNote: clean(question.importance_note),
-        };
-      })
+      .filter((question) => question && Number.isInteger(Number(question.id)))
+      .map(normalizeClientQuestion)
       .filter((question) => question.question && question.options.length && isQuestionPublishable(question))
       .sort((a, b) => a.id - b.id);
   }
@@ -357,10 +346,7 @@
   }
 
   function labelForScore(score) {
-    if (score >= 82) return "Critical";
-    if (score >= 68) return "High";
-    if (score >= 54) return "Medium";
-    return "Standard";
+    return scoreLabel(score);
   }
 
   function hydrateCategories() {
@@ -423,7 +409,7 @@
     state.filtered = questions;
   }
 
-  function setMode(mode) {
+  async function setMode(mode) {
     const previousMode = state.mode;
     state.mode = mode;
     state.activeIndex = 0;
@@ -433,8 +419,25 @@
       els.examBar.classList.add("hidden");
     }
     updateModeButtons();
+
+    let secureLoadFailed = false;
+    if (mode !== "exam" && (!requiresAccess(mode) || hasAccess())) {
+      try {
+        await loadStudySessionForMode(mode, { allowPreviewFallback: mode === "revise" && !hasAccess() });
+      } catch {
+        secureLoadFailed = true;
+      }
+    } else {
+      state.studySession = null;
+      state.answerStateToken = "";
+    }
+
     applyFilters();
     renderInsight();
+    if (secureLoadFailed && requiresAccess(mode)) {
+      renderPaywall();
+      return;
+    }
     render();
     if (previousMode !== mode) {
       trackEvent("mode_selected", {
@@ -443,6 +446,55 @@
         requiresAccess: requiresAccess(mode),
       });
     }
+  }
+
+  async function loadStudySessionForMode(mode, options = {}) {
+    const premium = hasAccess();
+    const reviewQuestionIds = mode === "review"
+      ? [...state.progress.missed, ...state.progress.flagged]
+      : [];
+
+    try {
+      const payload = await studyApi.startStudySession({
+        mode,
+        premium,
+        category: state.selectedCategory,
+        reviewQuestionIds,
+      });
+      applyStudySession(payload.session);
+      setStatus(buildStudySessionStatus(payload.session));
+      return payload.session;
+    } catch (error) {
+      state.studySession = null;
+      state.answerStateToken = "";
+      if (options.allowPreviewFallback) {
+        setStatus(navigator.onLine
+          ? "Preview loaded locally. Reconnect or retry if answer reveal is unavailable."
+          : "Offline preview loaded. Reconnect to reveal answers.");
+        return null;
+      }
+      setStatus(error.status === 401 || error.status === 402
+        ? "Restore access to load premium questions from the secure server."
+        : "Secure study session is unavailable right now.");
+      throw error;
+    }
+  }
+
+  function applyStudySession(session) {
+    if (!session || !Array.isArray(session.questions)) return;
+    state.studySession = session;
+    state.answerStateToken = "";
+    state.questions = normalizeQuestions(session.questions);
+    state.activeIndex = 0;
+  }
+
+  function buildStudySessionStatus(session) {
+    if (!session) return "Preview loaded.";
+    const count = Number(session.questionCount || session.questions?.length || 0);
+    const modeText = modeLabel(session.mode || state.mode).toLowerCase();
+    return session.accessType === "premium"
+      ? `Loaded ${count} ${modeText} questions from secure premium access.`
+      : `Preview session loaded with ${Math.min(count, PREVIEW_LIMIT)} questions.`;
   }
 
   function updateModeButtons() {
@@ -527,7 +579,7 @@
     renderQuestion(question, {
       positionLabel: `${state.activeIndex + 1} of ${state.filtered.length}`,
       selectedIndex: null,
-      onAnswer: (index) => recordAnswer(question, index),
+      onAnswer: (index, correct) => recordAnswer(question, index, correct),
       onNext: () => move(1),
       onPrevious: () => move(-1),
     });
@@ -582,7 +634,7 @@
       image.loading = "lazy";
       image.decoding = "async";
       image.fetchPriority = question.isRoadSign ? "high" : "auto";
-      image.src = "./" + question.images[0].replace(/\\/g, "/");
+      image.src = resolveImageSrc(question.images[0]);
       image.alt = `Image for question ${question.id}`;
       image.addEventListener("load", () => imageWrap.classList.remove("image-loading"), { once: true });
       image.addEventListener("error", () => {
@@ -597,13 +649,25 @@
       button.className = "answer-option";
       button.innerHTML = `<strong>${String.fromCharCode(65 + index)}</strong><span></span>`;
       button.querySelector("span").textContent = option.text;
-      button.addEventListener("click", () => {
+      button.addEventListener("click", async () => {
         if (article.dataset.answered === "true") return;
         article.dataset.answered = "true";
-        paintAnswers(answerList, question, index);
-        showFeedback(feedback, question, index);
-        config.onAnswer(index);
-        appendPreviewAnswerCta(feedback);
+        setAnswerPending(answerList, index);
+        try {
+          const result = await revealAnswerFromServer(question, index);
+          applyAnswerReveal(question, result);
+          paintAnswers(answerList, question, index);
+          showFeedback(feedback, question, index);
+          config.onAnswer(index, result.correct);
+          appendPreviewAnswerCta(feedback);
+        } catch {
+          article.dataset.answered = "false";
+          setAnswerError(feedback);
+          Array.from(answerList.children).forEach((item) => {
+            item.disabled = false;
+            item.classList.remove("selected");
+          });
+        }
       });
       answerList.append(button);
     });
@@ -711,10 +775,59 @@
     Array.from(answerList.children).forEach((button, index) => {
       button.disabled = true;
       const option = question.options[index];
+      button.classList.remove("pending");
       button.classList.toggle("selected", index === selectedIndex);
       button.classList.toggle("correct", option.isCorrect);
       button.classList.toggle("wrong", index === selectedIndex && !option.isCorrect);
     });
+  }
+
+  function setAnswerPending(answerList, selectedIndex) {
+    Array.from(answerList.children).forEach((button, index) => {
+      button.disabled = true;
+      button.classList.toggle("selected", index === selectedIndex);
+      button.classList.toggle("pending", index === selectedIndex);
+      button.classList.remove("correct", "wrong");
+    });
+  }
+
+  function setAnswerError(feedback) {
+    feedback.classList.remove("hidden", "is-correct");
+    feedback.classList.add("is-wrong");
+    feedback.innerHTML = `
+      <div class="feedback-header">
+        <span class="feedback-status-icon" aria-hidden="true">!</span>
+        <div>
+          <strong>Could not reveal that answer</strong>
+          <p>Reconnect or restore access, then try again. Correct answers are checked securely after submission.</p>
+        </div>
+      </div>
+    `;
+  }
+
+  async function revealAnswerFromServer(question, selectedIndex) {
+    const mode = state.exam ? "exam" : state.mode;
+    if (!state.studySession || !sessionIncludesQuestion(state.studySession, question.id)) {
+      await loadStudySessionForMode(mode, { allowPreviewFallback: mode === "revise" && !hasAccess() });
+    }
+
+    if (!state.studySession || !sessionIncludesQuestion(state.studySession, question.id)) {
+      const error = new Error("Study session is not ready");
+      error.status = 503;
+      throw error;
+    }
+
+    const payload = await studyApi.submitAnswer(state.studySession.id, {
+      questionId: question.id,
+      selectedIndex,
+      answerStateToken: state.answerStateToken,
+    });
+    state.answerStateToken = payload.answerStateToken || state.answerStateToken;
+    return payload.result;
+  }
+
+  function sessionIncludesQuestion(session, questionId) {
+    return Array.isArray(session?.questions) && session.questions.some((item) => Number(item.id) === Number(questionId));
   }
 
   function showFeedback(feedback, question, selectedIndex) {
@@ -826,6 +939,8 @@
   }
 
   function buildMemoryTip(question) {
+    if (question.memoryTip) return question.memoryTip;
+
     const signals = question.studySignals || [];
     if (signals.some((signal) => /must|never|only|except|first/i.test(signal))) {
       return "Slow down on absolute words like must, never, only, except, and first before choosing.";
@@ -1076,7 +1191,7 @@
     if (hasAccess() || state.mode !== "revise" || totalAttemptCount() < 4) return;
     if (feedback.querySelector(".preview-answer-cta")) return;
 
-    const remainingQuestions = Math.max(0, state.questions.length - PREVIEW_LIMIT);
+    const remainingQuestions = Math.max(0, positiveNumber(PRODUCT_SUMMARY.totalPublishedQuestions, state.questions.length) - PREVIEW_LIMIT);
     const cta = document.createElement("div");
     cta.className = "preview-answer-cta";
 
@@ -1106,8 +1221,10 @@
     feedback.append(cta);
   }
 
-  function recordAnswer(question, selectedIndex) {
-    const isCorrect = Boolean(question.options[selectedIndex] && question.options[selectedIndex].isCorrect);
+  function recordAnswer(question, selectedIndex, serverCorrect) {
+    const isCorrect = typeof serverCorrect === "boolean"
+      ? serverCorrect
+      : Boolean(question.options[selectedIndex] && question.options[selectedIndex].isCorrect);
     const today = dayKey();
     const beforeToday = state.progress.daily[today] || 0;
     const beforeCategory = getCategorySnapshot(question.category);
@@ -1196,7 +1313,7 @@
     return next >= 0 && next < state.filtered.length;
   }
 
-  function startExam() {
+  async function startExam() {
     if (!hasAccess()) {
       state.mode = "exam";
       updateModeButtons();
@@ -1205,20 +1322,33 @@
       return;
     }
 
+    state.mode = "exam";
+    updateModeButtons();
+    renderLoading("Starting secure mock test...");
+
+    try {
+      await loadStudySessionForMode("exam");
+    } catch {
+      renderEmpty("Secure mock test is unavailable. Restore access or try again in a moment.");
+      scrollQuestionIntoView();
+      return;
+    }
+
     if (state.questions.length < EXAM_SIZE) {
       renderEmpty(`Need at least ${EXAM_SIZE} questions before a mock test can start.`);
       return;
     }
-    state.mode = "exam";
-    const pool = state.selectedCategory
-      ? state.questions.filter((question) => question.category === state.selectedCategory)
-      : state.questions;
+
+    const startedAt = state.studySession?.startedAt
+      ? Date.parse(state.studySession.startedAt)
+      : Date.now();
+    const durationSeconds = positiveNumber(state.studySession?.durationSeconds, EXAM_SECONDS);
     state.exam = {
-      questions: buildExam(pool.length >= EXAM_SIZE ? pool : state.questions),
+      questions: state.questions.slice(0, EXAM_SIZE),
       index: 0,
       answers: {},
-      startedAt: Date.now(),
-      endsAt: Date.now() + EXAM_SECONDS * 1000,
+      startedAt,
+      endsAt: startedAt + durationSeconds * 1000,
     };
     trackEvent("mock_started", {
       questionCount: state.exam.questions.length,
@@ -1276,18 +1406,29 @@
       positionLabel: `${state.exam.index + 1} of ${state.exam.questions.length}`,
       selectedIndex: Number.isInteger(selected) ? selected : null,
       isExam: true,
-      onAnswer: (index) => recordAnswer(question, index),
+      onAnswer: (index, correct) => recordAnswer(question, index, correct),
       onNext: () => move(1),
       onPrevious: () => move(-1),
       onFinish: finishExam,
     });
   }
 
-  function finishExam() {
+  async function finishExam() {
     if (!state.exam) return;
     stopTimer();
 
     const answers = state.exam.answers;
+    let serverResult = null;
+    if (state.studySession?.id) {
+      try {
+        serverResult = await studyApi.completeStudySession(state.studySession.id, {
+          answerStateToken: state.answerStateToken,
+        });
+      } catch {
+        setStatus("Could not confirm the mock score with the secure server. Showing local revealed progress.");
+      }
+    }
+
     let correct = 0;
     state.exam.questions.forEach((question) => {
       const selected = answers[String(question.id)];
@@ -1298,14 +1439,17 @@
       }
     });
 
-    const passed = correct >= PASS_MARK;
-    recordMockResult(correct, passed, Object.keys(answers).length);
+    correct = Number.isInteger(serverResult?.score) ? serverResult.score : correct;
+    const resultTotal = Number.isInteger(serverResult?.total) ? serverResult.total : EXAM_SIZE;
+    const answeredCount = Number.isInteger(serverResult?.answered) ? serverResult.answered : Object.keys(answers).length;
+    const passed = typeof serverResult?.passed === "boolean" ? serverResult.passed : correct >= PASS_MARK;
+    recordMockResult(correct, passed, answeredCount);
     saveProgress();
     trackEvent("mock_completed", {
       score: correct,
-      total: EXAM_SIZE,
+      total: resultTotal,
       passed,
-      answered: Object.keys(answers).length,
+      answered: answeredCount,
       durationSeconds: Math.max(0, Math.round((Date.now() - state.exam.startedAt) / 1000)),
     });
     const byCategory = {};
@@ -1322,7 +1466,7 @@
       <section class="question-view">
         <div class="question-meta">
           <span class="category-pill">${passed ? "Pass" : "Keep practising"}</span>
-          <span class="priority-pill ${passed ? "priority-high" : "priority-critical"}">${correct}/${EXAM_SIZE}</span>
+          <span class="priority-pill ${passed ? "priority-high" : "priority-critical"}">${correct}/${resultTotal}</span>
           <span class="question-number">Mock test result</span>
         </div>
         <h2 class="question-title">${passed ? "You hit the pass mark." : "Close the gaps and go again."}</h2>
@@ -1349,6 +1493,8 @@
     document.getElementById("reviewMissedBtn").addEventListener("click", () => setMode("review"));
     document.getElementById("newExamBtn").addEventListener("click", startExam);
     state.exam = null;
+    state.studySession = null;
+    state.answerStateToken = "";
     updateStats();
     if (passed) {
       const mockKey = `${dayKey()}:${correct}:${Date.now()}`;
@@ -1375,10 +1521,10 @@
       return;
     }
 
-    const highYield = state.questions.filter((question) => question.priorityScore >= 68).length;
-    const critical = state.questions.filter((question) => question.priorityScore >= 82).length;
+    const highYield = positiveNumber(PRODUCT_SUMMARY.estimatedPriorityQuestionCount, state.questions.filter((question) => question.priorityScore >= 68).length);
+    const critical = positiveNumber(PRODUCT_SUMMARY.criticalQuestionCount, state.questions.filter((question) => question.priorityScore >= 82).length);
     const hardest = state.questions.filter((question) => question.hardestRank).length;
-    const signs = state.questions.filter((question) => question.isRoadSign).length;
+    const signs = positiveNumber(PRODUCT_SUMMARY.signOrImageQuestionCount, state.questions.filter((question) => question.isRoadSign).length);
     els.insightBar.classList.toggle("hidden", state.mode === "exam" && Boolean(state.exam));
     els.insightTitle.textContent = modeTitle();
     els.insightCopy.textContent = `${highYield} estimated high-yield questions, ${critical} critical, ${hardest} archived hardest, ${signs} road-sign/image drills. Scores estimate study priority, not official exam frequency.`;
@@ -1526,6 +1672,13 @@
         verifiedAt: new Date().toISOString(),
       };
       saveEntitlement();
+      if (payload.authenticated) {
+        applyServerSession({
+          authenticated: true,
+          email: payload.email || "",
+          entitlement: { active: true },
+        });
+      }
       window.history.replaceState({}, "", window.location.pathname);
       trackEvent("checkout_success", { source: "stripe_return", planKey: currentCheckoutPlan().key, referralCode: state.referral.code || "" });
       if (state.referral.code) {
@@ -1924,8 +2077,18 @@
     });
     state.categorySummary = [];
     saveProgress();
+    syncStudySessionFlag(id, active);
     syncPendingFlags();
     updateStats();
+  }
+
+  async function syncStudySessionFlag(questionId, active) {
+    if (!state.studySession?.id || !sessionIncludesQuestion(state.studySession, questionId)) return;
+    try {
+      await studyApi.flagQuestion(state.studySession.id, { questionId, active });
+    } catch {
+      // Existing progress-sync endpoints keep the flag queued for authenticated users.
+    }
   }
 
   function loadProgress() {
@@ -2093,8 +2256,14 @@
 
   function updateStats() {
     const metrics = buildProgressMetrics();
-    const highYield = state.questions.filter((question) => question.priorityScore >= 68).length;
-    const signs = state.questions.filter((question) => question.isRoadSign).length;
+    const highYield = positiveNumber(
+      PRODUCT_SUMMARY.estimatedPriorityQuestionCount,
+      state.questions.filter((question) => question.priorityScore >= 68).length
+    );
+    const signs = positiveNumber(
+      PRODUCT_SUMMARY.signOrImageQuestionCount,
+      state.questions.filter((question) => question.isRoadSign).length
+    );
 
     els.answeredStat.textContent = String(metrics.answered);
     els.accuracyStat.textContent = metrics.answered ? `${metrics.accuracy}%` : "0%";
@@ -2108,9 +2277,9 @@
     }
     els.targetMeter.style.width = `${Math.round(metrics.targetRatio * 100)}%`;
     els.targetRing?.style.setProperty("--target-progress", `${Math.round(metrics.targetRatio * 100)}%`);
-    const totalQuestions = state.questions.length || positiveNumber(PRODUCT_SUMMARY.totalPublishedQuestions, 0);
-    const totalPriority = highYield || positiveNumber(PRODUCT_SUMMARY.estimatedPriorityQuestionCount, 0);
-    const totalSigns = signs || positiveNumber(PRODUCT_SUMMARY.signOrImageQuestionCount, 0);
+    const totalQuestions = positiveNumber(PRODUCT_SUMMARY.totalPublishedQuestions, state.questions.length);
+    const totalPriority = highYield;
+    const totalSigns = signs;
     els.questionCountChip.textContent = `${formatCount(totalQuestions)} questions`;
     els.trustQuestionCount.textContent = formatCount(totalQuestions);
     if (els.trustPriorityCount) els.trustPriorityCount.textContent = formatCount(totalPriority);
@@ -2756,10 +2925,9 @@
   }
 
   function buildStatusMessage(url) {
-    const enriched = url.includes("enriched");
-    return enriched
-      ? `${state.questions.length} questions loaded with estimated high-yield scoring.`
-      : `${state.questions.length} recovered questions loaded. Run enrich_dataset.py for estimated high-yield scoring.`;
+    return url.includes("preview-questions")
+      ? `${state.questions.length} preview questions loaded. Answers reveal securely after submission.`
+      : `${state.questions.length} preview questions loaded.`;
   }
 
   function setStatus(message) {

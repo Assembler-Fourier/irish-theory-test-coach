@@ -7,6 +7,7 @@ import {
   isPaidCheckoutSession,
   recordStripeCheckoutSession,
 } from "../../lib/stripe-entitlements.js";
+import { buildSessionCookie, createSessionForEntitledEmail } from "../../lib/auth.js";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -46,11 +47,19 @@ export default async function handler(req, res) {
 
   const email = getCheckoutSessionEmail(session);
   const dbRecorded = email ? await recordStripeCheckoutSession(session, env.databaseUrl) : false;
+  const appSession = dbRecorded && email
+    ? await createSessionForEntitledEmail(email, env.databaseUrl)
+    : null;
+
+  if (appSession?.sessionToken) {
+    res.setHeader("Set-Cookie", buildSessionCookie(appSession.sessionToken, env));
+  }
 
   return res.status(200).json({
     ok: true,
     paid: true,
     email,
     dbRecorded,
+    authenticated: Boolean(appSession),
   });
 }

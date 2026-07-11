@@ -24,7 +24,7 @@ try {
     baseUrl: server.baseUrl,
     html: await fetchText(server.baseUrl, "/"),
     appJs: await fetchText(server.baseUrl, "/app.js"),
-    questions: await fetchJson(server.baseUrl, "/data/questions.enriched.json"),
+    previewPackage: await fetchJson(server.baseUrl, "/data/preview-questions.json"),
     productSummary: await fetchJson(server.baseUrl, "/product-summary.json"),
   };
 
@@ -37,25 +37,28 @@ try {
   await server.close();
 }
 
-async function checkPreviewLoads({ html, appJs, questions }) {
+async function checkPreviewLoads({ html, appJs, previewPackage }) {
   assert.match(html, /id="questionMount"/, "Preview workspace is missing.");
   assert.match(html, /id="questionTemplate"/, "Question template is missing.");
-  assert.match(html, /src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app script is missing.");
-  assert.match(appJs, /DATA_URLS = \["\.\/data\/questions\.enriched\.json"/, "App is not loading the enriched question bank first.");
-  assert.ok(Array.isArray(questions), "Question bank should be a JSON array.");
-  assert.ok(questions.length >= 500, `Expected a substantial question bank, got ${questions.length}.`);
+  assert.match(html, /type="module"\s+src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app module script is missing.");
+  assert.match(appJs, /DATA_URLS = \["\.\/data\/preview-questions\.json"/, "App is not loading the preview package first.");
+  assert.ok(Array.isArray(previewPackage.questions), "Preview package should include a questions array.");
+  assert.ok(previewPackage.questions.length > 0, "Preview package should include questions.");
+  assert.ok(previewPackage.questions.length <= previewPackage.previewLimit, "Preview package exceeds its preview limit.");
 
-  const sample = questions.find((question) => Array.isArray(question.options) && question.options.length >= 2);
-  assert.ok(sample, "Question bank should include answer options.");
+  const sample = previewPackage.questions.find((question) => Array.isArray(question.options) && question.options.length >= 2);
+  assert.ok(sample, "Preview package should include answer options.");
   assert.equal(typeof sample.question, "string", "Question text should be present.");
+  assertNoAnswerKeys(previewPackage);
 }
 
 function checkAnswerFlowContract({ html, appJs }) {
   assert.match(html, /<div class="answer-list"><\/div>/, "Answer list mount is missing.");
   assert.match(appJs, /button\.className = "answer-option"/, "Answer buttons are not created.");
+  assert.match(appJs, /revealAnswerFromServer\(question, index\)/, "Answer reveal is not routed through the secure API.");
   assert.match(appJs, /paintAnswers\(answerList, question, index\)/, "Answer selection does not paint answers.");
   assert.match(appJs, /showFeedback\(feedback, question, index\)/, "Answer selection does not show feedback.");
-  assert.match(appJs, /recordAnswer\(question, index\)/, "Answer selection does not record progress.");
+  assert.match(appJs, /recordAnswer\(question, index, correct\)/, "Answer selection does not record server-confirmed progress.");
   assert.match(appJs, /eventName: "question_answered"/, "Answer analytics event is missing.");
 }
 
@@ -105,9 +108,18 @@ function checkMockTestContract({ html, appJs, productSummary }) {
   assert.equal(productSummary.mockDurationMinutes, 45, "Product summary should expose the 45-minute mock duration.");
   assert.match(appJs, /const EXAM_SIZE = positiveNumber\(PRODUCT_SUMMARY\.mockSize, 40\);/, "Mock test should use product summary mock size.");
   assert.match(appJs, /const PASS_MARK = 35;/, "Mock test should use the 35 pass mark.");
-  assert.match(appJs, /function startExam\(\)/, "Mock test start function is missing.");
+  assert.match(appJs, /async function startExam\(\)/, "Mock test start function is missing.");
+  assert.match(appJs, /completeStudySession\(state\.studySession\.id/, "Mock test completion should use the secure study-session API.");
   assert.match(appJs, /trackEvent\("mock_started"/, "Mock test start analytics event is missing.");
   assert.match(appJs, /renderExamQuestion\(\)/, "Mock test does not render exam questions.");
+}
+
+function assertNoAnswerKeys(payload) {
+  const text = JSON.stringify(payload);
+  assert.doesNotMatch(text, /"correct(Index|Answer|_index|_answer)"\s*:/i, "Preview package exposes correct-answer fields.");
+  assert.doesNotMatch(text, /"isCorrect"\s*:\s*true/i, "Preview package exposes option correctness.");
+  assert.doesNotMatch(text, /"is_correct"\s*:\s*true/i, "Preview package exposes option correctness.");
+  assert.doesNotMatch(text, /"explanation"\s*:\s*"[^\"]+/i, "Preview package exposes explanations.");
 }
 
 async function startStaticServer() {

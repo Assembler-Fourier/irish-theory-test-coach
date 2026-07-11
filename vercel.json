@@ -2,6 +2,11 @@
   "buildCommand": "npm run build",
   "outputDirectory": "public",
   "cleanUrls": true,
+  "functions": {
+    "api/[...route].js": {
+      "includeFiles": "data/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/admin/entitlements", "destination": "/api/admin-entitlements" },
     { "source": "/api/admin/export", "destination": "/api/admin-export" },

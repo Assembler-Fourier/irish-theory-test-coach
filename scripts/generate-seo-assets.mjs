@@ -14,7 +14,7 @@ const templatesDir = path.join(docsDir, "seo-templates");
 const defaultSiteUrl = "https://irish-theory-test-coach.vercel.app";
 const siteUrl = cleanSiteUrl(process.env.PUBLIC_SITE_URL || defaultSiteUrl);
 const disclaimer = "Independent practice tool. Not affiliated with RSA or Prometric.";
-const ogImage = `${siteUrl}/data/assets/img/quiz-img/a_0P6qm.png`;
+const ogImage = `${siteUrl}/marketing/og-preview.svg`;
 const productSummary = buildProductSummary({ root, env: process.env });
 const activePlan = productSummary.pricing?.plans?.find((plan) => plan.active) || productSummary.pricing?.plans?.[0];
 

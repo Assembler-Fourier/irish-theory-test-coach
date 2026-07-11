@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(repoRoot, "public");
 const outputDir = path.join(repoRoot, "reports", "ui", "latest");
-const questionDataPath = path.join(publicDir, "data", "questions.enriched.json");
+const questionDataPath = path.join(publicDir, "data", "preview-questions.json");
 
 const desktopViewport = { width: 1440, height: 1000 };
 const desktopMediumViewport = { width: 1280, height: 900 };
@@ -168,7 +168,7 @@ const screenshotStates = [
 ];
 
 if (!existsSync(questionDataPath)) {
-  console.error("Missing public/data/questions.enriched.json. Run `npm run build` before capturing screenshots.");
+  console.error("Missing public/data/preview-questions.json. Run `npm run build` before capturing screenshots.");
   process.exit(1);
 }
 

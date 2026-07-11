@@ -13,8 +13,8 @@ The official material is the best authority for correctness. The recovered archi
 
 1. Let `scripts/recover_theory_tester.py` finish.
 2. Run `python .\scripts\validate_dataset.py`.
-3. Open `http://localhost:5173/public/` and test:
-   - Revise mode loads questions and images.
+3. Open the app through the local serverless runtime when testing answer reveal or premium modes, and test:
+   - Revise mode loads the generated preview package.
    - Search finds words inside questions and answers.
    - Category filter works.
    - Mock test gives 40 questions and a pass at 35.
@@ -34,7 +34,7 @@ The official material is the best authority for correctness. The recovered archi
 
 - No question should have missing options.
 - No question should have zero or multiple correct answers.
-- All road-sign images should load from `data/assets/`.
+- Preview images may load from `public/data/preview-assets/`; premium images must load through protected `/api/v1/media/:token` routes.
 - Mobile layout should show the image above answers without text overflow.
 - Mock test must not reveal answers until the learner chooses an option.
 - Results should show weak categories, not just a score.

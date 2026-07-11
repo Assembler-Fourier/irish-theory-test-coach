@@ -45,12 +45,16 @@ const serviceWorker = readPublicFile("service-worker.js");
   "install",
   "activate",
   "fetch",
-  "questions.enriched.json",
+  "preview-questions.json",
   "product-summary.js",
   "offline.html",
 ].forEach((needle) => {
   if (!serviceWorker.includes(needle)) errors.push(`service-worker.js missing ${needle}`);
 });
+
+for (const forbidden of ["./data/questions.enriched.json", "./data/questions.json", "./data/study_report.json", "/data/assets/"]) {
+  if (serviceWorker.includes(forbidden)) errors.push(`service-worker.js must not precache protected asset ${forbidden}.`);
+}
 
 if (errors.length) {
   console.error(errors.map((error) => `- ${error}`).join("\n"));

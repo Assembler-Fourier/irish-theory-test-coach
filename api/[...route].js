@@ -11,6 +11,8 @@ import requestLoginLink from "../server/api/request-login-link.js";
 import referralCode from "../server/api/referral-code.js";
 import stripeWebhook from "../server/api/stripe-webhook.js";
 import verifySession from "../server/api/verify-session.js";
+import v1Media from "../server/api/v1-media.js";
+import v1StudySessions from "../server/api/v1-study-sessions.js";
 import adminEntitlements from "../server/api/admin/entitlements.js";
 import adminExport from "../server/api/admin/export.js";
 import adminGenerateQuestions from "../server/api/admin/generate-questions.js";
@@ -57,6 +59,13 @@ const routes = new Map([
 
 export default async function handler(req, res) {
   const route = normalizeRoute(req.query?.route, req.url);
+  if (route === "v1/study-sessions" || route.startsWith("v1/study-sessions/")) {
+    return v1StudySessions(req, res);
+  }
+  if (route === "v1/media" || route.startsWith("v1/media/")) {
+    return v1Media(req, res);
+  }
+
   const routeHandler = routes.get(route);
 
   if (!routeHandler) {

@@ -65,8 +65,8 @@ export function buildProductSummary(options = {}) {
     pricing,
     featureFlags: buildFeatureFlags(pricing),
     publicData: {
-      questionsPath: "data/questions.enriched.json",
-      studyReportPath: "data/study_report.json",
+      previewQuestionsPath: "data/preview-questions.json",
+      privateQuestionSource: "server-packaged-data",
     },
     generatedFrom: {
       source: "shared/product-summary.js",
@@ -157,8 +157,6 @@ function hasSignOrImageSignal(question) {
 
 function isPublishedQuestion(question) {
   if (!question || !Number.isInteger(question.id)) return false;
-  if (question.safe_to_show === false || question.reviewed_status === "rejected") return false;
-  if (question.source_type === "ai_generated" && question.reviewed_status !== "approved") return false;
   return Boolean(question.question && Array.isArray(question.options) && question.options.length);
 }
 
