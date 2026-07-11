@@ -1,0 +1,35 @@
+name: Operations reconciliation
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Run payment/access reconciliation
+        run: npm run ops:reconcile -- --allow-findings --json
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          RATE_LIMIT_SALT: ${{ secrets.RATE_LIMIT_SALT }}
+          MONITORING_ENABLED: ${{ vars.MONITORING_ENABLED }}
+          MONITORING_WEBHOOK_URL: ${{ secrets.MONITORING_WEBHOOK_URL }}
+          MONITORING_ENVIRONMENT: production

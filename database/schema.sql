@@ -1,5 +1,15 @@
 create extension if not exists pgcrypto;
 
+create table if not exists schema_migrations (
+  version text primary key,
+  name text not null,
+  checksum text not null,
+  applied_at timestamptz not null default now(),
+  duration_ms integer not null default 0,
+  success boolean not null default true,
+  log jsonb not null default '{}'::jsonb
+);
+
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
   email text not null unique,
@@ -694,6 +704,85 @@ alter table events
   add column if not exists environment text not null default 'local',
   add column if not exists client_created_at timestamptz;
 
+create table if not exists operational_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text not null,
+  severity text not null default 'info',
+  source text not null default 'app',
+  environment text not null default 'local',
+  correlation_id text,
+  safe_actor text,
+  message text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists reconciliation_runs (
+  id uuid primary key default gen_random_uuid(),
+  status text not null default 'running',
+  environment text not null default 'local',
+  started_at timestamptz not null default now(),
+  completed_at timestamptz,
+  findings_count integer not null default 0,
+  high_severity_count integer not null default 0,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create table if not exists reconciliation_findings (
+  id uuid primary key default gen_random_uuid(),
+  run_id uuid references reconciliation_runs(id) on delete cascade,
+  check_key text not null,
+  severity text not null default 'warning',
+  subject_type text not null,
+  subject_id text,
+  message text not null,
+  status text not null default 'open',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
+create table if not exists restore_drills (
+  id uuid primary key default gen_random_uuid(),
+  restoration_date date not null,
+  source_backup text not null,
+  target_environment text not null,
+  row_counts jsonb not null default '{}'::jsonb,
+  integrity_checks jsonb not null default '{}'::jsonb,
+  elapsed_seconds integer,
+  problems text,
+  recorded_by text,
+  created_at timestamptz not null default now()
+);
+
+alter table operational_events
+  add column if not exists source text not null default 'app',
+  add column if not exists environment text not null default 'local',
+  add column if not exists correlation_id text,
+  add column if not exists safe_actor text,
+  add column if not exists message text,
+  add column if not exists metadata jsonb not null default '{}'::jsonb;
+
+alter table reconciliation_runs
+  add column if not exists environment text not null default 'local',
+  add column if not exists completed_at timestamptz,
+  add column if not exists findings_count integer not null default 0,
+  add column if not exists high_severity_count integer not null default 0,
+  add column if not exists metadata jsonb not null default '{}'::jsonb;
+
+alter table reconciliation_findings
+  add column if not exists run_id uuid,
+  add column if not exists status text not null default 'open',
+  add column if not exists metadata jsonb not null default '{}'::jsonb,
+  add column if not exists resolved_at timestamptz;
+
+alter table restore_drills
+  add column if not exists row_counts jsonb not null default '{}'::jsonb,
+  add column if not exists integrity_checks jsonb not null default '{}'::jsonb,
+  add column if not exists elapsed_seconds integer,
+  add column if not exists problems text,
+  add column if not exists recorded_by text;
+
 alter table generated_questions
   add column if not exists source_ids uuid[] not null default '{}'::uuid[],
   add column if not exists source_chunk_ids uuid[] not null default '{}'::uuid[],
@@ -800,6 +889,12 @@ create index if not exists events_anonymous_created_idx on events (anonymous_id,
 create index if not exists events_user_created_idx on events (user_id, created_at desc) where user_id is not null;
 create unique index if not exists events_event_id_unique_idx on events (event_id) where event_id is not null;
 create index if not exists events_environment_created_idx on events (environment, created_at desc);
+create index if not exists schema_migrations_applied_idx on schema_migrations (applied_at desc);
+create index if not exists operational_events_created_idx on operational_events (created_at desc);
+create index if not exists operational_events_type_created_idx on operational_events (event_type, created_at desc);
+create index if not exists reconciliation_runs_started_idx on reconciliation_runs (started_at desc);
+create index if not exists reconciliation_findings_run_idx on reconciliation_findings (run_id);
+create index if not exists reconciliation_findings_status_idx on reconciliation_findings (status, created_at desc);
 create index if not exists users_role_idx on users (role);
 create index if not exists flags_user_idx on flags (user_id);
 create index if not exists login_tokens_email_expires_idx on login_tokens (email, expires_at desc);

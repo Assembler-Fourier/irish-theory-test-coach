@@ -424,6 +424,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
     <script src="./growth-config.js?v=20260710-rebuild"></script>
     <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
     ${canonicalPath === "/pricing" ? '<script type="module" src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
     <script src="./trust.js?v=20260710-rebuild"></script>
   </body>

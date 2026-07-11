@@ -1,0 +1,175 @@
+name: Main release pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      deploy_production:
+        description: "Deploy the already-tested main branch to Vercel production"
+        required: true
+        type: boolean
+        default: false
+      smoke_base_url:
+        description: "Optional production URL for post-deploy smoke checks"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  deployments: write
+
+env:
+  VERCEL_CLI_VERSION: "55.0.0"
+
+jobs:
+  required-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Complete QA suite
+        run: npm run qa
+
+      - name: Report workflow failure
+        if: failure()
+        shell: bash
+        run: |
+          if [ -n "$MONITORING_WEBHOOK_URL" ]; then
+            curl --fail --silent --show-error \
+              --header "Content-Type: application/json" \
+              --data "{\"eventType\":\"build_failure\",\"severity\":\"error\",\"source\":\"github_actions\",\"workflow\":\"${GITHUB_WORKFLOW}\",\"runId\":\"${GITHUB_RUN_ID}\"}" \
+              "$MONITORING_WEBHOOK_URL"
+          fi
+        env:
+          MONITORING_WEBHOOK_URL: ${{ secrets.MONITORING_WEBHOOK_URL }}
+
+  release-manifest:
+    needs: required-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Stamp release metadata
+        shell: bash
+        run: |
+          echo "PUBLIC_BUILD_COMMIT=${GITHUB_SHA}" >> "$GITHUB_ENV"
+          echo "PUBLIC_BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Create versioned release manifest
+        run: npm run build
+
+      - name: Upload release manifest
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: public/release-manifest.json
+
+  prepare-production:
+    needs: required-checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_production == true
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Install pinned Vercel CLI
+        run: npm install --global vercel@${{ env.VERCEL_CLI_VERSION }}
+
+      - name: Pull Vercel production environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build production artifact
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PUBLIC_BUILD_COMMIT: ${{ github.sha }}
+
+  production-deploy:
+    needs: prepare-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_production == true
+    environment:
+      name: production
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Install pinned Vercel CLI
+        run: npm install --global vercel@${{ env.VERCEL_CLI_VERSION }}
+
+      - name: Pull Vercel production environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build production artifact
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          PUBLIC_BUILD_COMMIT: ${{ github.sha }}
+
+      - name: Deploy prebuilt artifact
+        id: deploy
+        shell: bash
+        run: |
+          url="$(vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }})"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Post-deployment smoke checks
+        run: npm run smoke:postdeploy -- "${{ inputs.smoke_base_url || steps.deploy.outputs.url }}"

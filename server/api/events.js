@@ -61,6 +61,7 @@ const PROPERTY_ALLOWLIST = {
   referral_purchase_completed: ["source", "planKey"],
   mock_started: ["questionCount", "category"],
   mock_completed: ["score", "total", "passed", "answered", "durationSeconds"],
+  frontend_error: ["kind", "path", "message", "filename", "line"],
 };
 
 export default async function handler(req, res) {

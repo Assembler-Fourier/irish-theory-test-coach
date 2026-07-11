@@ -13,6 +13,7 @@ import {
   checkoutPolicyMetadata,
 } from "../../shared/business-config.js";
 import { applyReferralCodeToCheckoutPlan } from "../../lib/referrals.js";
+import { emitOperationalEvent } from "../../lib/monitoring.js";
 import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import { readValidatedJson, fieldString } from "../../lib/request-validation.js";
 import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
@@ -160,6 +161,12 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     await markCheckoutAttemptFailure(env.databaseUrl, attempt.id, "stripe_request_failed", error?.name || "network_error");
+    await emitOperationalEvent("checkout_failure", "error", {
+      stage: "stripe_request",
+      planKey: plan.key,
+      checkoutAttemptId: attempt.id,
+      errorCode: error?.code || error?.name || "network_error",
+    }, { source: "checkout" });
     return res.status(502).json({ error: "Could not create checkout session" });
   }
 
@@ -171,6 +178,13 @@ export default async function handler(req, res) {
       "stripe_rejected",
       payload?.error?.code || payload?.error?.type || "stripe_error"
     );
+    await emitOperationalEvent("checkout_failure", "error", {
+      stage: "stripe_rejected",
+      planKey: plan.key,
+      checkoutAttemptId: attempt.id,
+      statusCode: stripeResponse.status,
+      errorCode: payload?.error?.code || payload?.error?.type || "stripe_error",
+    }, { source: "checkout" });
     return res.status(stripeResponse.status).json({
       error: "Could not create checkout session",
     });

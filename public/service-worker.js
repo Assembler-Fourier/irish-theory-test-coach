@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-11-growth-v1";
+const CACHE_VERSION = "ittc-pwa-2026-07-11-reliability-v1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -19,6 +19,7 @@ const SHELL_ASSETS = [
   "./access-controller.js",
   "./analytics-client.js",
   "./growth-tracking.js",
+  "./frontend-monitoring.js",
   "./config.js",
   "./business-config.js",
   "./business-config.json",

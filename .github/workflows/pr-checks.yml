@@ -1,0 +1,92 @@
+name: Pull request reliability checks
+
+on:
+  pull_request:
+    branches:
+      - main
+      - codex/commercial-v1
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pr-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install with lockfile
+        run: npm ci
+
+      - name: Lockfile validation
+        run: npm run check:lockfile
+
+      - name: Syntax / lint
+        run: npm run check:syntax
+
+      - name: Dataset validation
+        run: npm run validate
+
+      - name: Build generated assets
+        run: npm run build
+
+      - name: Content quality checks
+        run: npm run content:quality
+
+      - name: Stale generated content check
+        run: npm run check:stale-build
+
+      - name: Migration validation
+        run: npm run check:migrations
+
+      - name: PWA checks
+        run: npm run check:pwa
+
+      - name: Compliance checks
+        run: npm run check:compliance
+
+      - name: Growth checks
+        run: npm run check:growth
+
+      - name: SEO checks
+        run: npm run check:seo
+
+      - name: Performance checks
+        run: npm run check:performance
+
+      - name: Source register checks
+        run: npm run check:sources
+
+      - name: Security headers
+        run: npm run check:headers
+
+      - name: Secret scan
+        run: npm run check:secrets
+
+      - name: Unit, API, webhook, security, accessibility tests
+        run: npm run test
+
+      - name: Visual smoke baselines
+        run: npm run test:visual
+
+      - name: Report workflow failure
+        if: failure()
+        shell: bash
+        run: |
+          if [ -n "$MONITORING_WEBHOOK_URL" ]; then
+            curl --fail --silent --show-error \
+              --header "Content-Type: application/json" \
+              --data "{\"eventType\":\"build_failure\",\"severity\":\"error\",\"source\":\"github_actions\",\"workflow\":\"${GITHUB_WORKFLOW}\",\"runId\":\"${GITHUB_RUN_ID}\"}" \
+              "$MONITORING_WEBHOOK_URL"
+          fi
+        env:
+          MONITORING_WEBHOOK_URL: ${{ secrets.MONITORING_WEBHOOK_URL }}

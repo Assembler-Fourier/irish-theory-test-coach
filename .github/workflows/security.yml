@@ -29,6 +29,12 @@ jobs:
       - name: Lockfile validation
         run: npm run check:lockfile
 
+      - name: Syntax check
+        run: npm run check:syntax
+
+      - name: Migration validation
+        run: npm run check:migrations
+
       - name: Dependency audit
         run: npm run security:audit
 

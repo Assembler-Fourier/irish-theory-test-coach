@@ -7,10 +7,13 @@ import createCheckoutSession from "../server/api/create-checkout-session.js";
 import deleteAccountRequest from "../server/api/delete-account-request.js";
 import events from "../server/api/events.js";
 import flags from "../server/api/flags.js";
+import health from "../server/api/health.js";
 import logout from "../server/api/logout.js";
 import logoutAll from "../server/api/logout-all.js";
 import me from "../server/api/me.js";
+import opsReconcile from "../server/api/ops-reconcile.js";
 import progress from "../server/api/progress.js";
+import ready from "../server/api/ready.js";
 import requestLoginLink from "../server/api/request-login-link.js";
 import referralCode from "../server/api/referral-code.js";
 import stripeWebhook from "../server/api/stripe-webhook.js";
@@ -38,6 +41,7 @@ import {
   verifyStateChangingRequest,
 } from "../lib/security.js";
 import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../lib/rate-limit.js";
+import { emitOperationalEvent } from "../lib/monitoring.js";
 
 export const config = {
   api: {
@@ -55,10 +59,14 @@ const routes = new Map([
   ["delete-account-request", deleteAccountRequest],
   ["events", events],
   ["flags", flags],
+  ["health", health],
   ["logout", logout],
   ["logout-all", logoutAll],
   ["me", me],
+  ["ops/reconcile", opsReconcile],
+  ["ops-reconcile", opsReconcile],
   ["progress", progress],
+  ["ready", ready],
   ["request-login-link", requestLoginLink],
   ["question-feedback", questionFeedback],
   ["referral-code", referralCode],
@@ -117,7 +125,17 @@ export default async function handler(req, res) {
         limit: limitFromEnv("RATE_LIMIT_ADMIN_API", 120),
         windowMs: 60_000,
       });
-      if (!limit.allowed) return sendRateLimited(res, limit);
+      if (!limit.allowed) {
+        await emitOperationalEvent("rate_limit_triggered", "warning", {
+          route,
+          scope: "admin-api",
+          requestId: context.requestId,
+        }, {
+          source: "rate_limit",
+          correlationId: context.requestId,
+        });
+        return sendRateLimited(res, limit);
+      }
 
       if (isStateChangingMethod(req.method)) {
         const origin = verifyStateChangingRequest(req, {
@@ -148,6 +166,15 @@ export default async function handler(req, res) {
       res.statusCode = res.statusCode >= 400 ? res.statusCode : 500;
       logRequestFinished(context, res, error);
     }
+    await emitOperationalEvent("api_error", "error", {
+      route,
+      statusCode: res.statusCode,
+      errorCode: error?.code || error?.name || "api_error",
+      requestId: context.requestId,
+    }, {
+      source: "api",
+      correlationId: context.requestId,
+    });
     throw error;
   } finally {
     if (!logged) {

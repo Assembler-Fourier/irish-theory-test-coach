@@ -5,6 +5,7 @@ import {
   sendSafeConfigError,
 } from "../../lib/server-env.js";
 import { withDb } from "../../lib/db.js";
+import { emitOperationalEvent } from "../../lib/monitoring.js";
 import {
   beginStripeEventProcessing,
   findPurchaseByStripeObject,
@@ -46,6 +47,10 @@ export default async function handler(req, res) {
     event = verifyAndParseStripeEvent(rawBody, req.headers["stripe-signature"], env.stripeWebhookSecret);
   } catch (error) {
     console.error("Stripe webhook signature verification failed", safeErrorSummary(error));
+    await emitOperationalEvent("webhook_signature_failure", "warning", {
+      provider: "stripe",
+      errorCode: error?.code || error?.name || "invalid_signature",
+    }, { source: "stripe_webhook" });
     return res.status(400).json({ error: "Invalid webhook payload" });
   }
 
@@ -58,6 +63,12 @@ export default async function handler(req, res) {
     });
   } catch (error) {
     console.error("Stripe webhook processing failed", safeErrorSummary(error));
+    await emitOperationalEvent("webhook_processing_failure", "error", {
+      provider: "stripe",
+      eventId: event?.id || "",
+      eventType: event?.type || "",
+      errorCode: error?.code || error?.name || "webhook_processing_failed",
+    }, { source: "stripe_webhook" });
     return res.status(500).json({ error: "Webhook processing failed" });
   }
 }

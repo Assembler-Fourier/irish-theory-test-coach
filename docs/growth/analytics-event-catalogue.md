@@ -103,6 +103,7 @@ Irish Theory Test Coach uses first-party analytics only. Events must not contain
 - `referral_purchase_completed`
 - `mock_started`
 - `mock_completed`
+- `frontend_error`
 
 ## Attribution
 

@@ -58,6 +58,7 @@ const html = `<!doctype html>
     </div>
     <script src="./growth-config.js?v=20260710-rebuild"></script>
     <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
   </body>
 </html>
 `;

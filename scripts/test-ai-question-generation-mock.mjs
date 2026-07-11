@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   buildLocalDraftQuestions,
   findNearestExistingQuestion,
-} from "../api/admin/generate-questions.js";
+} from "../server/api/admin/generate-questions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");

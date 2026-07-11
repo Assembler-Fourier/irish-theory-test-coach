@@ -211,6 +211,9 @@ function legalShell({ file, title, description, h1, policy, sections }) {
     </div>
     <script src="./config.js?v=20260710-rebuild"></script>
     <script src="./business-config.js?v=20260710-rebuild"></script>
+    <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
     <script src="./trust.js?v=20260710-rebuild"></script>
   </body>
 </html>

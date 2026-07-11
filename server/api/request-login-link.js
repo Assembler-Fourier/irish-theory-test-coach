@@ -10,6 +10,7 @@ import {
 import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import { readValidatedJson, fieldEmail, fieldString } from "../../lib/request-validation.js";
 import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
+import { emitOperationalEvent } from "../../lib/monitoring.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -79,6 +80,11 @@ export default async function handler(req, res) {
       } catch (error) {
         await markLoginTokenDelivery(env.databaseUrl, loginToken.token, "failed", error?.code || error?.name || "email_failed").catch(() => {});
         console.error("Could not deliver magic login link", safeErrorSummary(error));
+        await emitOperationalEvent("email_delivery_failure", "error", {
+          template: "login_link",
+          errorCode: error?.code || error?.name || "email_failed",
+          production: env.isProduction,
+        }, { source: "email" });
         if (env.isProduction) {
           return res.status(503).json({ error: "Could not send login link right now" });
         }

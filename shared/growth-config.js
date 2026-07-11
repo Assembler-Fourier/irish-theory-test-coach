@@ -99,6 +99,7 @@ export const BEHAVIOUR_EVENTS = [
   "referral_purchase_completed",
   "mock_started",
   "mock_completed",
+  "frontend_error",
 ];
 
 export const ATTRIBUTION_KEYS = [

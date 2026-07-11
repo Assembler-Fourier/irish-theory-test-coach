@@ -4,7 +4,7 @@ window.PRODUCT_SUMMARY = {
   "productVersion": "0.1.0-commercial-v1",
   "summaryVersion": 1,
   "contentVersion": "ff1535f7684d9ccc",
-  "schemaVersion": "c45977d0e5e8",
+  "schemaVersion": "2175d48d6406",
   "totalPublishedQuestions": 1277,
   "estimatedPriorityQuestionCount": 159,
   "signOrImageQuestionCount": 671,
