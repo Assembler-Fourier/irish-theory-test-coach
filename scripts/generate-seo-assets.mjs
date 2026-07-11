@@ -252,7 +252,7 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
           <h2>FAQ</h2>
           ${item.faqs.map(([q, a]) => `<details open><summary>${escapeHtml(q)}</summary><p>${escapeHtml(a)}</p></details>`).join("\n          ")}
         </section>
-        ${sharedFinalCta({ root: "", body: `${disclaimer} No guaranteed-pass or official-frequency claims.` })}
+        ${sharedFinalCta({ root: "", body: `${disclaimer} No outcome promises or live-test prediction claims.` })}
       </main>
       ${footer()}
     </div>
@@ -419,7 +419,7 @@ function writeLegalPages() {
       h1: "Terms of Use",
       sections: [
         ["Independent practice tool", "Irish Theory Test Coach is independent and is not affiliated with RSA or Prometric."],
-        ["No guaranteed pass", "The app helps you practise and review weak areas. It does not guarantee any test outcome or claim official exam frequency."],
+    ["No outcome promise", "The app helps you practise and review weak areas. It does not promise any test outcome or claim knowledge of live-test content."],
         ["Digital access", "Paid learner access is one-time digital access for the plan duration shown at checkout."],
         ["Acceptable use", "Do not scrape, resell, overload, or interfere with the service."],
       ],

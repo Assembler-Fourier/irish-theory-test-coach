@@ -25,6 +25,7 @@ import { createProgressController } from "./progress-controller.js";
   const progressController = createProgressController({ dailyTarget: DAILY_TARGET });
   let analyticsClient = null;
   let accessController = null;
+  let lastInputModality = "pointer";
   const CATEGORY_MIX = [
     ["Safe and Responsible Driving", 13],
     ["Legal Matters/Rules of the Road", 8],
@@ -78,6 +79,7 @@ import { createProgressController } from "./progress-controller.js";
     examProgress: document.getElementById("examProgress"),
     examTimer: document.getElementById("examTimer"),
     questionMount: document.getElementById("questionMount"),
+    answerLiveRegion: document.getElementById("answerLiveRegion"),
     template: document.getElementById("questionTemplate"),
     paywallTemplate: document.getElementById("paywallTemplate"),
     searchInput: document.getElementById("searchInput"),
@@ -88,6 +90,8 @@ import { createProgressController } from "./progress-controller.js";
     modeSigns: document.getElementById("modeSigns"),
     modeExam: document.getElementById("modeExam"),
     modeReview: document.getElementById("modeReview"),
+    mobileModeSelect: document.getElementById("mobileModeSelect"),
+    mobileModeSummary: document.getElementById("mobileModeSummary"),
     modeAccessLabel: document.getElementById("modeAccessLabel"),
     startExamBtn: document.getElementById("startExamBtn"),
     finishExamBtn: document.getElementById("finishExamBtn"),
@@ -245,6 +249,15 @@ import { createProgressController } from "./progress-controller.js";
   }
 
   function bindEvents() {
+    window.addEventListener("keydown", (event) => {
+      if (["Tab", "Enter", " ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(event.key)) {
+        lastInputModality = "keyboard";
+      }
+    }, { passive: true });
+    window.addEventListener("pointerdown", () => {
+      lastInputModality = "pointer";
+    }, { passive: true });
+
     els.searchInput.addEventListener("input", () => {
       state.search = els.searchInput.value.trim().toLowerCase();
       state.activeIndex = 0;
@@ -265,14 +278,13 @@ import { createProgressController } from "./progress-controller.js";
     els.modeSigns.addEventListener("click", () => setMode("signs"));
     els.modeExam.addEventListener("click", startExam);
     els.modeReview.addEventListener("click", () => setMode("review"));
-    document.querySelectorAll(".mobile-mode-rail [data-mode-button]").forEach((button) => {
-      button.addEventListener("click", () => {
-        if (button.dataset.mode === "exam") {
-          startExam();
-          return;
-        }
-        setMode(button.dataset.mode);
-      });
+    els.mobileModeSelect?.addEventListener("change", () => {
+      const selectedMode = els.mobileModeSelect.value;
+      if (selectedMode === "exam") {
+        startExam();
+        return;
+      }
+      setMode(selectedMode);
     });
     els.jumpHighYieldBtn.addEventListener("click", () => setMode("highYield"));
     els.startExamBtn.addEventListener("click", startExam);
@@ -531,6 +543,14 @@ import { createProgressController } from "./progress-controller.js";
     if (els.modeAccessLabel) {
       els.modeAccessLabel.textContent = hasAccess() ? "Full access" : "Preview";
     }
+
+    if (els.mobileModeSelect && els.mobileModeSelect.value !== state.mode) {
+      els.mobileModeSelect.value = state.mode;
+    }
+    if (els.mobileModeSummary) {
+      const locked = requiresAccess(state.mode) && !hasAccess();
+      els.mobileModeSummary.textContent = `${modeLabel(state.mode)} mode. ${modeBenefit(state.mode)}.${locked ? " Premium access required." : hasAccess() ? " Full access active." : " Free preview."}`;
+    }
   }
 
   function modeLabel(mode) {
@@ -647,8 +667,10 @@ import { createProgressController } from "./progress-controller.js";
       const button = document.createElement("button");
       button.type = "button";
       button.className = "answer-option";
-      button.innerHTML = `<strong>${String.fromCharCode(65 + index)}</strong><span></span>`;
-      button.querySelector("span").textContent = option.text;
+      const letter = String.fromCharCode(65 + index);
+      button.innerHTML = `<strong aria-hidden="true">${letter}</strong><span class="answer-text"></span><span class="answer-state-label" aria-hidden="true"></span>`;
+      button.querySelector(".answer-text").textContent = option.text;
+      button.setAttribute("aria-label", `${letter}. ${option.text}`);
       button.addEventListener("click", async () => {
         if (article.dataset.answered === "true") return;
         article.dataset.answered = "true";
@@ -775,10 +797,25 @@ import { createProgressController } from "./progress-controller.js";
     Array.from(answerList.children).forEach((button, index) => {
       button.disabled = true;
       const option = question.options[index];
+      const selected = index === selectedIndex;
+      const correct = Boolean(option.isCorrect);
+      const stateLabel = button.querySelector(".answer-state-label");
       button.classList.remove("pending");
-      button.classList.toggle("selected", index === selectedIndex);
-      button.classList.toggle("correct", option.isCorrect);
-      button.classList.toggle("wrong", index === selectedIndex && !option.isCorrect);
+      button.classList.toggle("selected", selected);
+      button.classList.toggle("correct", correct);
+      button.classList.toggle("wrong", selected && !correct);
+      if (stateLabel) {
+        stateLabel.textContent = selected && correct
+          ? "Selected, correct"
+          : selected && !correct
+            ? "Selected, not correct"
+            : correct
+              ? "Correct answer"
+              : "";
+      }
+      const letter = String.fromCharCode(65 + index);
+      const resultText = stateLabel?.textContent ? `. ${stateLabel.textContent}` : "";
+      button.setAttribute("aria-label", `${letter}. ${option.text}${resultText}`);
     });
   }
 
@@ -788,12 +825,17 @@ import { createProgressController } from "./progress-controller.js";
       button.classList.toggle("selected", index === selectedIndex);
       button.classList.toggle("pending", index === selectedIndex);
       button.classList.remove("correct", "wrong");
+      const stateLabel = button.querySelector(".answer-state-label");
+      if (stateLabel) stateLabel.textContent = index === selectedIndex ? "Checking answer" : "";
     });
   }
 
   function setAnswerError(feedback) {
     feedback.classList.remove("hidden", "is-correct");
     feedback.classList.add("is-wrong");
+    if (els.answerLiveRegion) {
+      els.answerLiveRegion.textContent = "Could not reveal that answer. Reconnect or restore access, then try again.";
+    }
     feedback.innerHTML = `
       <div class="feedback-header">
         <span class="feedback-status-icon" aria-hidden="true">!</span>
@@ -836,8 +878,10 @@ import { createProgressController } from "./progress-controller.js";
     feedback.classList.remove("hidden");
     feedback.classList.toggle("is-correct", Boolean(correct));
     feedback.classList.toggle("is-wrong", !correct);
+    feedback.setAttribute("tabindex", "-1");
     feedback.closest(".question-view")?.classList.add(correct ? "answered-correct" : "answered-wrong");
     feedback.innerHTML = "";
+    announceAnswerResult(correct, question, selected);
 
     const header = document.createElement("div");
     header.className = "feedback-header";
@@ -867,7 +911,12 @@ import { createProgressController } from "./progress-controller.js";
     why.className = "feedback-why";
     why.innerHTML = `<strong>Why this matters:</strong> <span></span>`;
     why.querySelector("span").textContent = buildWhyThisMatters(question, correct);
-    feedback.append(why);
+
+    const details = document.createElement("details");
+    details.className = "feedback-details";
+    const summary = document.createElement("summary");
+    summary.textContent = "More coaching details";
+    details.append(summary, why);
 
     if (question.coachVisuals.length) {
       const visual = document.createElement("figure");
@@ -880,7 +929,7 @@ import { createProgressController } from "./progress-controller.js";
       const caption = document.createElement("figcaption");
       caption.textContent = "Coach visual";
       visual.append(visualImage, caption);
-      feedback.append(visual);
+      details.append(visual);
     }
 
     const memoryTip = buildMemoryTip(question);
@@ -889,14 +938,30 @@ import { createProgressController } from "./progress-controller.js";
       tip.className = "feedback-tip";
       tip.innerHTML = "<strong>Memory tip</strong><p></p>";
       tip.querySelector("p").textContent = memoryTip;
-      feedback.append(tip);
+      details.append(tip);
     }
 
     const reasonPanel = buildFeedbackHighYieldPanel(question);
-    if (reasonPanel) feedback.append(reasonPanel);
+    if (reasonPanel) details.append(reasonPanel);
 
-    appendAiExplanationControls(feedback, question, selectedIndex);
+    appendAiExplanationControls(details, question, selectedIndex);
+    feedback.append(details);
     appendFeedbackActions(feedback, question, selectedIndex);
+    focusFeedbackAfterAnswer(feedback);
+  }
+
+  function announceAnswerResult(correct, question, selected) {
+    if (!els.answerLiveRegion) return;
+    const chosen = selected?.text ? ` You selected: ${selected.text}.` : "";
+    const correctText = question.correctAnswer ? ` Correct answer: ${question.correctAnswer}.` : "";
+    els.answerLiveRegion.textContent = correct
+      ? `Correct.${chosen}`
+      : `Not quite.${chosen}${correctText}`;
+  }
+
+  function focusFeedbackAfterAnswer(feedback) {
+    if (lastInputModality !== "keyboard") return;
+    window.setTimeout(() => feedback.focus({ preventScroll: true }), 0);
   }
 
   function buildCoachingExplanation(question, selected, correct) {
@@ -1686,7 +1751,7 @@ import { createProgressController } from "./progress-controller.js";
     els.questionMount.append(fragment);
     renderAccess();
     els.mobileStickyCta.classList.add("hidden");
-    document.body.classList.remove("has-mobile-sticky-cta");
+    document.body.classList.remove("has-mobile-access-prompt");
   }
 
   async function startCheckout(source = "unknown") {
@@ -2827,8 +2892,16 @@ import { createProgressController } from "./progress-controller.js";
   }
 
   function renderPreviewConversionState(isPreview) {
-    els.mobileStickyCta.classList.toggle("hidden", !isPreview);
-    document.body.classList.toggle("has-mobile-sticky-cta", isPreview);
+    const showPrompt = shouldShowMobileAccessPrompt(isPreview);
+    els.mobileStickyCta.classList.toggle("hidden", !showPrompt);
+    document.body.classList.toggle("has-mobile-access-prompt", showPrompt);
+  }
+
+  function shouldShowMobileAccessPrompt(isPreview) {
+    if (!isPreview) return false;
+    if (state.exam || state.mode === "exam") return false;
+    if (requiresAccess(state.mode)) return false;
+    return totalAttemptCount() >= Math.min(PREVIEW_LIMIT, 6);
   }
 
   function shouldShowRestoreForm() {

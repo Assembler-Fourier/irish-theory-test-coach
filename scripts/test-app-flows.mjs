@@ -49,6 +49,8 @@ async function checkMarketingHomeContract({ html }) {
 async function checkPreviewLoads({ appHtml, appJs, previewPackage }) {
   assert.match(appHtml, /id="questionMount"/, "Preview workspace is missing.");
   assert.match(appHtml, /id="questionTemplate"/, "Question template is missing.");
+  assert.match(appHtml, /id="mobileModeSelect"/, "Accessible mobile mode selector is missing.");
+  assert.match(appHtml, /id="answerLiveRegion"/, "Answer live region is missing.");
   assert.match(appHtml, /type="module"\s+src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app module script is missing.");
   assert.match(appJs, /DATA_URLS = \["\.\/data\/preview-questions\.json"/, "App is not loading the preview package first.");
   assert.ok(Array.isArray(previewPackage.questions), "Preview package should include a questions array.");

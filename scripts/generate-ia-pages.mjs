@@ -368,7 +368,7 @@ function pageHero(eyebrow, title, body, primaryLabel, primaryHref, secondaryLabe
 function supportVisibility() {
   return `<section class="marketing-section route-section">
           <article><h2>Support and refunds are visible.</h2><p>Problem with access? Restore by email from the learner app or use the support hub before contacting support.</p></article>
-          <article><h2>Independent product wording stays clear.</h2><p>No official RSA or Prometric affiliation, no guaranteed-pass promise, and no official-frequency claims.</p></article>
+          <article><h2>Independent product wording stays clear.</h2><p>No official RSA or Prometric affiliation, no outcome promise, and no live-test prediction claims.</p></article>
         </section>`;
 }
 

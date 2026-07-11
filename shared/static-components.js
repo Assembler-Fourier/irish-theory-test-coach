@@ -72,7 +72,7 @@ export function siteFooter(options = {}) {
 
 export function finalCta(options = {}) {
   const title = options.title || "Start with the free preview, then unlock the full study path when it fits.";
-  const body = options.body || "Independent practice tool. No guaranteed-pass or official-frequency claims.";
+  const body = options.body || "Independent practice tool. No outcome promises or live-test prediction claims.";
   const root = options.root ?? ".";
   return `<section class="site-cta-strip">
         <div>
@@ -134,7 +134,7 @@ export function pricingCards(productSummary, options = {}) {
           <p class="eyebrow">Launch offer</p>
           <h3>Beta-period learner price</h3>
           <strong>${escapeHtml(launch.displayPrice)}</strong>
-          <p>Shown only when enabled. No fake scarcity or guaranteed-pass wording.</p>
+          <p>Shown only when enabled. No fake scarcity or outcome-promise wording.</p>
           <a class="button-secondary" href="${root}/pricing">Check availability</a>
         </article>
         <article class="pricing-card">

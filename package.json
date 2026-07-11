@@ -37,14 +37,20 @@
     "dev": "python -m http.server 5173",
     "qa:provenance": "node scripts/add-question-provenance.mjs",
     "qa:checklist": "node scripts/generate-qa-checklist.mjs",
-    "qa": "npm run validate && npm run build && npm run content:quality && npm run check:stale-build && npm run check:pwa && npm run check:seo && npm run check:performance && npm run check:sources && npm run check:secrets && npm run test",
+    "qa": "npm run validate && npm run build && npm run content:quality && npm run check:stale-build && npm run check:pwa && npm run check:seo && npm run check:performance && npm run check:sources && npm run check:secrets && npm run test && npm run test:visual",
     "screenshots:ui": "node scripts/capture-ui-baseline.mjs",
-    "test": "node scripts/test-app-flows.mjs && node scripts/test-api-smoke.mjs && node scripts/test-content-security.mjs && node scripts/test-content-quality.mjs",
+    "test": "node scripts/test-app-flows.mjs && node scripts/test-api-smoke.mjs && node scripts/test-content-security.mjs && node scripts/test-content-quality.mjs && npm run test:e2e && npm run test:a11y",
+    "test:a11y": "node scripts/test-a11y.mjs",
     "test:ai-generation": "node scripts/test-ai-question-generation-mock.mjs",
+    "test:e2e": "node scripts/test-e2e.mjs",
+    "test:visual": "node scripts/test-visual.mjs",
     "test:webhook": "node scripts/test-stripe-webhook-mock.mjs",
     "validate": "python scripts/validate_dataset.py && node --check public/app.js"
   },
   "dependencies": {
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "axe-core": "^4.12.1"
   }
 }

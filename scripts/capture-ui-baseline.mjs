@@ -246,6 +246,11 @@ async function captureState(browserInstance, baseUrl, state, filePath) {
 }
 
 async function clickMode(page, mode) {
+  const mobileSelect = page.locator("#mobileModeSelect:visible");
+  if (await mobileSelect.count()) {
+    await mobileSelect.selectOption(mode);
+    return;
+  }
   await page.locator(`[data-mode-button][data-mode="${mode}"]:visible`).first().click();
 }
 
