@@ -4,8 +4,8 @@
 
 The site should be sold as a focused Irish category B theory-test practice coach, not as an official exam provider. The value at the EUR 2.99 launch offer and EUR 4.99 standard one-time pass is speed and confidence:
 
-- 849 recovered authorised practice questions.
-- 238 local image references for visual/sign practice.
+- Published question count is generated from `data/questions.enriched.json` into `public/product-summary.json` during build.
+- Sign/image practice count is generated from the same public product summary.
 - High-yield scoring from archived hardest-question data, category, safety/legal wording, and image/sign presence.
 - Timed mock test matching the current car/bike exam format: 40 questions, pass mark 35, 45 minutes.
 - Local mistake tracking, flagged questions, daily target, and weak-area review.
@@ -21,13 +21,11 @@ Generated files:
 - `data/hardest_questions.json`: 50 archived hardest-question entries.
 - `data/study_report.json`: summary and top high-yield questions.
 
-Current enrichment summary:
+Current enrichment summary is no longer maintained by hand in this report. Use:
 
-- Total questions: 849
-- High-yield questions: 111
-- Critical questions: 25
-- Road-sign/image questions: 250
-- Archived hardest-question signals: 50
+- `public/product-summary.json` for the public runtime counts.
+- `public/release-manifest.json` for the generated content and schema version.
+- `data/study_report.json` for detailed scoring methodology and category breakdowns.
 
 ## Recommended free stack
 

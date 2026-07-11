@@ -16,7 +16,7 @@ A mobile-first Category B theory-test practice product for Irish learner drivers
 
 ## Product Highlights
 
-- 849 practice questions with explanations and image support.
+- Published question count, estimated-priority count, sign/image count, preview limit, mock settings, access duration, and active learner price are generated from the runtime product summary during build.
 - Six study modes: revise, estimated priority, hardest, road signs, mock test, and review.
 - 40-question, 45-minute mock flow with a 35-answer practice pass mark.
 - Daily target, missed-question cleanup, category accuracy, flags, and recommended next actions.
@@ -80,7 +80,7 @@ npm run qa
 
 The full QA command validates:
 
-- the 849-question dataset and high-yield score breakdowns
+- the published question bank and estimated-priority score breakdowns
 - JavaScript syntax and deployable data generation
 - PWA assets and cache declarations
 - sitemap, canonical metadata, structured data, and internal links
@@ -118,7 +118,13 @@ The production checkout currently creates live EUR 4.99 Stripe sessions. Before 
 - Keep provenance for imported or recovered material.
 - Existing recovered questions require official cross-checking where marked.
 - AI-generated questions remain drafts until an admin reviews and approves them.
-- “High-yield” means estimated study priority, not official exam frequency.
+- "High-yield" means estimated study priority, not official exam frequency.
+
+Runtime commercial summary files are generated during `npm run build`:
+
+- `public/product-summary.json`
+- `public/product-summary.js`
+- `public/release-manifest.json`
 
 Current official cross-check sources include [TheoryTest.ie](https://theorytest.ie/), its [revision material](https://theorytest.ie/revision-material/), and the RSA [Rules of the Road](https://www.rsa.ie/services/learner-drivers/resources/rules-of-the-road).
 

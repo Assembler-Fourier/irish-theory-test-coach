@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-10-3";
+const CACHE_VERSION = "ittc-pwa-2026-07-11-commercial-1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -11,7 +11,10 @@ const SHELL_ASSETS = [
   "./styles.css?v=20260710-rebuild",
   "./app.js?v=20260710-rebuild",
   "./config.js",
+  "./product-summary.js",
   "./pricing-config.js",
+  "./product-summary.json",
+  "./release-manifest.json",
   "./pricing.js",
   "./trust.js",
   "./manifest.webmanifest",

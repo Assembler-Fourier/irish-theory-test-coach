@@ -116,11 +116,11 @@
         </section>
 
         <section class="trust-strip hero-stats" aria-label="Practice highlights">
-          <span id="questionCountChip" class="sr-only">849 questions</span>
-          <div><strong id="trustQuestionCount">849</strong><span>practice questions</span></div>
-          <div><strong>111</strong><span>estimated priority drills</span></div>
-          <div><strong>243</strong><span>sign and image questions</span></div>
-          <div><strong>40 / 45</strong><span>questions / minutes per mock</span></div>
+          <span id="questionCountChip" class="sr-only" data-product-value="totalPublishedQuestionsLabel">1,277 questions</span>
+          <div><strong id="trustQuestionCount" data-product-value="totalPublishedQuestions">1,277</strong><span>practice questions</span></div>
+          <div><strong id="trustPriorityCount" data-product-value="estimatedPriorityQuestionCount">159</strong><span>estimated priority drills</span></div>
+          <div><strong id="trustSignImageCount" data-product-value="signOrImageQuestionCount">671</strong><span>sign and image questions</span></div>
+          <div><strong data-product-value="mockShortLabel">40 / 45</strong><span>questions / minutes per mock</span></div>
         </section>
       </header>
 
@@ -224,7 +224,7 @@
               <span id="unlockBadge">Preview</span>
             </div>
             <p id="unlockStatus">Preview 15 questions, then unlock the complete study flow.</p>
-            <button id="checkoutBtn" class="primary" type="button">Unlock for EUR 4.99</button>
+            <button id="checkoutBtn" class="primary" data-product-value="unlockCta" type="button">Unlock for EUR 4.99</button>
             <a id="restoreAccessLink" class="restore-access-link compact-restore-link" data-restore-trigger data-restore-source="coach_rail" href="#restoreEmail">Already paid? Restore access</a>
             <form class="referral-form compact-referral-form" data-source="sidebar" novalidate>
               <label class="field"><span>Have a code?</span><input name="referralCode" type="text" autocomplete="off" placeholder="Instructor or referral code"></label>
@@ -294,7 +294,7 @@
               <h2>Turn practice into a plan.</h2>
               <p>Unlock the complete question bank, estimated priority drills, road-sign practice, weak-area review, and timed 40-question mocks.</p>
             </div>
-            <div class="paywall-price" aria-label="One-time unlock price"><span>One-time</span><strong data-price-label>EUR 4.99</strong><small>90-day access</small></div>
+            <div class="paywall-price" aria-label="One-time unlock price"><span>One-time</span><strong data-price-label data-product-value="activePrice">EUR 4.99</strong><small data-product-value="accessDuration">90-day access</small></div>
           </div>
           <div class="paywall-value-line"><strong>Know what to do next</strong><span>Answer</span><span>Understand</span><span>Review</span><span>Mock</span></div>
           <div class="paywall-comparison" aria-label="Free preview compared with full coach">
@@ -304,7 +304,7 @@
             </section>
             <section class="paywall-tier full-tier">
               <div class="paywall-tier-header"><span>Full coach</span><strong>Complete study path</strong></div>
-              <ul><li>849 practice questions</li><li>111 estimated priority drills</li><li>243 sign and image drills</li><li>Hardest-question practice</li><li>Timed mock exams</li><li>Missed and flagged review</li><li>Restore access by email</li><li>AI explanations where available</li></ul>
+              <ul><li><span data-product-value="totalPublishedQuestions">1,277</span> practice questions</li><li><span data-product-value="estimatedPriorityQuestionCount">159</span> estimated priority drills</li><li><span data-product-value="signOrImageQuestionCount">671</span> sign and image drills</li><li>Hardest-question practice</li><li>Timed mock exams</li><li>Missed and flagged review</li><li>Restore access by email</li><li>AI explanations where available</li></ul>
             </section>
           </div>
           <div class="paywall-trust">
@@ -341,6 +341,7 @@
     </template>
 
     <script src="./config.js"></script>
+    <script src="./product-summary.js"></script>
     <script src="./pricing-config.js"></script>
     <script src="./trust.js"></script>
     <script src="./app.js?v=20260710-rebuild"></script>

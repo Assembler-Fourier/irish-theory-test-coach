@@ -25,6 +25,7 @@ try {
     html: await fetchText(server.baseUrl, "/"),
     appJs: await fetchText(server.baseUrl, "/app.js"),
     questions: await fetchJson(server.baseUrl, "/data/questions.enriched.json"),
+    productSummary: await fetchJson(server.baseUrl, "/product-summary.json"),
   };
 
   for (const check of flowChecks) {
@@ -97,10 +98,12 @@ function checkRestoreAccessContract({ html, appJs }) {
   assert.match(appJs, /\/api\/request-login-link/, "Restore access form is not wired to the API.");
 }
 
-function checkMockTestContract({ html, appJs }) {
+function checkMockTestContract({ html, appJs, productSummary }) {
   assert.match(html, /id="startExamBtn"/, "Start mock test button is missing.");
   assert.match(html, /id="examBar"/, "Mock test status bar is missing.");
-  assert.match(appJs, /const EXAM_SIZE = 40;/, "Mock test should use 40 questions.");
+  assert.equal(productSummary.mockSize, 40, "Product summary should expose the 40-question mock size.");
+  assert.equal(productSummary.mockDurationMinutes, 45, "Product summary should expose the 45-minute mock duration.");
+  assert.match(appJs, /const EXAM_SIZE = positiveNumber\(PRODUCT_SUMMARY\.mockSize, 40\);/, "Mock test should use product summary mock size.");
   assert.match(appJs, /const PASS_MARK = 35;/, "Mock test should use the 35 pass mark.");
   assert.match(appJs, /function startExam\(\)/, "Mock test start function is missing.");
   assert.match(appJs, /trackEvent\("mock_started"/, "Mock test start analytics event is missing.");

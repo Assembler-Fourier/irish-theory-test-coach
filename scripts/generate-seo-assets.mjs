@@ -1,6 +1,10 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  buildProductSummary,
+  formatAccessDuration,
+} from "../shared/product-summary.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
@@ -11,6 +15,8 @@ const defaultSiteUrl = "https://irish-theory-test-coach.vercel.app";
 const siteUrl = cleanSiteUrl(process.env.PUBLIC_SITE_URL || defaultSiteUrl);
 const disclaimer = "Independent practice tool. Not affiliated with RSA or Prometric.";
 const ogImage = `${siteUrl}/data/assets/img/quiz-img/a_0P6qm.png`;
+const productSummary = buildProductSummary({ root, env: process.env });
+const activePlan = productSummary.pricing?.plans?.find((plan) => plan.active) || productSummary.pricing?.plans?.[0];
 
 fs.mkdirSync(publicDir, { recursive: true });
 fs.mkdirSync(docsDir, { recursive: true });
@@ -117,9 +123,9 @@ function categoryPage(slug, title, category, intro) {
 function assetPage(slug, title, description, h1, intro, cta, pricing = false) {
   const sections = pricing
     ? [
-        ["Free preview", "The free preview includes 15 questions and basic progress. It is enough to see the flow before paying."],
-        ["Launch offer", "When enabled, the launch offer is EUR 2.99 for the beta or launch period. It is a real launch price, not fake urgency."],
-        ["Full Study Pass", "The normal learner plan is EUR 4.99 one-time for 90-day access to the full study path: question bank, estimated high-yield drills, road-sign drills, hardest questions, mock exams, review mode, restore access, and progress tools."],
+        ["Free preview", `The free preview includes ${productSummary.previewLimit} questions and basic progress. It is enough to see the flow before paying.`],
+        ["Launch offer", `When enabled, the launch offer is ${planPrice("launch_offer")} for the beta or launch period. It is a real launch price, not fake urgency.`],
+        ["Full Study Pass", `The normal learner plan is ${planPrice("full_study_pass")} one-time for ${formatAccessDuration(productSummary)} to the full study path: question bank, estimated high-yield drills, road-sign drills, hardest questions, mock exams, review mode, restore access, and progress tools.`],
         ["Instructor packs", "Instructor packs are EUR 29 for 10 codes and EUR 69 for 25 codes. They are built for manual instructor referrals and student access-code workflows."],
       ]
     : [
@@ -288,13 +294,17 @@ function samplePractice() {
 function pricingCards() {
   return `<section class="seo-card-band pricing-grid">
           ${[
-            ["Free preview", "EUR 0", "15 questions, basic progress, and a quick look at the study flow.", ""],
-            ["Launch offer", "EUR 2.99", "One-time launch access for the beta/launch period when enabled.", "launch_offer"],
-            ["Full Study Pass", "EUR 4.99", "One-time 90-day access to the full coach, mocks, review, signs, and restore access.", "full_study_pass"],
-            ["Instructor 10", "EUR 29", "Ten learner codes for instructors and small groups.", "instructor_10"],
-            ["Instructor 25", "EUR 69", "Twenty-five learner codes for instructors with larger groups.", "instructor_25"],
+            ["Free preview", "EUR 0", `${productSummary.previewLimit} questions, basic progress, and a quick look at the study flow.`, ""],
+            ["Launch offer", planPrice("launch_offer"), "One-time launch access for the beta/launch period when enabled.", "launch_offer"],
+            ["Full Study Pass", planPrice("full_study_pass"), `One-time ${formatAccessDuration(productSummary)} to the full coach, mocks, review, signs, and restore access.`, "full_study_pass"],
+            ["Instructor 10", planPrice("instructor_10", "EUR 29.00"), "Ten learner codes for instructors and small groups.", "instructor_10"],
+            ["Instructor 25", planPrice("instructor_25", "EUR 69.00"), "Twenty-five learner codes for instructors with larger groups.", "instructor_25"],
           ].map(([label, price, copy, plan]) => `<article class="pricing-plan-card"><h2>${label}</h2><strong>${price}</strong><p>${copy}</p>${plan ? `<button class="button-primary" data-plan-checkout="${plan}" type="button">Choose ${label}</button>` : '<a class="button-secondary" href="./index.html#questionMount">Start preview</a>'}<p class="pricing-plan-status" role="status" aria-live="polite"></p><p><a href="./index.html#restoreEmail">Restore access</a> or <a href="./contact.html">contact support</a>.</p></article>`).join("\n          ")}
         </section>`;
+}
+
+function planPrice(planKey, fallback = "EUR 0.00") {
+  return productSummary.pricing?.plans?.find((plan) => plan.key === planKey)?.displayPrice || fallback;
 }
 
 function relatedLink(slug) {
@@ -355,7 +365,7 @@ function softwareJsonLd(url) {
     operatingSystem: "Web",
     url,
     description: "Independent Irish Category B theory-test practice app with road signs, mock exams, estimated high-yield drills, and progress tracking.",
-    offers: { "@type": "Offer", price: "4.99", priceCurrency: "EUR" },
+    offers: { "@type": "Offer", price: String((activePlan?.amountCents || 0) / 100), priceCurrency: activePlan?.currency || "EUR" },
   };
 }
 
@@ -593,11 +603,11 @@ function pricingStrategy() {
 
 Plans:
 
-- Free preview: 15 questions and basic progress.
-- Launch offer: EUR 2.99 one-time only when \`LAUNCH_OFFER_ENABLED=true\` and \`LAUNCH_OFFER_ENDS_AT\` has not passed.
-- Full Study Pass: EUR 4.99 one-time for 90-day access.
-- Instructor 10: EUR 29 for 10 codes.
-- Instructor 25: EUR 69 for 25 codes.
+- Free preview: ${productSummary.previewLimit} questions and basic progress.
+- Launch offer: ${planPrice("launch_offer")} one-time only when \`LAUNCH_OFFER_ENABLED=true\` and \`LAUNCH_OFFER_ENDS_AT\` has not passed.
+- Full Study Pass: ${planPrice("full_study_pass")} one-time for ${formatAccessDuration(productSummary)}.
+- Instructor 10: ${planPrice("instructor_10")} for 10 codes.
+- Instructor 25: ${planPrice("instructor_25")} for 25 codes.
 
 Stripe env vars:
 

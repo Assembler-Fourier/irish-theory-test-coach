@@ -10,6 +10,8 @@ const requiredFiles = [
   "manifest.webmanifest",
   "service-worker.js",
   "offline.html",
+  "product-summary.json",
+  "release-manifest.json",
   "icons/app-icon.svg",
   "icons/maskable-icon.svg",
   "index.html",
@@ -44,6 +46,7 @@ const serviceWorker = readPublicFile("service-worker.js");
   "activate",
   "fetch",
   "questions.enriched.json",
+  "product-summary.js",
   "offline.html",
 ].forEach((needle) => {
   if (!serviceWorker.includes(needle)) errors.push(`service-worker.js missing ${needle}`);

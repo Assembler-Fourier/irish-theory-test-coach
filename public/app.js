@@ -1,12 +1,13 @@
 (function () {
   "use strict";
 
+  const PRODUCT_SUMMARY = window.PRODUCT_SUMMARY || {};
   const DATA_URLS = ["./data/questions.enriched.json", "./data/questions.json"];
-  const EXAM_SIZE = 40;
+  const EXAM_SIZE = positiveNumber(PRODUCT_SUMMARY.mockSize, 40);
   const PASS_MARK = 35;
-  const EXAM_SECONDS = 45 * 60;
-  const DAILY_TARGET = 25;
-  const PREVIEW_LIMIT = 15;
+  const EXAM_SECONDS = positiveNumber(PRODUCT_SUMMARY.mockDurationSeconds, 45 * 60);
+  const DAILY_TARGET = positiveNumber(PRODUCT_SUMMARY.dailyTarget, 25);
+  const PREVIEW_LIMIT = positiveNumber(PRODUCT_SUMMARY.previewLimit, 15);
   const CELEBRATION_DURATION_MS = 3600;
   const STORAGE_KEY = "irish-theory-practice-progress-v2";
   const ACCESS_KEY = "irish-theory-practice-access-v1";
@@ -109,9 +110,16 @@
     flowStateLabel: document.getElementById("flowStateLabel"),
     questionCountChip: document.getElementById("questionCountChip"),
     trustQuestionCount: document.getElementById("trustQuestionCount"),
+    trustPriorityCount: document.getElementById("trustPriorityCount"),
+    trustSignImageCount: document.getElementById("trustSignImageCount"),
   };
 
   init();
+
+  function positiveNumber(value, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) && number > 0 ? number : fallback;
+  }
 
   async function init() {
     configureResponsivePanels();
@@ -329,6 +337,10 @@
 
   function clean(value) {
     return String(value || "").replace(/\s+/g, " ").trim();
+  }
+
+  function formatCount(value) {
+    return Number(value || 0).toLocaleString("en-IE");
   }
 
   function normalizeScoreBreakdown(value) {
@@ -2096,8 +2108,13 @@
     }
     els.targetMeter.style.width = `${Math.round(metrics.targetRatio * 100)}%`;
     els.targetRing?.style.setProperty("--target-progress", `${Math.round(metrics.targetRatio * 100)}%`);
-    els.questionCountChip.textContent = `${state.questions.length || 849} questions`;
-    els.trustQuestionCount.textContent = String(state.questions.length || 849);
+    const totalQuestions = state.questions.length || positiveNumber(PRODUCT_SUMMARY.totalPublishedQuestions, 0);
+    const totalPriority = highYield || positiveNumber(PRODUCT_SUMMARY.estimatedPriorityQuestionCount, 0);
+    const totalSigns = signs || positiveNumber(PRODUCT_SUMMARY.signOrImageQuestionCount, 0);
+    els.questionCountChip.textContent = `${formatCount(totalQuestions)} questions`;
+    els.trustQuestionCount.textContent = formatCount(totalQuestions);
+    if (els.trustPriorityCount) els.trustPriorityCount.textContent = formatCount(totalPriority);
+    if (els.trustSignImageCount) els.trustSignImageCount.textContent = formatCount(totalSigns);
     els.coachCopy.textContent = coachCopy(metrics);
     renderNextAction(metrics);
     renderStudyFlow(metrics);
@@ -2586,10 +2603,11 @@
   }
 
   function pricingConfig() {
+    const fallbackPrice = PRODUCT_SUMMARY.activePrice || "EUR 4.99";
     return window.PRICING_CONFIG || {
       activeLearnerPlanKey: "full_study_pass",
       plans: [
-        { key: "full_study_pass", label: "Full Study Pass", displayPrice: "EUR 4.99", amountCents: 499, currency: "EUR", enabled: true },
+        { key: "full_study_pass", label: "Full Study Pass", displayPrice: fallbackPrice, amountCents: 499, currency: "EUR", enabled: true },
       ],
     };
   }
