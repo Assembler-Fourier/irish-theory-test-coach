@@ -9,16 +9,15 @@ import {
   finalCta as sharedFinalCta,
   siteFooter as sharedSiteFooter,
 } from "../shared/static-components.js";
+import { canonicalSiteOrigin } from "../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
 const docsDir = path.join(root, "docs");
 const templatesDir = path.join(docsDir, "seo-templates");
-const defaultSiteUrl = "https://irish-theory-test-coach.vercel.app";
-const siteUrl = cleanSiteUrl(process.env.PUBLIC_SITE_URL || defaultSiteUrl);
+const siteUrl = canonicalSiteOrigin(process.env);
 const disclaimer = "Independent practice tool. Not affiliated with RSA or Prometric.";
-const ogImage = `${siteUrl}/marketing/og-preview.svg`;
 const productSummary = buildProductSummary({ root, env: process.env });
 const activePlan = productSummary.pricing?.plans?.find((plan) => plan.active) || productSummary.pricing?.plans?.[0];
 
@@ -175,6 +174,7 @@ function defaultRelated(currentSlug) {
 
 function renderPage(item) {
   const canonical = `${siteUrl}/${item.slug}`;
+  const ogImage = `${siteUrl}/marketing/${ogImageFileForSlug(item.slug)}`;
   const jsonLd = [
     breadcrumbJsonLd(item),
     faqJsonLd(item),
@@ -257,7 +257,9 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
     </div>
     <script src="./config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
-    ${item.type === "pricing" ? '<script src="./pricing.js?v=20260710-rebuild"></script>' : ""}
+    <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    ${item.type === "pricing" ? '<script type="module" src="./pricing.js?v=20260710-rebuild"></script>' : ""}
     <script src="./trust.js?v=20260710-rebuild"></script>
   </body>
 </html>
@@ -305,6 +307,15 @@ function relatedLink(slug) {
   const item = allPages.find((pageItem) => pageItem.slug === slug);
   const title = item?.h1 || (slug === "index.html" ? "Practice app" : slug.replace(/[-.]/g, " "));
   return `<a href="./${slug}">${escapeHtml(title)}</a>`;
+}
+
+function ogImageFileForSlug(slug) {
+  if (slug.includes("pricing")) return "og-pricing.svg";
+  if (slug.includes("mock") || slug.includes("40-questions")) return "og-mock-exam.svg";
+  if (slug.includes("sign") || slug.includes("road-marking")) return "og-road-signs.svg";
+  if (slug === "learn.html" || slug.includes("study-plan") || slug.includes("checklist")) return "og-learn.svg";
+  if (slug.includes("instructor")) return "og-instructors.svg";
+  return "og-home.svg";
 }
 
 function footer() {
@@ -455,6 +466,7 @@ function writeLegalPages() {
 
 function renderLegalPage(item) {
   const canonical = `${siteUrl}/${item.slug}`;
+  const ogImage = `${siteUrl}/marketing/${ogImageFileForSlug(item.slug)}`;
   return `<!doctype html>
 <html lang="en">
   <head>

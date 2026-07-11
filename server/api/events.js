@@ -7,34 +7,31 @@ import {
   safeErrorSummary,
   sendSafeConfigError,
 } from "../../lib/server-env.js";
+import {
+  ANALYTICS_SCHEMA_VERSION,
+  ATTRIBUTION_KEYS,
+  allowedEventNames,
+} from "../../shared/growth-config.js";
 
 const MAX_EVENTS_PER_REQUEST = 20;
 const MAX_PROPERTY_STRING_LENGTH = 180;
 const ANONYMOUS_ID_PATTERN = /^[a-zA-Z0-9:_-]{12,80}$/;
+const EVENT_ID_PATTERN = /^[a-zA-Z0-9:_-]{12,80}$/;
 
-const ALLOWED_EVENTS = new Set([
-  "page_view",
-  "preview_started",
-  "question_answered",
-  "answer_correct",
-  "answer_wrong",
-  "mode_selected",
-  "paywall_viewed",
-  "checkout_clicked",
-  "checkout_success",
-  "restore_access_clicked",
-  "restore_access_started",
-  "restore_access_success",
-  "pricing_page_viewed",
-  "referral_code_viewed",
-  "referral_code_applied",
-  "referral_checkout_started",
-  "referral_purchase_completed",
-  "mock_started",
-  "mock_completed",
-]);
+const ALLOWED_EVENTS = allowedEventNames();
 
 const PROPERTY_ALLOWLIST = {
+  landing_view: ["path", "pageType"],
+  start_free_practice: ["sourcePath", "ctaText"],
+  first_answer: ["mode", "category"],
+  preview_engaged: ["answered", "previewLimit", "mode"],
+  checkout_started: ["source", "mode", "planKey", "referralCode", "checkoutAttemptId"],
+  checkout_completed: ["source", "planKey", "referralCode", "sessionId"],
+  access_restored: ["source", "entitlementActive"],
+  first_paid_session: ["mode", "questionCount"],
+  first_mock_started: ["questionCount", "category"],
+  first_mock_completed: ["score", "total", "passed", "answered", "durationSeconds"],
+  return_visit: ["path"],
   page_view: ["path"],
   preview_started: ["previewLimit", "questionCount"],
   question_answered: [
@@ -110,23 +107,33 @@ export default async function handler(req, res) {
 function normalizeEvents(body) {
   const items = Array.isArray(body.events) ? body.events : [body];
   const fallbackAnonymousId = body.anonymousId || body.anonymous_id;
+  const fallbackSchemaVersion = Number(body.schemaVersion || body.schema_version || ANALYTICS_SCHEMA_VERSION);
   return items
     .slice(0, MAX_EVENTS_PER_REQUEST)
-    .map((item) => normalizeEvent(item, fallbackAnonymousId))
+    .map((item) => normalizeEvent(item, fallbackAnonymousId, fallbackSchemaVersion))
     .filter(Boolean);
 }
 
-function normalizeEvent(item, fallbackAnonymousId) {
+function normalizeEvent(item, fallbackAnonymousId, fallbackSchemaVersion) {
   const eventName = cleanText(item.eventName || item.event_name, 80);
   const anonymousId = cleanText(item.anonymousId || item.anonymous_id || fallbackAnonymousId, 90);
+  const eventId = cleanText(item.eventId || item.event_id, 90);
+  const schemaVersion = Number(item.schemaVersion || item.schema_version || fallbackSchemaVersion);
   if (!ALLOWED_EVENTS.has(eventName) || !ANONYMOUS_ID_PATTERN.test(anonymousId)) {
     return null;
   }
+  if (!EVENT_ID_PATTERN.test(eventId) || schemaVersion !== ANALYTICS_SCHEMA_VERSION) return null;
 
   return {
+    eventId,
+    schemaVersion,
     eventName,
     anonymousId,
     properties: sanitizeProperties(eventName, item.properties),
+    attribution: sanitizeAttribution(item.attribution),
+    experiments: sanitizeObjectMap(item.experiments, 40, 40),
+    botSignals: sanitizeBotSignals(item.botSignals || item.bot_signals),
+    clientCreatedAt: parseClientDate(item.clientCreatedAt || item.client_created_at),
   };
 }
 
@@ -137,18 +144,33 @@ async function saveEvents(databaseUrl, session, events) {
       const result = await client.query(
         `
           insert into events (
+            event_id,
+            schema_version,
             event_name,
             anonymous_id,
             user_id,
-            properties
+            properties,
+            attribution,
+            experiments,
+            bot_signals,
+            environment,
+            client_created_at
           )
-          values ($1, $2, $3, $4::jsonb)
+          values ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8::jsonb, $9::jsonb, $10, $11::timestamptz)
+          on conflict (event_id) do nothing
         `,
         [
+          event.eventId,
+          event.schemaVersion,
           event.eventName,
           event.anonymousId,
           session?.userId || null,
           JSON.stringify(event.properties),
+          JSON.stringify(event.attribution),
+          JSON.stringify(event.experiments),
+          JSON.stringify(event.botSignals),
+          process.env.VERCEL_ENV || process.env.NODE_ENV || "local",
+          event.clientCreatedAt,
         ]
       );
       saved += result.rowCount;
@@ -168,12 +190,65 @@ function sanitizeProperties(eventName, properties) {
   }, {});
 }
 
+function sanitizeAttribution(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return { firstTouch: {}, lastTouch: {} };
+  }
+  return {
+    firstTouch: sanitizeAttributionTouch(value.firstTouch || value.first_touch),
+    lastTouch: sanitizeAttributionTouch(value.lastTouch || value.last_touch),
+  };
+}
+
+function sanitizeAttributionTouch(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return ATTRIBUTION_KEYS.reduce((acc, key) => {
+    const raw = value[key];
+    const cleanValue = key === "landingPage" ? sanitizePath(raw) : sanitizePropertyValue(raw);
+    if (cleanValue !== undefined && cleanValue !== "") acc[key] = cleanValue;
+    return acc;
+  }, {});
+}
+
+function sanitizeObjectMap(value, keyMax, valueMax) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return Object.entries(value).reduce((acc, [key, raw]) => {
+    const cleanKey = cleanText(key, keyMax);
+    const cleanValue = cleanText(raw, valueMax);
+    if (/^[a-zA-Z0-9_:-]{1,60}$/.test(cleanKey) && /^[a-zA-Z0-9_:-]{1,60}$/.test(cleanValue)) {
+      acc[cleanKey] = cleanValue;
+    }
+    return acc;
+  }, {});
+}
+
+function sanitizeBotSignals(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  return {
+    webdriver: Boolean(value.webdriver),
+    deviceClass: ["mobile", "tablet", "desktop", "unknown"].includes(value.deviceClass) ? value.deviceClass : "unknown",
+    languagePresent: Boolean(value.languagePresent),
+    timezonePresent: Boolean(value.timezonePresent),
+  };
+}
+
+function parseClientDate(value) {
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? new Date().toISOString() : parsed.toISOString();
+}
+
 function sanitizePropertyValue(value) {
   if (value === null || value === undefined) return undefined;
   if (typeof value === "boolean") return value;
   if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
   if (typeof value === "string") return cleanText(value, MAX_PROPERTY_STRING_LENGTH);
   return undefined;
+}
+
+function sanitizePath(value) {
+  const path = cleanText(value, 160);
+  if (!path.startsWith("/") || path.includes("?") || path.includes("#")) return undefined;
+  return path;
 }
 
 function cleanText(value, maxLength) {

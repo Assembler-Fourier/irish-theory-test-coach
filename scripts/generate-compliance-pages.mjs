@@ -9,12 +9,13 @@ import {
   siteFooter,
   siteHeader,
 } from "../shared/static-components.js";
+import { canonicalSiteOrigin } from "../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
-const siteUrl = new URL(process.env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app").origin;
-const ogImage = `${siteUrl}/marketing/og-preview.svg`;
+const siteUrl = canonicalSiteOrigin(process.env);
+const ogImage = `${siteUrl}/marketing/og-home.svg`;
 const business = buildBusinessConfig(process.env);
 const summary = buildProductSummary({ root, env: process.env });
 const disclaimer = "Independent practice tool. Not affiliated with RSA or Prometric.";

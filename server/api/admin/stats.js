@@ -8,24 +8,11 @@ import {
   safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
+import { FUNNEL_EVENTS } from "../../../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..", "..", "..");
-const FUNNEL_EVENTS = [
-  "page_view",
-  "preview_started",
-  "paywall_viewed",
-  "checkout_clicked",
-  "checkout_success",
-  "restore_access_clicked",
-  "restore_access_started",
-  "restore_access_success",
-  "pricing_page_viewed",
-  "referral_code_applied",
-  "referral_checkout_started",
-  "mock_started",
-  "mock_completed",
-];
+const FUNNEL_EVENT_NAMES = FUNNEL_EVENTS.map((event) => event.eventName);
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -329,7 +316,7 @@ async function loadAnalyticsStats(client, range) {
           and event_name = any($1)
         group by event_name
       `,
-      [FUNNEL_EVENTS, range.start, range.end]
+      [FUNNEL_EVENT_NAMES, range.start, range.end]
     ),
     client.query(`
       select coalesce(nullif(properties->>'category', ''), 'Uncategorised') as category,
@@ -357,11 +344,11 @@ async function loadAnalyticsStats(client, range) {
     `, [range.start, range.end]),
     client.query(`
       select count(*) filter (where event_name = 'paywall_viewed')::int as paywall_views,
-             count(*) filter (where event_name = 'checkout_clicked')::int as checkout_clicks
+             count(*) filter (where event_name = 'checkout_started')::int as checkout_starts
       from events
       where created_at >= $1::timestamptz
         and created_at < $2::timestamptz
-        and event_name in ('paywall_viewed', 'checkout_clicked')
+        and event_name in ('paywall_viewed', 'checkout_started')
     `, [range.start, range.end]),
     client.query(`
       select count(*)::int as total
@@ -384,7 +371,7 @@ async function loadAnalyticsStats(client, range) {
       limit 12
     `, [range.start, range.end]),
     client.query(`
-      select coalesce(nullif(properties->>'deviceClass', ''), 'unknown') as device_class,
+      select coalesce(nullif(bot_signals->>'deviceClass', ''), 'unknown') as device_class,
              count(*)::int as events
       from events
       where created_at >= $1::timestamptz
@@ -394,23 +381,31 @@ async function loadAnalyticsStats(client, range) {
       limit 8
     `, [range.start, range.end]),
     client.query(`
-      select coalesce(nullif(properties->>'source', ''), 'direct') as source,
-             count(*)::int as events
+      select coalesce(
+               nullif(attribution->'lastTouch'->>'utmSource', ''),
+               nullif(properties->>'source', ''),
+               'direct'
+             ) as source,
+             coalesce(nullif(attribution->'lastTouch'->>'utmCampaign', ''), '') as campaign,
+             coalesce(nullif(attribution->'lastTouch'->>'referralCode', ''), '') as referral_code,
+             coalesce(nullif(attribution->'lastTouch'->>'instructorCode', ''), '') as instructor_code,
+             count(*)::int as events,
+             count(distinct anonymous_id)::int as visitors
       from events
       where created_at >= $1::timestamptz
         and created_at < $2::timestamptz
-        and event_name in ('checkout_clicked', 'checkout_success', 'referral_checkout_started')
-      group by 1
+        and event_name in ('checkout_started', 'checkout_completed', 'referral_checkout_started')
+      group by 1, 2, 3, 4
       order by events desc
       limit 12
     `, [range.start, range.end]),
     client.query(`
-      select count(*) filter (where event_name = 'mock_started')::int as starts,
-             count(*) filter (where event_name = 'mock_completed')::int as completions
+      select count(*) filter (where event_name in ('first_mock_started', 'mock_started'))::int as starts,
+             count(*) filter (where event_name in ('first_mock_completed', 'mock_completed'))::int as completions
       from events
       where created_at >= $1::timestamptz
         and created_at < $2::timestamptz
-        and event_name in ('mock_started', 'mock_completed')
+        and event_name in ('first_mock_started', 'first_mock_completed', 'mock_started', 'mock_completed')
     `, [range.start, range.end]),
     client.query(`
       select question_id,
@@ -427,19 +422,21 @@ async function loadAnalyticsStats(client, range) {
   const byName = new Map(funnel.rows.map((row) => [row.event_name, row]));
   const paywallRow = paywall.rows[0] || {};
   const paywallViews = Number(paywallRow.paywall_views || 0);
-  const checkoutClicks = Number(paywallRow.checkout_clicks || 0);
+  const checkoutStarts = Number(paywallRow.checkout_starts || 0);
 
   return {
     last30DaysEventCount: Number(eventCount.rows[0]?.total || 0),
-    funnel: FUNNEL_EVENTS.map((eventName) => ({
+    funnel: FUNNEL_EVENT_NAMES.map((eventName) => ({
       eventName,
       events: Number(byName.get(eventName)?.events || 0),
       visitors: Number(byName.get(eventName)?.visitors || 0),
     })),
+    conversions: buildConversionRows(byName),
     paywall: {
       views: paywallViews,
-      checkoutClicks,
-      clickRate: paywallViews ? Math.round((checkoutClicks / paywallViews) * 100) : 0,
+      checkoutStarts,
+      checkoutClicks: checkoutStarts,
+      clickRate: paywallViews ? Math.round((checkoutStarts / paywallViews) * 100) : 0,
     },
     missedCategories: missedCategories.rows.map((row) => ({
       category: row.category,
@@ -464,7 +461,8 @@ async function loadAnalyticsStats(client, range) {
 function emptyAnalyticsStats() {
   return {
     last30DaysEventCount: 0,
-    funnel: FUNNEL_EVENTS.map((eventName) => ({ eventName, events: 0, visitors: 0 })),
+    funnel: FUNNEL_EVENT_NAMES.map((eventName) => ({ eventName, events: 0, visitors: 0 })),
+    conversions: [],
     paywall: { views: 0, checkoutClicks: 0, clickRate: 0 },
     missedCategories: [],
     missedQuestions: [],
@@ -474,6 +472,34 @@ function emptyAnalyticsStats() {
     mockCompletion: { starts: 0, completions: 0 },
     reportFrequency: [],
   };
+}
+
+function buildConversionRows(byName) {
+  const count = (eventName) => Number(byName.get(eventName)?.visitors || byName.get(eventName)?.events || 0);
+  const rows = [
+    ["landing_to_preview", "Landing to preview", "landing_view", "start_free_practice"],
+    ["preview_to_paywall", "Preview to paywall", "preview_started", "paywall_viewed"],
+    ["paywall_to_checkout", "Paywall to checkout", "paywall_viewed", "checkout_started"],
+    ["checkout_to_purchase", "Checkout to purchase", "checkout_started", "checkout_completed"],
+    ["purchase_to_first_paid_session", "Purchase to first paid session", "checkout_completed", "first_paid_session"],
+    ["mock_completion", "Mock completion", "first_mock_started", "first_mock_completed"],
+    ["restore_success", "Restore success", "restore_access_started", "access_restored"],
+  ];
+
+  return rows.map(([key, label, fromEvent, toEvent]) => {
+    const from = count(fromEvent);
+    const to = count(toEvent);
+    return {
+      key,
+      label,
+      fromEvent,
+      toEvent,
+      from,
+      to,
+      rate: from ? Math.round((to / from) * 100) : 0,
+      sampleWarning: from > 0 && from < 30,
+    };
+  });
 }
 
 function parseDateRange(query) {

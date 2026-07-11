@@ -1,11 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { canonicalSiteOrigin } from "../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
-const siteUrl = new URL(process.env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app").origin;
+const siteUrl = canonicalSiteOrigin(process.env);
 const sitemap = fs.readFileSync(path.join(publicDir, "sitemap.xml"), "utf8");
 const sitemapUrls = new Set(
   Array.from(sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)).map((match) => {

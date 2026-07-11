@@ -1,8 +1,11 @@
+import { createAnalyticsClient, loadAnonymousId } from "./analytics-client.js";
+
 (function () {
   "use strict";
 
   const config = window.PRICING_CONFIG || { plans: [] };
-  const anonymousId = getAnonymousId();
+  const anonymousId = loadAnonymousId();
+  const analytics = createAnalyticsClient({ anonymousId });
 
   bindPlanButtons();
   trackPricingView();
@@ -28,7 +31,7 @@
     button.disabled = true;
     button.classList.add("is-loading");
     button.textContent = "Opening checkout...";
-    trackEvent("checkout_clicked", { source: "pricing_page", mode: "pricing", planKey });
+    analytics.trackEvent("checkout_clicked", { source: "pricing_page", mode: "pricing", planKey });
 
     try {
       const response = await fetch("/api/create-checkout-session", {
@@ -38,6 +41,13 @@
       });
       const payload = await response.json();
       if (!response.ok || !payload.url) throw new Error("checkout_failed");
+      analytics.trackEvent("checkout_started", {
+        source: "pricing_page",
+        mode: "pricing",
+        planKey,
+        checkoutAttemptId: payload.attemptId || "",
+      });
+      await analytics.flush();
       window.location.href = payload.url;
     } catch {
       const status = button.closest(".pricing-plan-card")?.querySelector(".pricing-plan-status");
@@ -49,29 +59,6 @@
   }
 
   function trackPricingView() {
-    trackEvent("pricing_page_viewed", { path: window.location.pathname || "/pricing.html" });
-  }
-
-  function trackEvent(eventName, properties) {
-    fetch("/api/events", {
-      method: "POST",
-      credentials: "same-origin",
-      keepalive: true,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ anonymousId, eventName, properties }),
-    }).catch(() => {});
-  }
-
-  function getAnonymousId() {
-    const key = "irish-theory-practice-anonymous-id-v1";
-    try {
-      const existing = window.localStorage.getItem(key);
-      if (existing) return existing;
-      const next = `anon_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-      window.localStorage.setItem(key, next);
-      return next;
-    } catch {
-      return `anon_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    }
+    analytics.trackEvent("pricing_page_viewed", { path: window.location.pathname || "/pricing.html" });
   }
 })();

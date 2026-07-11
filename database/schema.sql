@@ -671,12 +671,28 @@ create table if not exists generated_questions (
 
 create table if not exists events (
   id uuid primary key default gen_random_uuid(),
+  event_id text unique,
+  schema_version integer not null default 1,
   event_name text not null,
   anonymous_id text not null,
   user_id uuid,
   properties jsonb not null default '{}'::jsonb,
+  attribution jsonb not null default '{}'::jsonb,
+  experiments jsonb not null default '{}'::jsonb,
+  bot_signals jsonb not null default '{}'::jsonb,
+  environment text not null default 'local',
+  client_created_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+alter table events
+  add column if not exists event_id text,
+  add column if not exists schema_version integer not null default 1,
+  add column if not exists attribution jsonb not null default '{}'::jsonb,
+  add column if not exists experiments jsonb not null default '{}'::jsonb,
+  add column if not exists bot_signals jsonb not null default '{}'::jsonb,
+  add column if not exists environment text not null default 'local',
+  add column if not exists client_created_at timestamptz;
 
 alter table generated_questions
   add column if not exists source_ids uuid[] not null default '{}'::uuid[],
@@ -782,6 +798,8 @@ create index if not exists events_created_idx on events (created_at desc);
 create index if not exists events_name_created_idx on events (event_name, created_at desc);
 create index if not exists events_anonymous_created_idx on events (anonymous_id, created_at desc);
 create index if not exists events_user_created_idx on events (user_id, created_at desc) where user_id is not null;
+create unique index if not exists events_event_id_unique_idx on events (event_id) where event_id is not null;
+create index if not exists events_environment_created_idx on events (environment, created_at desc);
 create index if not exists users_role_idx on users (role);
 create index if not exists flags_user_idx on flags (user_id);
 create index if not exists login_tokens_email_expires_idx on login_tokens (email, expires_at desc);

@@ -669,11 +669,11 @@
       ["Refunds", formatMoney(revenue.refundAmount, "eur"), `${formatNumber(revenue.refundCount || 0)} refund records`],
       ["Net recorded", formatMoney(revenue.estimatedNetRevenue, "eur"), "Gross minus estimated fees/refunds"],
       ["Preview starts", eventValue("preview_started"), "Selected period"],
-      ["Checkout starts", eventValue("checkout_clicked") + eventValue("referral_checkout_started"), "Selected period"],
-      ["Completed purchases", eventValue("checkout_success"), "Selected period"],
-      ["Restore success", eventValue("restore_access_success"), "Selected period"],
-      ["Mock starts", eventValue("mock_started"), "Selected period"],
-      ["Mock completions", eventValue("mock_completed"), "Selected period"],
+      ["Checkout starts", eventValue("checkout_started"), "Selected period"],
+      ["Completed purchases", eventValue("checkout_completed"), "Selected period"],
+      ["Restore success", eventValue("access_restored"), "Selected period"],
+      ["Mock starts", eventValue("first_mock_started") || eventValue("mock_started"), "Selected period"],
+      ["Mock completions", eventValue("first_mock_completed") || eventValue("mock_completed"), "Selected period"],
       ["Attempts", totals.attempts || 0, "Synced answers"],
       ["Flags", totals.flags || 0, "Saved review marks"],
       ["Analytics events", stats.analytics?.last30DaysEventCount || 0, "Selected period"],
@@ -1360,7 +1360,7 @@
   }
 
   function renderAnalytics(analytics) {
-    renderFunnel(analytics.funnel || [], analytics.paywall || {});
+    renderFunnel(analytics.funnel || [], analytics.paywall || {}, analytics.conversions || []);
     renderMissedCategories(analytics.missedCategories || []);
     renderMissedQuestions(analytics.missedQuestions || []);
     renderSimpleMetricList(els.modeUsageMount, analytics.modeUsage || [], "mode", "events", "No mode usage yet", "Mode usage appears after learners switch study modes.");
@@ -1398,7 +1398,7 @@
     );
   }
 
-  function renderFunnel(funnel, paywall) {
+  function renderFunnel(funnel, paywall, conversions = []) {
     els.analyticsFunnelMount.innerHTML = "";
     if (!funnel.length) {
       renderEmpty(els.analyticsFunnelMount, "No analytics yet", "Privacy-safe funnel events will appear after visitors use the app.");
@@ -1420,6 +1420,18 @@
       badges: [statusBadge("Funnel", "primary")],
     });
     els.analyticsFunnelMount.append(paywallRow);
+
+    conversions.forEach((item) => {
+      const row = adminItem({
+        title: item.label,
+        subtitle: `${formatNumber(item.to || 0)} from ${formatNumber(item.from || 0)} (${item.rate || 0}%)`,
+        badges: [
+          statusBadge("Conversion", "primary"),
+          statusBadge(item.sampleWarning ? "Small sample" : "Directional", item.sampleWarning ? "warning" : "neutral"),
+        ],
+      });
+      els.analyticsFunnelMount.append(row);
+    });
   }
 
   function renderMissedCategories(categories) {
@@ -2204,11 +2216,22 @@
 
   function labelEvent(eventName) {
     const labels = {
+      landing_view: "Landing views",
+      start_free_practice: "Start free practice",
       page_view: "Page views",
       preview_started: "Preview started",
+      first_answer: "First answer",
+      preview_engaged: "Preview engaged",
       paywall_viewed: "Paywall views",
+      checkout_started: "Checkout started",
+      checkout_completed: "Checkout completed",
       checkout_clicked: "Checkout clicks",
       checkout_success: "Checkout success",
+      access_restored: "Access restored",
+      first_paid_session: "First paid session",
+      first_mock_started: "First mock started",
+      first_mock_completed: "First mock completed",
+      return_visit: "Return visits",
       restore_access_clicked: "Restore access",
       restore_access_started: "Restore starts",
       restore_access_success: "Restore successes",

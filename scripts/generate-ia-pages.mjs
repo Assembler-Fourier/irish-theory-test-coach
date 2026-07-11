@@ -11,13 +11,13 @@ import {
   siteFooter,
   siteHeader,
 } from "../shared/static-components.js";
+import { canonicalSiteOrigin } from "../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
 const marketingDir = path.join(publicDir, "marketing");
-const siteUrl = new URL(process.env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app").origin;
-const ogImage = `${siteUrl}/marketing/og-preview.svg`;
+const siteUrl = canonicalSiteOrigin(process.env);
 const disclaimer = "Independent practice tool. Not affiliated with RSA or Prometric.";
 const summary = buildProductSummary({ root, env: process.env });
 
@@ -399,6 +399,7 @@ function renderSupportPage() {
 
 function pageShell({ active, canonicalPath, title, description, bodyClass, main, jsonLd = [], noindex = false }) {
   const canonical = `${siteUrl}${canonicalPath}`;
+  const ogImage = `${siteUrl}/marketing/${ogImageFileForPath(canonicalPath)}`;
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -421,11 +422,22 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
     <script src="./config.js?v=20260710-rebuild"></script>
     <script src="./business-config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
-    ${canonicalPath === "/pricing" ? '<script src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
+    <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    ${canonicalPath === "/pricing" ? '<script type="module" src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
     <script src="./trust.js?v=20260710-rebuild"></script>
   </body>
 </html>
 `;
+}
+
+function ogImageFileForPath(pathname) {
+  if (pathname === "/") return "og-home.svg";
+  if (pathname === "/pricing") return "og-pricing.svg";
+  if (pathname === "/mock-exam") return "og-mock-exam.svg";
+  if (pathname === "/road-signs") return "og-road-signs.svg";
+  if (pathname === "/learn") return "og-learn.svg";
+  return "og-home.svg";
 }
 
 function pageHero(eyebrow, title, body, primaryLabel, primaryHref, secondaryLabel = "Compare pricing", secondaryHref = "/pricing") {

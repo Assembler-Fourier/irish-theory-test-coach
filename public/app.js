@@ -503,6 +503,12 @@ import { createProgressController } from "./progress-controller.js";
         reviewQuestionIds,
       });
       applyStudySession(payload.session);
+      if (payload.session?.accessType === "premium" || (premium && hasAccess())) {
+        trackEvent("first_paid_session", {
+          mode,
+          questionCount: Number(payload.session?.questionCount || 0),
+        });
+      }
       setStatus(buildStudySessionStatus(payload.session));
       return payload.session;
     } catch (error) {
@@ -949,13 +955,14 @@ import { createProgressController } from "./progress-controller.js";
     summary.textContent = "More coaching details";
     details.append(summary, why);
 
-    if (question.coachVisuals.length) {
+    const coachVisual = question.coachVisuals.find((visualPath) => isDisplayQualityCoachVisual(question, visualPath));
+    if (coachVisual) {
       const visual = document.createElement("figure");
       visual.className = "feedback-coach-visual";
       const visualImage = document.createElement("img");
       visualImage.loading = "lazy";
       visualImage.decoding = "async";
-      visualImage.src = "./" + question.coachVisuals[0].replace(/\\/g, "/");
+      visualImage.src = "./" + coachVisual.replace(/\\/g, "/");
       visualImage.alt = `Coach visual for question ${question.id}`;
       const caption = document.createElement("figcaption");
       caption.textContent = "Coach visual";
@@ -979,6 +986,13 @@ import { createProgressController } from "./progress-controller.js";
     feedback.append(details);
     appendFeedbackActions(feedback, question, selectedIndex);
     focusFeedbackAfterAnswer(feedback);
+  }
+
+  function isDisplayQualityCoachVisual(question, visualPath) {
+    const pathValue = clean(visualPath).toLowerCase();
+    if (!pathValue) return false;
+    if (question.isRoadSign) return true;
+    return /(?:road[-_ ]?sign|sign|marking|diagram|scenario|instructional|hazard)/i.test(pathValue);
   }
 
   function announceAnswerResult(correct, question, selected) {
@@ -1448,6 +1462,10 @@ import { createProgressController } from "./progress-controller.js";
     const beforeCategory = getCategorySnapshot(question.category);
     const attemptEvent = createAttemptEvent(question, selectedIndex, isCorrect);
     trackQuestionAnswer(question, selectedIndex, isCorrect);
+    trackEvent("first_answer", {
+      mode: state.exam ? "exam" : state.mode,
+      category: question.category || "Uncategorised",
+    });
     const existing = state.progress.answers[String(question.id)] || { attempts: 0, correct: 0, wrong: 0 };
     existing.attempts += 1;
     existing.correct += isCorrect ? 1 : 0;
@@ -1470,6 +1488,7 @@ import { createProgressController } from "./progress-controller.js";
     saveProgress();
     syncPendingAttempts();
     updateStats();
+    trackPreviewEngagement();
     maybeCelebrateAnswerProgress(question, isCorrect, beforeToday, state.progress.daily[today], beforeCategory, getCategorySnapshot(question.category));
   }
 
@@ -1572,6 +1591,10 @@ import { createProgressController } from "./progress-controller.js";
       questionCount: state.exam.questions.length,
       category: state.selectedCategory || "All categories",
     });
+    trackEvent("first_mock_started", {
+      questionCount: state.exam.questions.length,
+      category: state.selectedCategory || "All categories",
+    });
     updateModeButtons();
     startTimer();
     renderInsight();
@@ -1664,6 +1687,13 @@ import { createProgressController } from "./progress-controller.js";
     recordMockResult(correct, passed, answeredCount);
     saveProgress();
     trackEvent("mock_completed", {
+      score: correct,
+      total: resultTotal,
+      passed,
+      answered: answeredCount,
+      durationSeconds: Math.max(0, Math.round((Date.now() - state.exam.startedAt) / 1000)),
+    });
+    trackEvent("first_mock_completed", {
       score: correct,
       total: resultTotal,
       passed,
@@ -1812,6 +1842,14 @@ import { createProgressController } from "./progress-controller.js";
       if (!response.ok || !payload.url) {
         throw new Error(payload.error || "Could not open checkout");
       }
+      trackEvent("checkout_started", {
+        source: cleanAnalyticsText(source),
+        mode: state.mode,
+        planKey,
+        referralCode,
+        checkoutAttemptId: payload.attemptId || "",
+      });
+      await analyticsClient?.flush?.();
       window.location.href = payload.url;
     } catch (error) {
       setStatus(`Checkout error: ${error.message}`);
@@ -1904,6 +1942,7 @@ import { createProgressController } from "./progress-controller.js";
       }
       window.history.replaceState({}, "", window.location.pathname);
       trackEvent("checkout_success", { source: "stripe_return", planKey: currentCheckoutPlan().key, referralCode: state.referral.code || "" });
+      trackEvent("checkout_completed", { source: "stripe_return", planKey: currentCheckoutPlan().key, referralCode: state.referral.code || "", sessionId });
       if (state.referral.code) {
         trackEvent("referral_purchase_completed", { source: "stripe_return", planKey: currentCheckoutPlan().key });
       }
@@ -1939,6 +1978,10 @@ import { createProgressController } from "./progress-controller.js";
         entitlement: payload.entitlement || { active: false },
       });
       removeUrlParams(["login_token"]);
+      trackEvent("access_restored", {
+        source: "magic_link",
+        entitlementActive: Boolean(payload.entitlement && payload.entitlement.active),
+      });
       setStatus("Access restored. Full access is linked to this browser.");
     } catch (error) {
       removeUrlParams(["login_token"]);
@@ -2465,6 +2508,18 @@ import { createProgressController } from "./progress-controller.js";
     });
   }
 
+  function trackPreviewEngagement() {
+    if (hasAccess()) return;
+    const answered = Object.values(state.progress.answers || {})
+      .reduce((total, item) => total + Number(item.attempts || 0), 0);
+    if (answered < 3) return;
+    trackEvent("preview_engaged", {
+      answered,
+      previewLimit: PREVIEW_LIMIT,
+      mode: state.mode,
+    });
+  }
+
   function trackQuestionAnswer(question, selectedIndex, correct) {
     const properties = questionAnalyticsProperties(question, selectedIndex, correct);
     trackEvents([
@@ -2495,23 +2550,7 @@ import { createProgressController } from "./progress-controller.js";
   }
 
   function trackEvents(events) {
-    const payload = {
-      anonymousId: state.analytics.anonymousId,
-      events: events.map((event) => ({
-        eventName: event.eventName,
-        properties: event.properties || {},
-      })),
-    };
-
-    fetch("/api/events", {
-      method: "POST",
-      credentials: "same-origin",
-      keepalive: true,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    }).catch(() => {
-      // Analytics is intentionally non-blocking.
-    });
+    return analyticsClient?.trackEvents(events) || Promise.resolve();
   }
 
   function cleanAnalyticsText(value) {

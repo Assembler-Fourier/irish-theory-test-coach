@@ -1,10 +1,11 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { canonicalSiteOrigin } from "../shared/growth-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
-const siteUrl = new URL(process.env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app").origin;
+const siteUrl = canonicalSiteOrigin(process.env);
 const slug = cleanSlug(process.argv[2] || "");
 const title = process.argv.slice(3).join(" ") || "New Irish Theory Test Guide";
 
@@ -32,11 +33,11 @@ const html = `<!doctype html>
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="Placeholder description. Replace before publishing.">
     <meta property="og:url" content="${siteUrl}/${slug}">
-    <meta property="og:image" content="${siteUrl}/marketing/og-preview.svg">
+    <meta property="og:image" content="${siteUrl}/marketing/og-home.svg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="Placeholder description. Replace before publishing.">
-    <meta name="twitter:image" content="${siteUrl}/marketing/og-preview.svg">
+    <meta name="twitter:image" content="${siteUrl}/marketing/og-home.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
   </head>
   <body>
@@ -55,6 +56,8 @@ const html = `<!doctype html>
         </section>
       </main>
     </div>
+    <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
   </body>
 </html>
 `;

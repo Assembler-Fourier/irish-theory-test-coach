@@ -1,0 +1,158 @@
+window.GROWTH_CONFIG = {
+  "schemaVersion": 2,
+  "canonicalOrigin": "https://irish-theory-test-coach.vercel.app",
+  "funnelEvents": [
+    {
+      "eventName": "landing_view",
+      "label": "Landing view",
+      "duplicatePolicy": "At most once per page load per path."
+    },
+    {
+      "eventName": "start_free_practice",
+      "label": "Start free practice",
+      "duplicatePolicy": "At most once per session."
+    },
+    {
+      "eventName": "preview_started",
+      "label": "Preview started",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "first_answer",
+      "label": "First answer",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "preview_engaged",
+      "label": "Preview engaged",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "paywall_viewed",
+      "label": "Paywall viewed",
+      "duplicatePolicy": "At most once per page session for the same source and mode."
+    },
+    {
+      "eventName": "checkout_started",
+      "label": "Checkout started",
+      "duplicatePolicy": "Idempotent by event ID; button loading prevents double-click duplicates."
+    },
+    {
+      "eventName": "checkout_completed",
+      "label": "Checkout completed",
+      "duplicatePolicy": "At most once per returned Stripe session in the browser."
+    },
+    {
+      "eventName": "access_restored",
+      "label": "Access restored",
+      "duplicatePolicy": "At most once per successful restore interaction."
+    },
+    {
+      "eventName": "first_paid_session",
+      "label": "First paid session",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "first_mock_started",
+      "label": "First mock started",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "first_mock_completed",
+      "label": "First mock completed",
+      "duplicatePolicy": "At most once per anonymous learner lifetime."
+    },
+    {
+      "eventName": "return_visit",
+      "label": "Return visit",
+      "duplicatePolicy": "At most once per browser session."
+    }
+  ],
+  "attributionKeys": [
+    "utmSource",
+    "utmMedium",
+    "utmCampaign",
+    "utmContent",
+    "landingPage",
+    "referralCode",
+    "instructorCode"
+  ],
+  "experiments": [
+    {
+      "key": "hero_copy",
+      "activeVariant": "control"
+    },
+    {
+      "key": "cta_copy",
+      "activeVariant": "start_free_preview"
+    },
+    {
+      "key": "pricing_presentation",
+      "activeVariant": "comparison_first"
+    },
+    {
+      "key": "preview_length",
+      "activeVariant": "show_15"
+    },
+    {
+      "key": "paywall_timing",
+      "activeVariant": "on_premium_request"
+    }
+  ],
+  "performanceBudgets": {
+    "htmlBytes": 140000,
+    "cssBytes": 190000,
+    "javascriptBytes": 260000,
+    "initialImageBytes": 95000,
+    "fontBytes": 0,
+    "apiLatencyMsP75": 800,
+    "lcpMs": 2500,
+    "cls": 0.1,
+    "inpMs": 200,
+    "maxSeoAppBundleLoads": 0
+  },
+  "socialImages": [
+    {
+      "key": "home",
+      "file": "og-home.svg",
+      "title": "Irish Theory Test Coach",
+      "subtitle": "Independent Category B practice",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-home.svg"
+    },
+    {
+      "key": "pricing",
+      "file": "og-pricing.svg",
+      "title": "Transparent Pricing",
+      "subtitle": "Free preview and Full Study Pass",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-pricing.svg"
+    },
+    {
+      "key": "mock-exam",
+      "file": "og-mock-exam.svg",
+      "title": "Mock Exam Practice",
+      "subtitle": "40-question timed study flow",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-mock-exam.svg"
+    },
+    {
+      "key": "road-signs",
+      "file": "og-road-signs.svg",
+      "title": "Road Signs Practice",
+      "subtitle": "Recognition-first visual drills",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-road-signs.svg"
+    },
+    {
+      "key": "learn",
+      "file": "og-learn.svg",
+      "title": "Learning Hub",
+      "subtitle": "Study routes, road signs, mocks, support",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-learn.svg"
+    },
+    {
+      "key": "instructors",
+      "file": "og-instructors.svg",
+      "title": "For Driving Instructors",
+      "subtitle": "Student code packs and referrals",
+      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-instructors.svg"
+    }
+  ]
+};

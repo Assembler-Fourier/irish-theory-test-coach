@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-11-account-v1";
+const CACHE_VERSION = "ittc-pwa-2026-07-11-growth-v1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -18,9 +18,12 @@ const SHELL_ASSETS = [
   "./progress-controller.js",
   "./access-controller.js",
   "./analytics-client.js",
+  "./growth-tracking.js",
   "./config.js",
   "./business-config.js",
   "./business-config.json",
+  "./growth-config.js",
+  "./growth-config.json",
   "./product-summary.js",
   "./pricing-config.js",
   "./product-summary.json",
@@ -31,6 +34,12 @@ const SHELL_ASSETS = [
   "./icons/app-icon.svg",
   "./icons/maskable-icon.svg",
   "./marketing/og-preview.svg",
+  "./marketing/og-home.svg",
+  "./marketing/og-pricing.svg",
+  "./marketing/og-mock-exam.svg",
+  "./marketing/og-road-signs.svg",
+  "./marketing/og-learn.svg",
+  "./marketing/og-instructors.svg",
   "./marketing/app-workspace-preview.svg",
   "./marketing/content-review-preview.svg",
   "./pricing.html",
@@ -57,6 +66,12 @@ const DATA_ASSETS = [
 
 const COMMON_IMAGE_ASSETS = [
   "./marketing/og-preview.svg",
+  "./marketing/og-home.svg",
+  "./marketing/og-pricing.svg",
+  "./marketing/og-mock-exam.svg",
+  "./marketing/og-road-signs.svg",
+  "./marketing/og-learn.svg",
+  "./marketing/og-instructors.svg",
   "./marketing/app-workspace-preview.svg",
   "./marketing/content-review-preview.svg",
 ];
