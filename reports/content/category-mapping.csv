@@ -1,0 +1,30 @@
+original_category,canonical_key,display_name,active,mapping_reason,order
+Alert Driving and Consideration,alert_driving_consideration,Alert Driving and Consideration,true,exact,10
+Alert Driving and Consideration for Other Road Users,alert_driving_consideration,Alert Driving and Consideration,true,alias,10
+Characteristics of Various Types of Road,road_types_environment,Road Types and Environmental Matters,true,alias,100
+Collisions,collisions_emergency,Collisions and Emergency Action,true,alias,80
+Control of Vehicle,control_vehicle,Control of Vehicle,true,exact,60
+Driver Behaviour and Anticipation,alert_driving_consideration,Alert Driving and Consideration,true,alias,10
+Driving Risk Factors Related to Road Conditions as they Change with Weather and Day/Night,managing_risk,Managing Risk,true,alias,50
+Driving Risk Factors Related to Various Road Conditions,managing_risk,Managing Risk,true,alias,50
+Drugs and Alcohol,drugs_alcohol,Drugs and Alcohol,true,exact,110
+Environmental Matters,road_types_environment,Road Types and Environmental Matters,true,alias,100
+Getting On or Off the Vehicle,control_vehicle,Control of Vehicle,true,alias,60
+Good Judgement and Perception,alert_driving_consideration,Alert Driving and Consideration,true,alias,10
+Legal Matters/Rules of the Road,legal_rules_road,Legal Matters / Rules of the Road,true,alias,30
+Managing Risk,managing_risk,Managing Risk,true,exact,50
+Necessary Documents,documents,Necessary Documents,true,exact,90
+Observance of Safe Distance,managing_risk,Managing Risk,true,alias,50
+Observance of Safe Distances and Driving in Various Weather/Road Conditions,managing_risk,Managing Risk,true,alias,50
+Observation/Field of View,alert_driving_consideration,Alert Driving and Consideration,true,alias,10
+"Road Signs, Markings and Traffic Regulations",legal_rules_road,Legal Matters / Rules of the Road,true,alias,30
+Safe and Responsible Driving,safe_responsible_driving,Safe and Responsible Driving,true,exact,20
+Safety Factors Relating to Vehicle and Persons Carried,technical_matters,Technical Matters,true,alias,70
+Safety Factors Relating to Vehicle Loading and Persons Carried,technical_matters,Technical Matters,true,alias,70
+Taking Corrective or Emergency Action,collisions_emergency,Collisions and Emergency Action,true,alias,80
+Taking Emergency/Corrective Action,collisions_emergency,Collisions and Emergency Action,true,alias,80
+Techincal Matters,technical_matters,Technical Matters,true,alias,70
+Technical Matters with a Bearing on Road Safety,technical_matters,Technical Matters,true,alias,70
+Traffic Signs and Regulatory Matters,traffic_signs_regulatory,Traffic Signs and Regulatory Matters,true,exact,40
+Uncategorized,uncategorised,Uncategorised,false,alias,999
+Vulnerable Road Users,safe_responsible_driving,Safe and Responsible Driving,true,alias,20

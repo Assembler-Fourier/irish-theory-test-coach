@@ -59,6 +59,8 @@ function checkAnswerFlowContract({ html, appJs }) {
   assert.match(appJs, /paintAnswers\(answerList, question, index\)/, "Answer selection does not paint answers.");
   assert.match(appJs, /showFeedback\(feedback, question, index\)/, "Answer selection does not show feedback.");
   assert.match(appJs, /recordAnswer\(question, index, correct\)/, "Answer selection does not record server-confirmed progress.");
+  assert.match(appJs, /Report a problem/, "Question problem-report action is missing.");
+  assert.match(appJs, /\/api\/question-feedback/, "Question problem reports are not wired to the API.");
   assert.match(appJs, /eventName: "question_answered"/, "Answer analytics event is missing.");
 }
 

@@ -7,6 +7,7 @@
     selectedQuestion: null,
     sourceDocuments: [],
     generatedQuestions: [],
+    contentQuality: null,
   };
 
   const els = {
@@ -52,6 +53,13 @@
     questionExplanationInput: document.getElementById("questionExplanationInput"),
     questionNotesInput: document.getElementById("questionNotesInput"),
     questionsMount: document.getElementById("questionsMount"),
+    reloadContentQualityBtn: document.getElementById("reloadContentQualityBtn"),
+    contentQualitySummaryMount: document.getElementById("contentQualitySummaryMount"),
+    contentConflictMount: document.getElementById("contentConflictMount"),
+    contentDuplicateMount: document.getElementById("contentDuplicateMount"),
+    categoryMappingMount: document.getElementById("categoryMappingMount"),
+    editorialBacklogMount: document.getElementById("editorialBacklogMount"),
+    qualityDecisionsMount: document.getElementById("qualityDecisionsMount"),
     reloadAiDraftsBtn: document.getElementById("reloadAiDraftsBtn"),
     sourceNoteForm: document.getElementById("sourceNoteForm"),
     sourceTitleInput: document.getElementById("sourceTitleInput"),
@@ -87,6 +95,9 @@
       event.preventDefault();
       loadQuestions();
     });
+    els.reloadContentQualityBtn.addEventListener("click", loadContentQuality);
+    els.contentConflictMount.addEventListener("click", handleContentQualityAction);
+    els.contentDuplicateMount.addEventListener("click", handleContentQualityAction);
     els.reloadAiDraftsBtn.addEventListener("click", loadGeneratedPipeline);
     els.sourceNoteForm.addEventListener("submit", async (event) => {
       event.preventDefault();
@@ -124,6 +135,7 @@
         loadEntitlements(),
         loadReferrals(),
         loadQuestions(),
+        loadContentQuality(),
         loadGeneratedPipeline(),
       ]);
       setStatus("Admin dashboard ready.", "success");
@@ -170,6 +182,12 @@
     if (els.questionHighYieldInput.checked) params.set("highYield", "1");
     const payload = await fetchJson(`/api/admin/questions?${params.toString()}`);
     renderQuestions(payload.questions || []);
+  }
+
+  async function loadContentQuality() {
+    const payload = await fetchJson("/api/admin/content-quality");
+    state.contentQuality = payload;
+    renderContentQuality(payload);
   }
 
   async function loadGeneratedPipeline() {
@@ -402,6 +420,12 @@
       els.missedCategoriesMount,
       els.missedQuestionsMount,
       els.questionsMount,
+      els.contentQualitySummaryMount,
+      els.contentConflictMount,
+      els.contentDuplicateMount,
+      els.categoryMappingMount,
+      els.editorialBacklogMount,
+      els.qualityDecisionsMount,
       els.sourceDocumentsMount,
       els.generatedQuestionsMount,
       els.attemptSummaryMount,
@@ -732,6 +756,251 @@
       });
       body.append(row);
     });
+  }
+
+  function renderContentQuality(payload) {
+    const summary = payload.summary || {};
+    renderContentQualitySummary(summary);
+    renderQualityGroups(
+      els.contentConflictMount,
+      payload.conflictingAnswerGroups || [],
+      "No conflicting answers found",
+      "Repeated stems with different saved correct answers will appear here."
+    );
+    renderQualityGroups(
+      els.contentDuplicateMount,
+      payload.duplicateGroups || [],
+      "No duplicate groups found",
+      "Exact, normalised, reordered-option, image, and near-duplicate groups will appear here."
+    );
+    renderCategoryMappings(payload.categoryMappings || []);
+    renderEditorialBacklog(payload.editorialBacklog || []);
+    renderQualityDecisions(payload.recentDecisions || []);
+  }
+
+  function renderContentQualitySummary(summary) {
+    const metrics = [
+      ["Analysed", summary.totalQuestions || 0, "Questions in source bank"],
+      ["Categories", summary.canonicalCategories || 0, "Canonical registry"],
+      ["Duplicates", summary.duplicateGroups || 0, "Variant groups"],
+      ["Conflicts", summary.conflictingAnswerGroups || 0, "Answer review queue"],
+      ["Lint findings", summary.lintFindings || 0, "Structure and wording checks"],
+      ["Backlog", summary.editorialBacklog || 0, "Editorial work items"],
+    ];
+
+    els.contentQualitySummaryMount.innerHTML = "";
+    metrics.forEach(([label, value, caption]) => {
+      const card = document.createElement("div");
+      card.className = "metric-card";
+      card.innerHTML = "<span></span><strong></strong><em></em>";
+      card.querySelector("span").textContent = label;
+      card.querySelector("strong").textContent = formatNumber(value);
+      card.querySelector("em").textContent = caption;
+      els.contentQualitySummaryMount.append(card);
+    });
+  }
+
+  function renderQualityGroups(mount, groups, emptyTitle, emptyCopy) {
+    mount.innerHTML = "";
+    if (!groups.length) {
+      renderEmpty(mount, emptyTitle, emptyCopy);
+      return;
+    }
+
+    groups.slice(0, 20).forEach((group) => {
+      const item = document.createElement("article");
+      item.className = "admin-item content-quality-card";
+
+      const heading = document.createElement("div");
+      heading.className = "admin-item-heading";
+      const title = document.createElement("strong");
+      title.textContent = `${compactIds(group.questionIds)} -> canonical #${group.canonicalQuestionId}`;
+      const badges = document.createElement("div");
+      badges.className = "admin-badge-row";
+      badges.append(
+        statusBadge(group.conflictingCorrectAnswers ? "Conflict" : "Duplicate", group.conflictingCorrectAnswers ? "danger" : "warning"),
+        statusBadge(group.reviewStatus || "needs_review", reviewStatusTone(group.reviewStatus)),
+        statusBadge(group.duplicateReason || "variant", "info")
+      );
+      heading.append(title, badges);
+      item.append(heading);
+
+      const variantList = document.createElement("div");
+      variantList.className = "quality-variant-list";
+      (group.variants || []).forEach((variant) => {
+        const variantNode = document.createElement("section");
+        variantNode.className = "quality-variant";
+
+        const variantHeading = document.createElement("strong");
+        variantHeading.textContent = `#${variant.questionId} | ${variant.category}`;
+        const stem = document.createElement("p");
+        stem.textContent = variant.question || "No question text";
+        const answer = document.createElement("em");
+        answer.textContent = `Saved answer: ${variant.correctAnswer || "missing"}`;
+
+        const options = document.createElement("ol");
+        (variant.options || []).forEach((option) => {
+          const li = document.createElement("li");
+          li.textContent = option.text || "";
+          li.classList.toggle("correct-option", Boolean(option.isCorrect));
+          options.append(li);
+        });
+
+        const explanation = document.createElement("p");
+        explanation.className = "quality-explanation";
+        explanation.textContent = variant.explanation || "No explanation";
+        variantNode.append(variantHeading, stem, answer, options, explanation);
+        variantList.append(variantNode);
+      });
+      item.append(variantList);
+
+      const actions = document.createElement("div");
+      actions.className = "review-actions content-quality-actions";
+      [
+        ["mark_legitimate_variant", "Legitimate variants", ""],
+        ["select_canonical", "Select canonical", ""],
+        ["merge_progress_history", "Merge progress", ""],
+        ["rewrite_stem", "Rewrite stem", ""],
+        ["change_category", "Change category", ""],
+        ["archive_redundant", "Archive redundant", "danger"],
+        ["publish_decision", "Publish decision", "primary"],
+      ].forEach(([action, label, tone]) => {
+        actions.append(contentActionButton(action, label, tone, group));
+      });
+      item.append(actions);
+      mount.append(item);
+    });
+  }
+
+  function contentActionButton(action, label, tone, group) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    if (tone) button.className = tone;
+    button.dataset.contentAction = action;
+    button.dataset.groupId = group.variantGroupId;
+    button.dataset.groupType = group.conflictingCorrectAnswers ? "conflict" : "duplicate";
+    button.dataset.questionIds = (group.questionIds || []).join(",");
+    button.dataset.canonicalQuestionId = String(group.canonicalQuestionId || "");
+    return button;
+  }
+
+  async function handleContentQualityAction(event) {
+    const button = event.target.closest("[data-content-action]");
+    if (!button) return;
+
+    const action = button.dataset.contentAction;
+    const questionIds = parseIdList(button.dataset.questionIds);
+    const canonicalQuestionId = Number(button.dataset.canonicalQuestionId || questionIds[0]);
+    const body = {
+      action,
+      groupId: button.dataset.groupId,
+      groupType: button.dataset.groupType,
+      questionIds,
+      canonicalQuestionId,
+      reason: "",
+      notes: "",
+    };
+
+    if (action === "select_canonical") {
+      const value = window.prompt("Canonical question ID", String(canonicalQuestionId));
+      if (!value) return;
+      body.canonicalQuestionId = Number(value);
+    }
+
+    if (action === "rewrite_stem") {
+      const questionId = Number(window.prompt("Question ID to rewrite", String(canonicalQuestionId)));
+      const newQuestionText = window.prompt("New question stem");
+      if (!Number.isInteger(questionId) || !newQuestionText) return;
+      body.questionId = questionId;
+      body.newQuestionText = newQuestionText;
+    }
+
+    if (action === "change_category") {
+      const questionId = Number(window.prompt("Question ID to recategorise", String(canonicalQuestionId)));
+      const newCategory = window.prompt("New canonical category display name");
+      if (!Number.isInteger(questionId) || !newCategory) return;
+      body.questionId = questionId;
+      body.newCategory = newCategory;
+    }
+
+    if (action === "archive_redundant" && !window.confirm("Archive non-canonical records in this group?")) return;
+
+    body.reason = window.prompt("Reason or editorial note", action) || action;
+    setStatus("Saving content-quality decision...");
+    try {
+      await fetchJson("/api/admin/content-quality", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      await Promise.all([loadContentQuality(), loadStats()]);
+      setStatus("Content-quality decision saved.", "success");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  function renderCategoryMappings(mappings) {
+    renderAdminItems(
+      els.categoryMappingMount,
+      mappings.slice(0, 40).map((mapping) => ({
+        title: mapping.originalCategory || "(blank)",
+        subtitle: `${mapping.displayName} | ${mapping.mappingReason}`,
+        badges: [
+          statusBadge(mapping.canonicalKey, mapping.active ? "info" : "warning"),
+          statusBadge(mapping.active ? "Active" : "Inactive", mapping.active ? "success" : "warning"),
+        ],
+      })),
+      "No category mappings",
+      "Mappings appear after the source bank is analysed."
+    );
+  }
+
+  function renderEditorialBacklog(items) {
+    renderAdminItems(
+      els.editorialBacklogMount,
+      items.slice(0, 40).map((item) => ({
+        title: `${normalizeBadgeLabel(item.itemType)} | ${item.reason}`,
+        subtitle: `${compactIds(item.questionIds)} | ${item.message}`,
+        badges: [
+          statusBadge(item.priority || "review", item.priority === "critical" || item.priority === "error" ? "danger" : "warning"),
+          statusBadge(item.reviewStatus || "open", "neutral"),
+        ],
+      })),
+      "No editorial backlog",
+      "Lint findings, duplicates, and conflict groups will appear here."
+    );
+  }
+
+  function renderQualityDecisions(decisions) {
+    renderAdminItems(
+      els.qualityDecisionsMount,
+      decisions.map((decision) => ({
+        title: `${normalizeBadgeLabel(decision.action)} | ${decision.groupId}`,
+        subtitle: `${compactIds(decision.questionIds)} | ${decision.reason || "No note"} | ${formatDate(decision.createdAt)}`,
+        badges: [
+          statusBadge(decision.reviewStatus || "reviewed", reviewStatusTone(decision.reviewStatus)),
+          statusBadge(decision.createdByEmail || "admin", "neutral"),
+        ],
+      })),
+      "No decisions yet",
+      "Editorial actions are audit-logged and will appear here after admins review groups."
+    );
+  }
+
+  function compactIds(ids) {
+    const values = Array.isArray(ids) ? ids : [];
+    if (!values.length) return "No question IDs";
+    if (values.length <= 4) return values.map((id) => `#${id}`).join(", ");
+    return `${values.slice(0, 4).map((id) => `#${id}`).join(", ")} +${values.length - 4}`;
+  }
+
+  function parseIdList(value) {
+    return String(value || "")
+      .split(",")
+      .map(Number)
+      .filter(Number.isInteger);
   }
 
   function renderSourceDocuments(sources) {

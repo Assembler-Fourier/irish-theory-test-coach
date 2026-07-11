@@ -1026,6 +1026,13 @@ import { createProgressController } from "./progress-controller.js";
     reviewButton.addEventListener("click", () => setMode("review"));
     actions.append(reviewButton);
 
+    const reportButton = document.createElement("button");
+    reportButton.type = "button";
+    reportButton.className = "ghost feedback-report-action";
+    reportButton.textContent = "Report a problem";
+    reportButton.addEventListener("click", () => showQuestionReportForm(feedback, question));
+    actions.append(reportButton);
+
     const attemptsAfterThisAnswer = totalAttemptCount() + 1;
     if (!state.exam && state.questions.length >= EXAM_SIZE && attemptsAfterThisAnswer >= DAILY_TARGET) {
       const mockButton = document.createElement("button");
@@ -1037,6 +1044,121 @@ import { createProgressController } from "./progress-controller.js";
     }
 
     feedback.append(actions);
+  }
+
+  function showQuestionReportForm(feedback, question) {
+    const existing = feedback.querySelector(".question-report");
+    if (existing) {
+      existing.querySelector("select")?.focus();
+      return;
+    }
+
+    const panel = document.createElement("section");
+    panel.className = "question-report";
+    panel.setAttribute("aria-label", "Report a problem with this question");
+
+    const title = document.createElement("strong");
+    title.textContent = "Report a problem with this question";
+    const copy = document.createElement("p");
+    copy.textContent = "Tell us what looks wrong. A reviewer can inspect the question, answer options, image, category, or explanation.";
+
+    const form = document.createElement("form");
+    form.className = "question-report-form";
+
+    const reasonLabel = document.createElement("label");
+    reasonLabel.className = "field";
+    reasonLabel.innerHTML = "<span>Problem type</span>";
+    const reason = document.createElement("select");
+    [
+      ["answer", "Saved answer"],
+      ["wording", "Question wording"],
+      ["image", "Image or sign"],
+      ["explanation", "Explanation"],
+      ["category", "Category"],
+      ["technical", "Technical issue"],
+      ["other", "Other"],
+    ].forEach(([value, label]) => reason.append(new Option(label, value)));
+    reasonLabel.append(reason);
+
+    const commentLabel = document.createElement("label");
+    commentLabel.className = "field";
+    commentLabel.innerHTML = "<span>Comment optional</span>";
+    const comment = document.createElement("textarea");
+    comment.rows = 3;
+    comment.maxLength = 1200;
+    comment.placeholder = "What should the reviewer check?";
+    commentLabel.append(comment);
+
+    const status = document.createElement("p");
+    status.className = "question-report-status";
+    status.setAttribute("role", "status");
+    status.setAttribute("aria-live", "polite");
+
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "secondary";
+    cancel.textContent = "Cancel";
+    cancel.addEventListener("click", () => panel.remove());
+    const submit = document.createElement("button");
+    submit.type = "submit";
+    submit.className = "primary";
+    submit.textContent = "Send report";
+    actions.append(cancel, submit);
+
+    form.append(reasonLabel, commentLabel, actions, status);
+    form.addEventListener("submit", (event) => submitQuestionReport(event, question, form, status, submit));
+    panel.append(title, copy, form);
+    feedback.append(panel);
+    reason.focus();
+  }
+
+  async function submitQuestionReport(event, question, form, status, submitButton) {
+    event.preventDefault();
+    const formReason = form.querySelector("select")?.value || "other";
+    const comment = form.querySelector("textarea")?.value || "";
+
+    status.textContent = "Sending report...";
+    status.className = "question-report-status sending";
+    submitButton.disabled = true;
+
+    try {
+      const response = await fetch("/api/question-feedback", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: question.id,
+          reasonCategory: formReason,
+          comment,
+          appVersion: PRODUCT_SUMMARY.productVersion || "",
+          contentVersion: PRODUCT_SUMMARY.contentVersion || "",
+          anonymousId: state.analytics.anonymousId,
+          reviewState: question.duplicateReviewStatus || question.reviewedStatus || "open",
+        }),
+      });
+
+      if (!response.ok) {
+        const error = new Error("question_report_failed");
+        error.status = response.status;
+        throw error;
+      }
+
+      status.textContent = "Thanks. This is now in the review queue.";
+      status.className = "question-report-status sent";
+      form.querySelectorAll("input, select, textarea, button").forEach((control) => {
+        control.disabled = true;
+      });
+    } catch (error) {
+      status.textContent = Number(error?.status) === 429
+        ? "Too many reports right now. Please wait a moment and try again."
+        : "Could not send that report. Try again in a moment.";
+      status.className = Number(error?.status) === 429
+        ? "question-report-status rate-limited"
+        : "question-report-status error";
+      submitButton.disabled = false;
+    }
   }
 
   function appendAiExplanationControls(feedback, question, selectedIndex) {
@@ -1855,6 +1977,7 @@ import { createProgressController } from "./progress-controller.js";
       attempts.push({
         clientEventId,
         questionId: qid,
+        canonicalQuestionId: question?.canonicalQuestionId || qid,
         selectedIndex: null,
         correct: legacyWrong === 0 && legacyCorrect > 0,
         mode: "legacy",
@@ -1999,6 +2122,7 @@ import { createProgressController } from "./progress-controller.js";
     return {
       clientEventId: createClientEventId(),
       questionId: question.id,
+      canonicalQuestionId: question.canonicalQuestionId || question.id,
       selectedIndex,
       correct,
       mode: state.exam ? "exam" : state.mode,

@@ -161,6 +161,7 @@ create table if not exists attempts (
 
 alter table attempts
   add column if not exists user_id uuid,
+  add column if not exists canonical_question_id integer,
   add column if not exists category text,
   add column if not exists client_event_id text;
 
@@ -173,6 +174,17 @@ create table if not exists flags (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (email, question_id)
+);
+
+create table if not exists canonical_categories (
+  category_key text primary key,
+  display_name text not null,
+  description text not null default '',
+  display_order integer not null default 999,
+  aliases jsonb not null default '[]'::jsonb,
+  active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists admin_audit_log (
@@ -212,6 +224,16 @@ create table if not exists question_reviews (
   updated_at timestamptz not null default now()
 );
 
+alter table question_reviews
+  add column if not exists ownership_status text not null default 'owned_confirmed',
+  add column if not exists structural_status text not null default 'needs_review',
+  add column if not exists factual_status text not null default 'needs_review',
+  add column if not exists publication_status text not null default 'published',
+  add column if not exists canonical_question_id integer,
+  add column if not exists variant_group_id text,
+  add column if not exists duplicate_reason text,
+  add column if not exists archived_at timestamptz;
+
 do $$
 begin
   if not exists (
@@ -242,6 +264,45 @@ create table if not exists question_versions (
   change_note text,
   created_at timestamptz not null default now(),
   unique (question_id, version_number)
+);
+
+alter table question_versions
+  add column if not exists old_version_json jsonb,
+  add column if not exists new_version_json jsonb,
+  add column if not exists fields_changed jsonb not null default '[]'::jsonb,
+  add column if not exists reason text;
+
+create table if not exists question_quality_decisions (
+  id uuid primary key default gen_random_uuid(),
+  group_id text not null,
+  group_type text not null,
+  question_ids integer[] not null default '{}'::integer[],
+  action text not null,
+  canonical_question_id integer,
+  old_version_json jsonb,
+  new_version_json jsonb,
+  fields_changed jsonb not null default '[]'::jsonb,
+  reason text,
+  notes text,
+  review_status text not null default 'published',
+  created_by uuid,
+  created_by_email text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists question_problem_reports (
+  id uuid primary key default gen_random_uuid(),
+  question_id integer not null,
+  reason_category text not null,
+  comment text,
+  app_version text,
+  content_version text,
+  anonymous_id text,
+  user_id uuid,
+  email text,
+  review_state text not null default 'open',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists ai_explanations (
@@ -440,13 +501,21 @@ where flags.user_id is null
 
 create index if not exists attempts_email_created_idx on attempts (email, created_at desc);
 create index if not exists attempts_question_idx on attempts (question_id);
+create index if not exists attempts_canonical_question_idx on attempts (canonical_question_id);
 create index if not exists attempts_user_created_idx on attempts (user_id, created_at desc);
 create index if not exists attempts_user_question_created_idx on attempts (user_id, question_id, created_at desc);
 create index if not exists entitlements_email_idx on entitlements (email);
 create index if not exists admin_audit_log_created_idx on admin_audit_log (created_at desc);
 create index if not exists question_sources_question_idx on question_sources (question_id);
 create index if not exists question_reviews_status_idx on question_reviews (reviewed_status);
+create index if not exists question_reviews_variant_group_idx on question_reviews (variant_group_id);
+create index if not exists question_reviews_canonical_idx on question_reviews (canonical_question_id);
+create index if not exists question_reviews_publication_idx on question_reviews (publication_status);
 create index if not exists question_versions_question_created_idx on question_versions (question_id, created_at desc);
+create index if not exists question_quality_decisions_group_idx on question_quality_decisions (group_id, created_at desc);
+create index if not exists question_quality_decisions_action_idx on question_quality_decisions (action, created_at desc);
+create index if not exists question_problem_reports_question_idx on question_problem_reports (question_id, created_at desc);
+create index if not exists question_problem_reports_state_idx on question_problem_reports (review_state, created_at desc);
 create unique index if not exists ai_explanations_question_selected_idx
   on ai_explanations (question_id, selected_answer_hash);
 create unique index if not exists ai_explanation_rate_limits_key_window_idx

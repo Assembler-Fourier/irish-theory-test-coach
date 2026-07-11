@@ -4,6 +4,11 @@ export function normalizeClientQuestion(question) {
   return {
     id: Number(question.id),
     category: clean(question.category) || "Uncategorised",
+    categoryKey: clean(question.categoryKey || question.category_key || question.canonicalCategoryKey),
+    originalCategory: clean(question.originalCategory || question.original_category),
+    canonicalQuestionId: Number(question.canonicalQuestionId || question.canonical_question_id || question.id),
+    variantGroupId: clean(question.variantGroupId || question.variant_group_id),
+    duplicateReviewStatus: clean(question.duplicateReviewStatus || question.duplicate_review_status),
     question: clean(question.question || question.prompt),
     explanation: clean(question.explanation),
     correctIndex: Number.isInteger(question.correctIndex) ? question.correctIndex : -1,

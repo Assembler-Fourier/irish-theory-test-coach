@@ -13,6 +13,8 @@ import stripeWebhook from "../server/api/stripe-webhook.js";
 import verifySession from "../server/api/verify-session.js";
 import v1Media from "../server/api/v1-media.js";
 import v1StudySessions from "../server/api/v1-study-sessions.js";
+import questionFeedback from "../server/api/question-feedback.js";
+import adminContentQuality from "../server/api/admin/content-quality.js";
 import adminEntitlements from "../server/api/admin/entitlements.js";
 import adminExport from "../server/api/admin/export.js";
 import adminGenerateQuestions from "../server/api/admin/generate-questions.js";
@@ -38,11 +40,14 @@ const routes = new Map([
   ["me", me],
   ["progress", progress],
   ["request-login-link", requestLoginLink],
+  ["question-feedback", questionFeedback],
   ["referral-code", referralCode],
   ["stripe-webhook", stripeWebhook],
   ["verify-session", verifySession],
   ["admin/entitlements", adminEntitlements],
   ["admin-entitlements", adminEntitlements],
+  ["admin/content-quality", adminContentQuality],
+  ["admin-content-quality", adminContentQuality],
   ["admin/export", adminExport],
   ["admin-export", adminExport],
   ["admin/generate-questions", adminGenerateQuestions],

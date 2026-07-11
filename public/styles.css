@@ -1209,6 +1209,7 @@ textarea::placeholder {
 .feedback-tip,
 .feedback-high-yield,
 .feedback-coach-visual,
+.question-report,
 .ai-explain-panel {
   border: 1px solid rgba(18, 20, 25, 0.11);
   border-radius: var(--radius-sm);
@@ -1282,6 +1283,38 @@ textarea::placeholder {
 
 .feedback-next-actions button {
   min-width: 140px;
+}
+
+.question-report {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.question-report > strong {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+}
+
+.question-report > p,
+.question-report-status {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.question-report-form {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.question-report-status.sent {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+.question-report-status.error,
+.question-report-status.rate-limited {
+  color: var(--color-danger);
+  font-weight: 800;
 }
 
 .ai-explain {
@@ -2664,6 +2697,66 @@ button.is-loading::after,
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.metric-grid-compact {
+  margin-bottom: var(--space-5);
+}
+
+.content-quality-list {
+  max-height: 580px;
+  overflow: auto;
+  padding-right: var(--space-1);
+}
+
+.content-quality-card {
+  gap: var(--space-4);
+}
+
+.quality-variant-list {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.quality-variant {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.quality-variant p,
+.quality-variant em,
+.quality-explanation {
+  margin: 0;
+  color: var(--color-muted);
+  line-height: 1.45;
+}
+
+.quality-variant strong {
+  color: var(--color-text);
+}
+
+.quality-variant ol {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: var(--space-5);
+}
+
+.quality-variant li {
+  color: var(--color-text);
+}
+
+.quality-variant li.correct-option {
+  color: var(--color-success);
+  font-weight: 800;
+}
+
+.content-quality-actions {
+  justify-content: flex-start;
 }
 
 .admin-item {

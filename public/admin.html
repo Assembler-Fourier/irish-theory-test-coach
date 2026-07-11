@@ -246,6 +246,41 @@
           <div id="questionsMount" class="admin-table-wrap"></div>
         </section>
 
+        <section class="admin-section" aria-labelledby="contentQualityHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="contentQualityHeading">Content quality pipeline</h2>
+              <p class="admin-section-note">Duplicate groups, conflicting answers, category aliases, lint findings, and auditable editorial decisions.</p>
+            </div>
+            <button id="reloadContentQualityBtn" type="button">Reload quality</button>
+          </div>
+          <div id="contentQualitySummaryMount" class="metric-grid metric-grid-compact"></div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Conflicting answers</h3>
+              <div id="contentConflictMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Duplicate groups</h3>
+              <div id="contentDuplicateMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Category mapping</h3>
+              <div id="categoryMappingMount" class="admin-list content-quality-list"></div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section>
+              <h3>Editorial backlog</h3>
+              <div id="editorialBacklogMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Recent decisions</h3>
+              <div id="qualityDecisionsMount" class="admin-list content-quality-list"></div>
+            </section>
+          </div>
+        </section>
+
         <section class="admin-section" aria-labelledby="aiDraftHeading">
           <div class="panel-heading">
             <h2 id="aiDraftHeading">AI question drafts</h2>

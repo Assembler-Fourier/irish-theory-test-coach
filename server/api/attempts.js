@@ -48,6 +48,7 @@ function normalizeAttempts(value) {
     .map((item) => ({
       clientEventId: cleanText(item.clientEventId || item.client_event_id, 120),
       questionId: Number(item.questionId ?? item.question_id),
+      canonicalQuestionId: Number(item.canonicalQuestionId ?? item.canonical_question_id ?? item.questionId ?? item.question_id),
       selectedIndex: Number.isInteger(item.selectedIndex)
         ? item.selectedIndex
         : Number.isInteger(item.selected_index)
@@ -71,6 +72,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
             user_id,
             email,
             question_id,
+            canonical_question_id,
             selected_index,
             correct,
             mode,
@@ -78,7 +80,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
             client_event_id,
             created_at
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           on conflict (user_id, client_event_id)
           where user_id is not null and client_event_id is not null
           do nothing
@@ -87,6 +89,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
           user.userId,
           user.email,
           attempt.questionId,
+          Number.isInteger(attempt.canonicalQuestionId) ? attempt.canonicalQuestionId : attempt.questionId,
           attempt.selectedIndex,
           attempt.correct,
           attempt.mode,
