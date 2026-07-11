@@ -297,6 +297,7 @@
             isCorrect: Boolean(option.is_correct),
           })),
           images: Array.isArray(question.local_image_paths) ? question.local_image_paths : [],
+          coachVisuals: Array.isArray(question.coach_visual_paths) ? question.coach_visual_paths : [],
           priorityScore: score,
           priorityLabel: clean(question.priority_label) || labelForScore(score),
           studySignals: Array.isArray(question.study_signals) ? question.study_signals.map(clean) : [],
@@ -742,6 +743,20 @@
     why.innerHTML = `<strong>Why this matters:</strong> <span></span>`;
     why.querySelector("span").textContent = buildWhyThisMatters(question, correct);
     feedback.append(why);
+
+    if (question.coachVisuals.length) {
+      const visual = document.createElement("figure");
+      visual.className = "feedback-coach-visual";
+      const visualImage = document.createElement("img");
+      visualImage.loading = "lazy";
+      visualImage.decoding = "async";
+      visualImage.src = "./" + question.coachVisuals[0].replace(/\\/g, "/");
+      visualImage.alt = `Coach visual for question ${question.id}`;
+      const caption = document.createElement("figcaption");
+      caption.textContent = "Coach visual";
+      visual.append(visualImage, caption);
+      feedback.append(visual);
+    }
 
     const memoryTip = buildMemoryTip(question);
     if (memoryTip) {

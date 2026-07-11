@@ -20,6 +20,7 @@
   "scripts": {
     "build": "node scripts/generate-seo-assets.mjs && node scripts/prepare-public-data.mjs",
     "generate:seo": "node scripts/generate-seo-assets.mjs",
+    "import:owner-questions": "node scripts/import-owner-questions.mjs",
     "check:pwa": "node scripts/check-pwa.mjs",
     "check:seo": "node scripts/check-seo.mjs && node scripts/check-technical-seo.mjs && node scripts/check-structured-data.mjs && node scripts/check-internal-links.mjs",
     "check:technical-seo": "node scripts/check-technical-seo.mjs",

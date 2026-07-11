@@ -1199,11 +1199,33 @@ textarea::placeholder {
 .feedback-why,
 .feedback-tip,
 .feedback-high-yield,
+.feedback-coach-visual,
 .ai-explain-panel {
   border: 1px solid rgba(18, 20, 25, 0.11);
   border-radius: var(--radius-sm);
   padding: var(--space-4);
   background: rgba(255, 255, 255, 0.76);
+}
+
+.feedback-coach-visual {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.feedback-coach-visual img {
+  width: 100%;
+  max-height: 340px;
+  border-radius: calc(var(--radius-sm) - 2px);
+  object-fit: contain;
+  background: var(--color-surface-soft);
+}
+
+.feedback-coach-visual figcaption {
+  color: var(--color-muted);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .feedback-tip > strong,
