@@ -15,6 +15,7 @@ const flowChecks = [
   checkPremiumPaywallContract,
   checkLegalPagesLoad,
   checkRestoreAccessContract,
+  checkAccountPageContract,
   checkMockTestContract,
 ];
 
@@ -112,6 +113,22 @@ function checkRestoreAccessContract({ appHtml, appJs }) {
   assert.match(appJs, /function focusRestoreAccess\(event, source = "unknown"\)/, "Restore access focus handler is missing.");
   assert.match(appJs, /function requestLoginLink\(event\)/, "Magic-link request handler is missing.");
   assert.match(appJs, /\/api\/request-login-link/, "Restore access form is not wired to the API.");
+}
+
+async function checkAccountPageContract({ baseUrl }) {
+  const accountHtml = await fetchText(baseUrl, "/account");
+  const accountJs = await fetchText(baseUrl, "/account.js");
+  assert.match(accountHtml, /id="accountApp"/, "Account app shell is missing.");
+  assert.match(accountHtml, /id="accountRestoreForm"/, "Account restore form is missing.");
+  assert.match(accountHtml, /id="accountLogoutAllBtn"/, "Logout-all action is missing.");
+  assert.match(accountHtml, /id="accountExportBtn"/, "Account export action is missing.");
+  assert.match(accountHtml, /id="accountDeleteForm"/, "Delete-account request form is missing.");
+  assert.match(accountHtml, /src="\.\/account\.js(?:\?[^\"]+)?"/, "Account page module is missing.");
+  assert.match(accountJs, /\/api\/account/, "Account page is not wired to the account API.");
+  assert.match(accountJs, /\/api\/account-export/, "Account page is not wired to data export.");
+  assert.match(accountJs, /\/api\/logout-all/, "Account page is not wired to logout-all.");
+  assert.match(accountJs, /expired_link/, "Account page does not handle expired login links.");
+  assert.match(accountJs, /used_link/, "Account page does not handle already-used login links.");
 }
 
 function checkMockTestContract({ appHtml, appJs, productSummary }) {

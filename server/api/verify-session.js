@@ -48,7 +48,7 @@ export default async function handler(req, res) {
   const email = getCheckoutSessionEmail(session);
   const dbRecorded = email ? await recordStripeCheckoutSession(session, env.databaseUrl) : false;
   const appSession = dbRecorded && email
-    ? await createSessionForEntitledEmail(email, env.databaseUrl)
+    ? await createSessionForEntitledEmail(email, env.databaseUrl, { req })
     : null;
 
   if (appSession?.sessionToken) {

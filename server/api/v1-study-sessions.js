@@ -8,6 +8,7 @@ import {
   cleanMode,
 } from "../../lib/question-bank.js";
 import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { recordMockSession } from "../../lib/account-data.js";
 import {
   getStudySessionSecret,
   sessionPublicId,
@@ -200,9 +201,12 @@ async function completeSession(req, res, sessionId) {
   const secret = getStudySessionSecret(process.env);
   const payload = verifySessionToken(decodeURIComponent(sessionId), secret);
   if (payload.exp <= Date.now()) return res.status(410).json({ error: "Study session expired" });
+  let user = null;
   if (payload.accessType === "premium") {
-    const user = await resolveStudyUser(req, true);
+    user = await resolveStudyUser(req, true);
     if (!hasActiveEntitlement(user)) return res.status(401).json({ error: "Active access required" });
+  } else {
+    user = await resolveStudyUser(req, false);
   }
 
   const body = await readJsonBody(req);
@@ -211,7 +215,7 @@ async function completeSession(req, res, sessionId) {
   const correct = answers.filter((answer) => answer.correct).length;
   const total = payload.mode === "exam" ? payload.q.length : answers.length;
 
-  return res.status(200).json({
+  const result = {
     ok: true,
     completed: true,
     mode: payload.mode,
@@ -220,7 +224,22 @@ async function completeSession(req, res, sessionId) {
     answered: answers.length,
     passed: payload.mode === "exam" ? correct >= 35 : null,
     durationSeconds: payload.durationSeconds || 0,
-  });
+  };
+
+  if (payload.mode === "exam" && user?.userId) {
+    await recordMockSession(process.env.DATABASE_URL, user, {
+      sessionPublicId: sessionPublicId(sessionId),
+      mode: payload.mode,
+      score: result.score,
+      total: result.total,
+      answered: result.answered,
+      passed: result.passed,
+      durationSeconds: result.durationSeconds,
+      startedAt: new Date(payload.startedAt).toISOString(),
+    });
+  }
+
+  return res.status(200).json(result);
 }
 
 function buildSessionResponse({ sessionId, publicId, payload, questions, secret }) {

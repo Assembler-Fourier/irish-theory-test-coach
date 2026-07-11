@@ -1,10 +1,14 @@
 import aiExplain from "../server/api/ai-explain.js";
+import account from "../server/api/account.js";
+import accountExport from "../server/api/account-export.js";
 import attempts from "../server/api/attempts.js";
 import consumeLoginLink from "../server/api/consume-login-link.js";
 import createCheckoutSession from "../server/api/create-checkout-session.js";
+import deleteAccountRequest from "../server/api/delete-account-request.js";
 import events from "../server/api/events.js";
 import flags from "../server/api/flags.js";
 import logout from "../server/api/logout.js";
+import logoutAll from "../server/api/logout-all.js";
 import me from "../server/api/me.js";
 import progress from "../server/api/progress.js";
 import requestLoginLink from "../server/api/request-login-link.js";
@@ -30,13 +34,17 @@ export const config = {
 };
 
 const routes = new Map([
+  ["account", account],
+  ["account-export", accountExport],
   ["ai-explain", aiExplain],
   ["attempts", attempts],
   ["consume-login-link", consumeLoginLink],
   ["create-checkout-session", createCheckoutSession],
+  ["delete-account-request", deleteAccountRequest],
   ["events", events],
   ["flags", flags],
   ["logout", logout],
+  ["logout-all", logoutAll],
   ["me", me],
   ["progress", progress],
   ["request-login-link", requestLoginLink],

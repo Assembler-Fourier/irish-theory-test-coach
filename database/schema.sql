@@ -14,6 +14,9 @@ alter table users
   add column if not exists role text not null default 'user',
   add column if not exists display_name text,
   add column if not exists last_login_at timestamptz,
+  add column if not exists last_active_at timestamptz,
+  add column if not exists delete_requested_at timestamptz,
+  add column if not exists notification_preferences jsonb not null default '{}'::jsonb,
   add column if not exists updated_at timestamptz not null default now();
 
 do $$
@@ -133,17 +136,98 @@ create table if not exists login_tokens (
   purpose text not null default 'login',
   expires_at timestamptz not null,
   consumed_at timestamptz,
+  request_ip text,
+  user_agent text,
+  origin text,
+  sent_at timestamptz,
+  delivery_status text not null default 'pending',
+  delivery_error text,
   created_at timestamptz not null default now()
 );
 
+alter table login_tokens
+  add column if not exists request_ip text,
+  add column if not exists user_agent text,
+  add column if not exists origin text,
+  add column if not exists sent_at timestamptz,
+  add column if not exists delivery_status text not null default 'pending',
+  add column if not exists delivery_error text;
+
 create table if not exists sessions (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid,
   email text not null,
   session_token_hash text not null unique,
   expires_at timestamptz not null,
   revoked_at timestamptz,
+  revoked_reason text,
+  ip_address text,
+  user_agent text,
+  rotated_from_session_id uuid,
   last_seen_at timestamptz not null default now(),
   created_at timestamptz not null default now()
+);
+
+alter table sessions
+  add column if not exists user_id uuid,
+  add column if not exists revoked_reason text,
+  add column if not exists ip_address text,
+  add column if not exists user_agent text,
+  add column if not exists rotated_from_session_id uuid;
+
+create table if not exists auth_audit_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text,
+  event_type text not null,
+  severity text not null default 'info',
+  ip_address text,
+  user_agent text,
+  origin text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists flag_operations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  email text not null,
+  question_id integer not null,
+  operation_id text not null,
+  active boolean not null,
+  category text,
+  client_updated_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, operation_id)
+);
+
+create table if not exists mock_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text not null,
+  session_public_id text not null,
+  mode text not null default 'exam',
+  score integer not null default 0,
+  total integer not null default 0,
+  answered integer not null default 0,
+  passed boolean,
+  duration_seconds integer not null default 0,
+  product_version text,
+  content_version text,
+  started_at timestamptz,
+  completed_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists account_deletion_requests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text not null,
+  reason text,
+  status text not null default 'requested',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  resolved_at timestamptz
 );
 
 create table if not exists attempts (
@@ -499,6 +583,12 @@ from users
 where flags.user_id is null
   and lower(flags.email) = lower(users.email);
 
+update sessions
+set user_id = users.id
+from users
+where sessions.user_id is null
+  and lower(sessions.email) = lower(users.email);
+
 create index if not exists attempts_email_created_idx on attempts (email, created_at desc);
 create index if not exists attempts_question_idx on attempts (question_id);
 create index if not exists attempts_canonical_question_idx on attempts (canonical_question_id);
@@ -535,7 +625,18 @@ create index if not exists events_user_created_idx on events (user_id, created_a
 create index if not exists users_role_idx on users (role);
 create index if not exists flags_user_idx on flags (user_id);
 create index if not exists login_tokens_email_expires_idx on login_tokens (email, expires_at desc);
+create index if not exists login_tokens_delivery_idx on login_tokens (delivery_status, created_at desc);
 create index if not exists sessions_email_expires_idx on sessions (email, expires_at desc);
+create index if not exists sessions_user_expires_idx on sessions (user_id, expires_at desc) where user_id is not null;
+create index if not exists sessions_active_user_idx on sessions (user_id, last_seen_at desc) where revoked_at is null;
+create index if not exists auth_audit_log_email_created_idx on auth_audit_log (email, created_at desc);
+create index if not exists auth_audit_log_event_created_idx on auth_audit_log (event_type, created_at desc);
+create index if not exists flag_operations_user_created_idx on flag_operations (user_id, created_at desc);
+create index if not exists mock_sessions_user_completed_idx on mock_sessions (user_id, completed_at desc);
+create unique index if not exists mock_sessions_user_public_unique_idx
+  on mock_sessions (user_id, session_public_id)
+  where user_id is not null;
+create index if not exists account_deletion_requests_email_idx on account_deletion_requests (email, created_at desc);
 create unique index if not exists attempts_user_client_event_id_idx
   on attempts (user_id, client_event_id)
   where user_id is not null and client_event_id is not null;

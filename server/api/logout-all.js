@@ -1,6 +1,7 @@
 import {
   buildClearSessionCookie,
-  revokeSession,
+  getSessionUser,
+  revokeAllSessionsForUser,
 } from "../../lib/auth.js";
 import {
   getAuthServerEnv,
@@ -22,12 +23,18 @@ export default async function handler(req, res) {
   }
 
   try {
-    await revokeSession(req, env.databaseUrl, "logout");
+    const session = await getSessionUser(req, env.databaseUrl);
+    if (!session) {
+      res.setHeader("Set-Cookie", buildClearSessionCookie(env));
+      return res.status(200).json({ ok: true, revoked: 0 });
+    }
+
+    const revoked = await revokeAllSessionsForUser(env.databaseUrl, session);
     res.setHeader("Set-Cookie", buildClearSessionCookie(env));
-    return res.status(200).json({ ok: true });
+    return res.status(200).json({ ok: true, revoked });
   } catch (error) {
-    console.error("Could not log out", safeErrorSummary(error));
+    console.error("Could not log out all sessions", safeErrorSummary(error));
     res.setHeader("Set-Cookie", buildClearSessionCookie(env));
-    return res.status(500).json({ error: "Could not log out" });
+    return res.status(500).json({ error: "Could not log out all sessions" });
   }
 }

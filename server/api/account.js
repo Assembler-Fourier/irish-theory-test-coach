@@ -1,4 +1,5 @@
 import { getSessionUser } from "../../lib/auth.js";
+import { buildAccountSnapshot } from "../../lib/account-data.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -27,14 +28,10 @@ export default async function handler(req, res) {
       });
     }
 
-    return res.status(200).json({
-      authenticated: true,
-      email: session.email,
-      role: session.role,
-      entitlement: session.entitlement,
-    });
+    const account = await buildAccountSnapshot(env.databaseUrl, session);
+    return res.status(200).json({ ok: true, ...account });
   } catch (error) {
-    console.error("Could not fetch current user", safeErrorSummary(error));
+    console.error("Could not load account snapshot", safeErrorSummary(error));
     return res.status(500).json({ error: "Could not load account" });
   }
 }

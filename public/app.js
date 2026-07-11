@@ -62,6 +62,8 @@ import { createProgressController } from "./progress-controller.js";
     answerStateToken: "",
     exam: null,
     timerId: null,
+    syncRetryTimer: null,
+    syncRetryDelayMs: 2000,
     celebrations: {
       dailyTarget: "",
       weakCategories: new Set(),
@@ -111,6 +113,7 @@ import { createProgressController } from "./progress-controller.js";
     stickyProgressText: document.getElementById("stickyProgressText"),
     unlockBadge: document.getElementById("unlockBadge"),
     unlockStatus: document.getElementById("unlockStatus"),
+    syncStatusText: document.getElementById("syncStatusText"),
     answeredStat: document.getElementById("answeredStat"),
     accuracyStat: document.getElementById("accuracyStat"),
     missedStat: document.getElementById("missedStat"),
@@ -209,12 +212,14 @@ import { createProgressController } from "./progress-controller.js";
   function bindConnectivityEvents() {
     window.addEventListener("online", () => {
       setStatus("Back online. Syncing progress when available.");
+      state.syncRetryDelayMs = 2000;
       syncPendingAttempts();
       syncPendingFlags();
     });
 
     window.addEventListener("offline", () => {
       setStatus("Offline mode. Cached questions and images may still work on this device.");
+      setSyncStatus("Offline. New answers are queued on this device.");
     });
   }
 
@@ -1892,7 +1897,9 @@ import { createProgressController } from "./progress-controller.js";
       });
       const payload = await response.json();
       if (!response.ok || !payload.ok) {
-        throw new Error(payload.error || "Login link is invalid or expired.");
+        const loginError = new Error(payload.error || "Login link is invalid or expired.");
+        loginError.code = payload.code || "";
+        throw loginError;
       }
 
       applyServerSession({
@@ -1904,7 +1911,13 @@ import { createProgressController } from "./progress-controller.js";
       setStatus("Access restored. Full access is linked to this browser.");
     } catch (error) {
       removeUrlParams(["login_token"]);
-      setStatus(`Restore access error: ${error.message}`);
+      if (error.code === "expired_link") {
+        setStatus("Restore link expired. Request a new secure link from Account or Restore access.");
+      } else if (error.code === "used_link") {
+        setStatus("Restore link already used. Request a fresh secure link if you need to sign in again.");
+      } else {
+        setStatus(`Restore access error: ${error.message}`);
+      }
     }
   }
 
@@ -1924,10 +1937,12 @@ import { createProgressController } from "./progress-controller.js";
 
   async function syncLocalProgressWithServer() {
     if (!state.session.authenticated) return;
+    setSyncStatus("Syncing queued progress...");
     await syncLegacyLocalAttempts();
     await syncPendingAttempts();
     await syncPendingFlags();
     await syncCurrentFlags();
+    updateSyncStatus();
   }
 
   async function loadServerProgress() {
@@ -1943,6 +1958,7 @@ import { createProgressController } from "./progress-controller.js";
       const payload = await response.json();
       if (payload.ok && payload.progress) {
         applyServerProgress(payload.progress);
+        state.progress.syncStatus.lastPulledAt = new Date().toISOString();
         saveProgress();
       }
     } catch {
@@ -1954,6 +1970,7 @@ import { createProgressController } from "./progress-controller.js";
     if (!state.session.authenticated || !state.progress.pendingAttempts.length) return;
 
     const attempts = state.progress.pendingAttempts.slice(0, 100);
+    setSyncStatus(`Syncing ${attempts.length} queued answer${attempts.length === 1 ? "" : "s"}...`);
     try {
       const response = await fetch("/api/attempts", {
         method: "POST",
@@ -1967,9 +1984,12 @@ import { createProgressController } from "./progress-controller.js";
       state.progress.pendingAttempts = state.progress.pendingAttempts.filter(
         (attempt) => !syncedIds.has(attempt.clientEventId)
       );
+      state.progress.syncStatus.lastPushedAt = new Date().toISOString();
+      state.syncRetryDelayMs = 2000;
       saveProgress();
     } catch {
       // Keep queued attempts for the next online/logged-in session.
+      scheduleProgressRetry();
     }
   }
 
@@ -1977,6 +1997,7 @@ import { createProgressController } from "./progress-controller.js";
     if (!state.session.authenticated || !state.progress.pendingFlags.length) return;
 
     const flags = collapseFlagOperations(state.progress.pendingFlags);
+    setSyncStatus(`Syncing ${flags.length} queued flag change${flags.length === 1 ? "" : "s"}...`);
     try {
       const response = await fetch("/api/flags", {
         method: "POST",
@@ -1987,9 +2008,12 @@ import { createProgressController } from "./progress-controller.js";
       if (!response.ok) return;
 
       state.progress.pendingFlags = [];
+      state.progress.syncStatus.lastPushedAt = new Date().toISOString();
+      state.syncRetryDelayMs = 2000;
       saveProgress();
     } catch {
       // Keep queued flag changes for the next online/logged-in session.
+      scheduleProgressRetry();
     }
   }
 
@@ -2013,8 +2037,11 @@ import { createProgressController } from "./progress-controller.js";
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ flags }),
       });
+      state.progress.syncStatus.lastPushedAt = new Date().toISOString();
+      updateSyncStatus();
     } catch {
       // Local flags still work offline.
+      scheduleProgressRetry();
     }
   }
 
@@ -2068,9 +2095,11 @@ import { createProgressController } from "./progress-controller.js";
 
       state.progress.syncedLegacyAttemptKeys.push(...attempts.map((attempt) => attempt.clientEventId));
       state.progress.legacyMergeNeeded = false;
+      state.progress.syncStatus.lastPushedAt = new Date().toISOString();
       saveProgress();
     } catch {
       // Try again on the next logged-in load.
+      scheduleProgressRetry();
     }
   }
 
@@ -2183,6 +2212,44 @@ import { createProgressController } from "./progress-controller.js";
     state.categorySummary = Array.isArray(progress.categories) ? progress.categories : [];
   }
 
+  function scheduleProgressRetry() {
+    if (!state.session.authenticated || state.syncRetryTimer || !navigator.onLine) {
+      updateSyncStatus();
+      return;
+    }
+    const delay = state.syncRetryDelayMs;
+    state.syncRetryDelayMs = Math.min(60_000, state.syncRetryDelayMs * 2);
+    setSyncStatus(`Sync paused. Retrying in ${Math.round(delay / 1000)} seconds.`);
+    state.syncRetryTimer = window.setTimeout(() => {
+      state.syncRetryTimer = null;
+      syncPendingAttempts();
+      syncPendingFlags();
+    }, delay);
+  }
+
+  function updateSyncStatus() {
+    const pending = state.progress.pendingAttempts.length + state.progress.pendingFlags.length;
+    if (!state.session.authenticated) {
+      setSyncStatus("Progress saves locally until you sign in.");
+      return;
+    }
+    if (pending) {
+      setSyncStatus(`${pending} progress update${pending === 1 ? "" : "s"} queued for sync.`);
+      return;
+    }
+    const last = state.progress.syncStatus?.lastPushedAt || state.progress.syncStatus?.lastPulledAt || "";
+    setSyncStatus(last ? `Progress synced ${relativeTime(last)}.` : "Progress sync is ready.");
+  }
+
+  function setSyncStatus(message) {
+    if (els.syncStatusText) {
+      els.syncStatusText.textContent = message;
+    }
+    if (state.progress?.syncStatus) {
+      state.progress.syncStatus.message = message;
+    }
+  }
+
   function createAttemptEvent(question, selectedIndex, correct) {
     return {
       clientEventId: createClientEventId(),
@@ -2259,6 +2326,7 @@ import { createProgressController } from "./progress-controller.js";
       active = true;
     }
     state.progress.pendingFlags.push({
+      operationId: createClientEventId(),
       questionId: id,
       category: question?.category || "Uncategorised",
       active,
@@ -2268,6 +2336,7 @@ import { createProgressController } from "./progress-controller.js";
     saveProgress();
     syncStudySessionFlag(id, active);
     syncPendingFlags();
+    updateSyncStatus();
     updateStats();
   }
 
@@ -2294,6 +2363,7 @@ import { createProgressController } from "./progress-controller.js";
         pendingAttempts: Array.isArray(parsed.pendingAttempts) ? parsed.pendingAttempts : [],
         pendingFlags: Array.isArray(parsed.pendingFlags) ? parsed.pendingFlags : [],
         mockResults: Array.isArray(parsed.mockResults) ? parsed.mockResults : [],
+        syncStatus: parsed.syncStatus && typeof parsed.syncStatus === "object" ? parsed.syncStatus : {},
         syncedLegacyAttemptKeys: Array.isArray(parsed.syncedLegacyAttemptKeys)
           ? parsed.syncedLegacyAttemptKeys
           : [],
@@ -2314,6 +2384,7 @@ import { createProgressController } from "./progress-controller.js";
       pendingAttempts: [],
       pendingFlags: [],
       mockResults: [],
+      syncStatus: {},
       syncedLegacyAttemptKeys: [],
       legacyMergeNeeded: false,
     };
@@ -2428,6 +2499,7 @@ import { createProgressController } from "./progress-controller.js";
         pendingAttempts: state.progress.pendingAttempts,
         pendingFlags: state.progress.pendingFlags,
         mockResults: state.progress.mockResults,
+        syncStatus: state.progress.syncStatus,
         syncedLegacyAttemptKeys: state.progress.syncedLegacyAttemptKeys,
         legacyMergeNeeded: state.progress.legacyMergeNeeded,
       })
@@ -2478,6 +2550,7 @@ import { createProgressController } from "./progress-controller.js";
     renderStudyFlow(metrics);
     renderCategorySummary(metrics.categorySummaries);
     renderAccess();
+    updateSyncStatus();
   }
 
   function buildProgressMetrics() {
@@ -3119,6 +3192,19 @@ import { createProgressController } from "./progress-controller.js";
 
   function dayKey() {
     return new Date().toISOString().slice(0, 10);
+  }
+
+  function relativeTime(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "recently";
+    const seconds = Math.max(1, Math.round((Date.now() - date.getTime()) / 1000));
+    if (seconds < 60) return "just now";
+    const minutes = Math.round(seconds / 60);
+    if (minutes < 60) return `${minutes} minute${minutes === 1 ? "" : "s"} ago`;
+    const hours = Math.round(minutes / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    const days = Math.round(hours / 24);
+    return `${days} day${days === 1 ? "" : "s"} ago`;
   }
 
   function buildStatusMessage(url) {

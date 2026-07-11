@@ -100,6 +100,17 @@ async function saveAttempts(databaseUrl, user, attempts) {
       );
       saved += result.rowCount;
     }
+    if (saved) {
+      await client.query(
+        `
+          update users
+          set last_active_at = now(),
+              updated_at = now()
+          where id = $1
+        `,
+        [user.userId]
+      );
+    }
     return saved;
   });
 }

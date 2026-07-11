@@ -108,6 +108,26 @@ async function handleMockApi(req, res, requestUrl, state, options) {
     return true;
   }
 
+  if (requestUrl.pathname === "/api/account") {
+    sendJson(res, 200, { authenticated: false, entitlement: { active: false } });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/account-export") {
+    sendJson(res, 401, { error: "Login required" });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/delete-account-request") {
+    sendJson(res, 401, { error: "Login required" });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/logout" || requestUrl.pathname === "/api/logout-all") {
+    sendJson(res, 200, { ok: true });
+    return true;
+  }
+
   if (requestUrl.pathname === "/api/events") {
     sendJson(res, 200, { ok: true });
     return true;
@@ -115,6 +135,11 @@ async function handleMockApi(req, res, requestUrl, state, options) {
 
   if (requestUrl.pathname === "/api/request-login-link") {
     sendJson(res, 200, { ok: true, message: "If that email has access, a link has been sent." });
+    return true;
+  }
+
+  if (requestUrl.pathname === "/api/consume-login-link") {
+    sendJson(res, 410, { error: "Login link expired", code: "expired_link" });
     return true;
   }
 

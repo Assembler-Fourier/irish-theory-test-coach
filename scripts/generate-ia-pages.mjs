@@ -277,16 +277,87 @@ function renderAccountPage() {
   return pageShell({
     active: "app",
     canonicalPath: "/account",
-    title: "Account Access - Irish Theory Test Coach",
-    description: "Restore paid Irish Theory Test Coach access, open the learner app, and find support for checkout, email links, and refunds.",
+    title: "Learner Account - Irish Theory Test Coach",
+    description: "Manage Irish Theory Test Coach access, restore sign-in, view progress, export data, and request account support.",
     bodyClass: "marketing-page account-page",
     noindex: true,
     main: `<main class="marketing-main compact-main">
-        ${pageHero("Account access", "Restore access or return to study.", "Use the learner app restore form to send a secure email link for paid access. No frontend-only unlock is trusted.", "Open restore form", "/app#restoreEmail", "Contact support", "/support")}
-        <section class="marketing-section route-section">
-          <article><h2>Already paid?</h2><p>Open the learner app, choose restore access, and enter the email used at checkout.</p></article>
-          <article><h2>Security</h2><p>Premium unlocks are verified server-side. Do not share magic links or checkout emails.</p></article>
-          <article><h2>Need help?</h2><p>Use the support hub for refund, checkout, or access questions.</p></article>
+        <section class="account-hero" aria-labelledby="accountTitle">
+          <div>
+            <p class="eyebrow">Learner account</p>
+            <h1 id="accountTitle">Access, progress, and restore links in one place.</h1>
+            <p>Sign in by email to view paid access, progress, mock results, export data, or request account deletion. Premium unlocks are still verified server-side.</p>
+            <p class="hero-disclaimer">${disclaimer}</p>
+          </div>
+          <div id="accountStatusCard" class="account-status-card" role="status" aria-live="polite">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <strong>Checking account status...</strong>
+            <p>Secure account details load after the server checks your session.</p>
+          </div>
+        </section>
+
+        <section id="accountApp" class="account-grid" data-account-state="loading">
+          <article class="account-panel account-restore-panel">
+            <div class="panel-heading"><div><span class="section-label">Passwordless sign-in</span><h2>Restore access</h2></div></div>
+            <p>Enter the email used at checkout and we will send a secure one-time link. Unknown emails receive the same safe response.</p>
+            <form id="accountRestoreForm" class="account-form" novalidate>
+              <label class="field"><span>Email used at checkout</span><input id="accountRestoreEmail" type="email" autocomplete="email" inputmode="email" required placeholder="you@example.com" aria-describedby="accountRestoreStatus"></label>
+              <button id="accountRestoreBtn" class="button-primary" type="submit">Send secure link</button>
+              <p id="accountRestoreStatus" class="account-message" role="status" aria-live="polite">Links expire soon and can only be used once.</p>
+            </form>
+          </article>
+
+          <article class="account-panel account-summary-panel" hidden>
+            <div class="panel-heading"><div><span class="section-label">Signed in</span><h2>Account</h2></div><span id="accountAccessBadge" class="status-badge">Checking</span></div>
+            <dl class="account-detail-list">
+              <div><dt>Email</dt><dd id="accountEmail">-</dd></div>
+              <div><dt>Plan</dt><dd id="accountPlan">-</dd></div>
+              <div><dt>Purchase date</dt><dd id="accountPurchaseDate">-</dd></div>
+              <div><dt>Access expiration</dt><dd id="accountExpiry">-</dd></div>
+              <div><dt>Remaining days</dt><dd id="accountRemaining">-</dd></div>
+              <div><dt>Product version</dt><dd id="accountProductVersion">-</dd></div>
+              <div><dt>Content version</dt><dd id="accountContentVersion">-</dd></div>
+              <div><dt>Restore status</dt><dd id="accountRestoreSummary">-</dd></div>
+            </dl>
+            <div id="accountExpiredNotice" class="account-notice" hidden>
+              <strong>Access has expired.</strong>
+              <p>Your progress remains saved. You can still sign in, export data, contact support, or renew access.</p>
+              <a class="button-primary" href="/pricing">View renewal options</a>
+            </div>
+          </article>
+
+          <article class="account-panel account-progress-panel" hidden>
+            <div class="panel-heading"><div><span class="section-label">Progress</span><h2>Study summary</h2></div><span id="accountSyncState" class="status-badge">Server sync</span></div>
+            <div class="account-metrics">
+              <div><strong id="accountAnswered">0</strong><span>answers</span></div>
+              <div><strong id="accountAccuracy">0%</strong><span>accuracy</span></div>
+              <div><strong id="accountMissed">0</strong><span>missed</span></div>
+              <div><strong id="accountFlags">0</strong><span>flagged</span></div>
+              <div><strong id="accountStreak">0</strong><span>day streak</span></div>
+              <div><strong id="accountDailyTarget">0/25</strong><span>today</span></div>
+            </div>
+            <div id="accountCategoryList" class="account-list"></div>
+          </article>
+
+          <article class="account-panel account-mocks-panel" hidden>
+            <div class="panel-heading"><div><span class="section-label">Mock history</span><h2>Recent mock results</h2></div></div>
+            <div id="accountMockList" class="account-list account-empty-state">No server-saved mock results yet.</div>
+          </article>
+
+          <article class="account-panel account-actions-panel" hidden>
+            <div class="panel-heading"><div><span class="section-label">Controls</span><h2>Account actions</h2></div></div>
+            <div class="account-action-grid">
+              <button id="accountLogoutBtn" class="button-secondary" type="button">Logout</button>
+              <button id="accountLogoutAllBtn" class="button-secondary" type="button">Logout all devices</button>
+              <button id="accountExportBtn" class="button-secondary" type="button">Export my data</button>
+              <a id="accountSupportLink" class="button-secondary" data-support-email href="mailto:support@irish-theory-test-coach.com">Contact support</a>
+            </div>
+            <form id="accountDeleteForm" class="account-form danger-zone" novalidate>
+              <label class="field"><span>Delete account request</span><textarea id="accountDeleteReason" rows="3" placeholder="Optional note for support"></textarea></label>
+              <button id="accountDeleteBtn" class="danger" type="submit">Request account deletion</button>
+              <p id="accountActionStatus" class="account-message" role="status" aria-live="polite">Deletion is a support request, not an instant destructive action.</p>
+            </form>
+          </article>
         </section>
       </main>`,
   });
@@ -345,7 +416,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
     </div>
     <script src="./config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
-    ${canonicalPath === "/pricing" ? '<script src="./pricing.js?v=20260710-rebuild"></script>' : ""}
+    ${canonicalPath === "/pricing" ? '<script src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
     <script src="./trust.js?v=20260710-rebuild"></script>
   </body>
 </html>

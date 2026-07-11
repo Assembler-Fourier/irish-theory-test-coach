@@ -44,8 +44,8 @@ export default async function handler(req, res) {
   params.set("mode", "payment");
   params.set("line_items[0][price]", plan.stripePriceId);
   params.set("line_items[0][quantity]", "1");
-  params.set("success_url", `${env.publicSiteUrl}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
-  params.set("cancel_url", `${env.publicSiteUrl}/?checkout=cancelled`);
+  params.set("success_url", `${env.publicSiteUrl}/app?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
+  params.set("cancel_url", `${env.publicSiteUrl}/app?checkout=cancelled`);
   params.set("customer_creation", "always");
   params.set("metadata[product]", "irish-theory-test-coach");
   params.set("metadata[plan_key]", plan.key);

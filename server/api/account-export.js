@@ -1,4 +1,5 @@
 import { getSessionUser } from "../../lib/auth.js";
+import { buildAccountExport } from "../../lib/account-data.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -21,20 +22,15 @@ export default async function handler(req, res) {
   try {
     const session = await getSessionUser(req, env.databaseUrl);
     if (!session) {
-      return res.status(200).json({
-        authenticated: false,
-        entitlement: { active: false },
-      });
+      return res.status(401).json({ error: "Login required" });
     }
 
-    return res.status(200).json({
-      authenticated: true,
-      email: session.email,
-      role: session.role,
-      entitlement: session.entitlement,
-    });
+    const payload = await buildAccountExport(env.databaseUrl, session);
+    res.setHeader("Content-Type", "application/json; charset=utf-8");
+    res.setHeader("Content-Disposition", 'attachment; filename="irish-theory-test-coach-data.json"');
+    return res.status(200).json(payload);
   } catch (error) {
-    console.error("Could not fetch current user", safeErrorSummary(error));
-    return res.status(500).json({ error: "Could not load account" });
+    console.error("Could not export account data", safeErrorSummary(error));
+    return res.status(500).json({ error: "Could not export account data" });
   }
 }
