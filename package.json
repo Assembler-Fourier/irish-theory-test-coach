@@ -44,6 +44,7 @@
     "db:migrate": "node scripts/db-migrate.mjs",
     "ops:reconcile": "node scripts/reconcile-operations.mjs",
     "smoke:postdeploy": "node scripts/post-deploy-smoke.mjs",
+    "audit:final": "node scripts/final-commercial-audit.mjs",
     "dev": "python -m http.server 5173",
     "qa:provenance": "node scripts/add-question-provenance.mjs",
     "qa:checklist": "node scripts/generate-qa-checklist.mjs",

@@ -13,4 +13,6 @@ output/
 reports/*
 !reports/security/
 !reports/security/*.md
+!reports/final/
+!reports/final/*
 tmp/
