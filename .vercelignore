@@ -1,0 +1,16 @@
+.git
+.github
+.codex
+.env
+.env.*
+docs
+output
+reports
+screenshots
+tmp
+tests
+recovery.log
+*.log
+*.pdf
+*.docx
+*.csv

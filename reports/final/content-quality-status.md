@@ -1,6 +1,6 @@
 # Content Quality Status
 
-Generated: 2026-07-11T20:11:20.148Z
+Generated: 2026-07-11T22:03:08.560Z
 
 NO-GO
 
@@ -8,7 +8,8 @@ NO-GO
 
 - Total questions: 1277
 - Duplicate groups: 276
-- Conflicting-answer groups: 175
+- Answer-set variant groups: 135
+- Conflicting-answer groups: 0
 - Lint findings: 1160
 - Editorial backlog items: 1436
 

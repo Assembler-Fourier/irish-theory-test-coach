@@ -84,7 +84,7 @@ function checkEventEndpoint() {
   for (const phrase of [
     "ANALYTICS_SCHEMA_VERSION",
     "eventId",
-    "on conflict (event_id) do nothing",
+    "on conflict (event_id) where event_id is not null do nothing",
     "sanitizeAttribution",
     "sanitizeBotSignals",
     "schemaVersion !== ANALYTICS_SCHEMA_VERSION",

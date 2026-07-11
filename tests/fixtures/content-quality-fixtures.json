@@ -68,5 +68,61 @@
     "correct_answer": "No explanation",
     "explanation": "No explanation",
     "local_image_paths": ["../bad.png"]
+  },
+  {
+    "id": 6,
+    "category": "Managing Risk",
+    "question": "Which light should be used in dense fog?",
+    "options": [
+      { "text": "Dipped headlights", "is_correct": true },
+      { "text": "Full-beam headlights", "is_correct": false },
+      { "text": "Hazard lights", "is_correct": false },
+      { "text": "No lights", "is_correct": false }
+    ],
+    "correct_index": 0,
+    "correct_answer": "Dipped headlights",
+    "explanation": "Fixture for structural conflict detection."
+  },
+  {
+    "id": 7,
+    "category": "Managing Risk",
+    "question": "Which light should be used in dense fog?",
+    "options": [
+      { "text": "Dipped headlights", "is_correct": false },
+      { "text": "Full-beam headlights", "is_correct": true },
+      { "text": "Hazard lights", "is_correct": false },
+      { "text": "No lights", "is_correct": false }
+    ],
+    "correct_index": 1,
+    "correct_answer": "Full-beam headlights",
+    "explanation": "Fixture for structural conflict detection."
+  },
+  {
+    "id": 8,
+    "category": "Managing Risk",
+    "question": "What can make a road surface slippery?",
+    "options": [
+      { "text": "Heavy rain", "is_correct": true },
+      { "text": "Clear skies", "is_correct": false },
+      { "text": "Dry grit", "is_correct": false },
+      { "text": "Fresh markings", "is_correct": false }
+    ],
+    "correct_index": 0,
+    "correct_answer": "Heavy rain",
+    "explanation": "Fixture for answer-set variant review."
+  },
+  {
+    "id": 9,
+    "category": "Managing Risk",
+    "question": "What can make a road surface slippery?",
+    "options": [
+      { "text": "An oil spill", "is_correct": true },
+      { "text": "A wide verge", "is_correct": false },
+      { "text": "New signs", "is_correct": false },
+      { "text": "A clear horizon", "is_correct": false }
+    ],
+    "correct_index": 0,
+    "correct_answer": "An oil spill",
+    "explanation": "Fixture for answer-set variant review."
   }
 ]

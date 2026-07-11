@@ -1,13 +1,14 @@
 # Content Quality Summary
 
-Generated: 2026-07-11T15:44:56.362Z
+Generated: 2026-07-11T22:01:28.236Z
 
 ## Overview
 
 - Total questions analysed: 1277
 - Canonical categories: 12
 - Duplicate groups: 276
-- Conflicting-answer groups: 175
+- Answer-set variant groups: 135
+- Conflicting-answer groups: 0
 - Lint findings: 1160
 - Editorial backlog items: 1436
 
@@ -15,7 +16,9 @@ Generated: 2026-07-11T15:44:56.362Z
 
 - Content rights are confirmed by the project owner.
 - No question is removed or quarantined by this report.
-- Conflicting answers are sent to editorial review; no heuristic silently changes an answer.
+- Repeated stems with different answer sets remain in editorial review without being mislabeled as direct contradictions.
+- A blocking conflict requires the same normalised stem and answer set to contain different correct-answer keys.
+- No heuristic silently changes an answer.
 - High-yield remains an estimated study-priority signal, not official exam frequency.
 
 ## Top Lint Types
@@ -44,7 +47,8 @@ Generated: 2026-07-11T15:44:56.362Z
 
 ## Next Editorial Actions
 
-1. Review `conflicting-answer-groups.csv` first.
-2. Review exact/normalised duplicates and decide whether variants are legitimate.
-3. Use `category-mapping.csv` to approve category aliases and identify unmapped categories.
-4. Work through `editorial-backlog.csv` by priority.
+1. Review `conflicting-answer-groups.csv` first; these are direct structural contradictions.
+2. Review `answer-variant-groups.csv` and mark legitimate answer-set or image scenarios.
+3. Review exact/normalised duplicates and decide whether variants are legitimate.
+4. Use `category-mapping.csv` to approve category aliases and identify unmapped categories.
+5. Work through `editorial-backlog.csv` by priority.

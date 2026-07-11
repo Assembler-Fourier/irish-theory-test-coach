@@ -19,12 +19,20 @@ const duplicateWithReorderedAnswers = analysis.duplicateGroups.find((group) =>
 );
 assert.ok(duplicateWithReorderedAnswers, "Expected same question/options in different order to be grouped.");
 
-const conflict = analysis.conflictingAnswerGroups.find((group) =>
-  group.questionIds.includes(1) &&
-  group.questionIds.includes(3)
+const answerVariant = analysis.answerVariantGroups.find((group) =>
+  group.questionIds.includes(8) &&
+  group.questionIds.includes(9)
 );
-assert.ok(conflict, "Expected repeated stem with conflicting correct answers to enter conflict queue.");
+assert.ok(answerVariant, "Expected repeated stem with different answer sets to enter answer-variant review.");
+assert.equal(answerVariant.reviewStatus, "answer_variant_review");
+
+const conflict = analysis.conflictingAnswerGroups.find((group) =>
+  group.questionIds.includes(6) &&
+  group.questionIds.includes(7)
+);
+assert.ok(conflict, "Expected the same stem and answer set with conflicting keys to enter conflict queue.");
 assert.equal(conflict.reviewStatus, "conflict_queue");
+assert.deepEqual(conflict.structuralConflictPairs, [[6, 7]]);
 
 const nearDuplicate = analysis.duplicateGroups.find((group) =>
   group.questionIds.includes(4) &&

@@ -99,7 +99,7 @@ const routes = new Map([
 ]);
 
 export default async function handler(req, res) {
-  const route = normalizeRoute(req.query?.route, req.url);
+  const route = normalizeRoute(req.query?.dispatchRoute ?? req.query?.route, req.url);
   const context = createRequestContext(req, route);
   applyApiSecurityHeaders(res, { requestId: context.requestId });
   const originalEnd = res.end?.bind(res);

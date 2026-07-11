@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import health from "../server/api/health.js";
 import opsReconcile from "../server/api/ops-reconcile.js";
 import { emitOperationalEvent } from "../lib/monitoring.js";
@@ -9,6 +12,7 @@ await testOpsReconcileRequiresConfig();
 await testOpsReconcileRejectsUnauthorized();
 await testMonitoringRedactsSensitiveValues();
 testReconciliationSummary();
+testNestedApiRewrites();
 
 console.log("Reliability system tests passed.");
 
@@ -74,6 +78,14 @@ function testReconciliationSummary() {
   assert.equal(summary.byCheck.webhook_failures, 2);
   assert.equal(summary.bySeverity.error, 2);
   assert.equal(summary.bySeverity.info, 1);
+}
+
+function testNestedApiRewrites() {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+  const config = JSON.parse(fs.readFileSync(path.join(root, "vercel.json"), "utf8"));
+  const rewrites = new Map((config.rewrites || []).map((item) => [item.source, item.destination]));
+  assert.equal(rewrites.get("/api/v1/:path*"), "/api/dispatch?dispatchRoute=v1/:path*");
+  assert.equal(rewrites.get("/api/ops/reconcile"), "/api/ops-reconcile");
 }
 
 async function callHandler(handler, req) {

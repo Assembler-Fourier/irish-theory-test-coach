@@ -158,7 +158,7 @@ async function saveEvents(databaseUrl, session, events) {
             client_created_at
           )
           values ($1, $2, $3, $4, $5, $6::jsonb, $7::jsonb, $8::jsonb, $9::jsonb, $10, $11::timestamptz)
-          on conflict (event_id) do nothing
+          on conflict (event_id) where event_id is not null do nothing
         `,
         [
           event.eventId,

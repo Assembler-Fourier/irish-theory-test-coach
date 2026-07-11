@@ -71,6 +71,7 @@ async function loadQualityDashboard(databaseUrl) {
     summary: analysis.summary,
     taxonomy: analysis.taxonomy,
     duplicateGroups: analysis.duplicateGroups.slice(0, 80).map((group) => formatGroup(group, questionById)),
+    answerVariantGroups: analysis.answerVariantGroups.slice(0, 80).map((group) => formatGroup(group, questionById)),
     conflictingAnswerGroups: analysis.conflictingAnswerGroups.slice(0, 80).map((group) => formatGroup(group, questionById)),
     categoryMappings: analysis.categoryMappings,
     editorialBacklog: analysis.editorialBacklog.slice(0, 200),

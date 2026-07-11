@@ -52,6 +52,8 @@
     { "source": "/contact", "destination": "/support", "permanent": false }
   ],
   "rewrites": [
+    { "source": "/api/v1/:path*", "destination": "/api/dispatch?dispatchRoute=v1/:path*" },
+    { "source": "/api/ops/reconcile", "destination": "/api/ops-reconcile" },
     { "source": "/api/admin/audit", "destination": "/api/admin-audit" },
     { "source": "/api/admin/content-quality", "destination": "/api/admin-content-quality" },
     { "source": "/api/admin/entitlements", "destination": "/api/admin-entitlements" },

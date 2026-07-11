@@ -1,14 +1,14 @@
 # Final Commercial Launch Audit
 
-Generated: 2026-07-11T20:11:20.148Z
+Generated: 2026-07-11T22:03:08.560Z
 Branch: codex/commercial-v1
-Commit: ddfc7d734d0aa7eb0a12ed46d84872f4cc25bd84
+Commit: f93876c95d2f2ce0d26dceafbe12a7c6d4cf1181
 
 NO-GO
 
 ## Executive Summary
 
-The current build passes the automated commercial QA suite, but this red-team audit does not approve launch because 5 unresolved P1 blocker(s) remain. No P0 exploit was found in the audited static/API surface, and the core learner, premium access, admin authorization, PWA, SEO, and visual/a11y tests are in place.
+The current build passes the automated commercial QA suite, but this red-team audit does not approve launch because 3 unresolved P1 blocker(s) remain. No P0 exploit was found in the audited static/API surface, and the core learner, premium access, admin authorization, PWA, SEO, and visual/a11y tests are in place.
 
 ## Blockers
 ### P1-BIZ-001: Mandatory commercial identity and support fields are still placeholders.
@@ -31,26 +31,6 @@ The current build passes the automated commercial QA suite, but this red-team au
 - Owner: Payments / operations
 - Retest requirement: Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted.
 
-### P1-CONTENT-001: Conflicting-answer groups remain unresolved before commercial launch.
-
-- Severity: P1
-- Evidence: reports/content/content-quality-summary.json reports 175 conflicting-answer groups and 1436 editorial backlog items.
-- Affected files/routes: data/questions.enriched.json, reports/content/conflicting-answer-groups.csv, server/api/admin/content-quality.js, /app, /admin.html
-- Reproduction: Run `npm run content:quality` and inspect reports/content/conflicting-answer-groups.csv.
-- Required fix: Review conflicting-answer groups in admin/content-quality workflow, mark legitimate variants or publish decisions, and do not silently change factual answers without approved source support.
-- Owner: Content/editorial lead
-- Retest requirement: Run npm run content:quality, npm run validate, npm run qa, then spot-check affected question sessions and admin decisions.
-
-### P1-OPS-001: Backup restoration has not been tested in a non-production restore drill.
-
-- Severity: P1
-- Evidence: docs/operations/restore-drill-record.md states the restore drill is not yet executed.
-- Affected files/routes: docs/operations/backup-restore.md, docs/operations/restore-drill-record.md, database/schema.sql, Neon project
-- Reproduction: Open docs/operations/restore-drill-record.md and confirm no completed restoration date/source/target/checks are recorded.
-- Required fix: Run a Neon non-production restore from backup or branch, record row counts/integrity checks/elapsed time/problems, and keep secrets out of the record.
-- Owner: Operations
-- Retest requirement: Record a completed restore drill, then run npm run check:migrations and npm run qa against the restored environment if feasible.
-
 ### P1-DOMAIN-001: Production canonical origin is still the Vercel app URL instead of a configured custom commercial domain.
 
 - Severity: P1
@@ -62,12 +42,12 @@ The current build passes the automated commercial QA suite, but this red-team au
 - Retest requirement: Run npm run check:seo, npm run qa, and inspect Search Console URL Inspection for priority pages.
 
 ## Non-Blocking Risks
-### P2-PREVIEW-001: Free preview package contains repeated canonical-question variants.
+### P2-CONTENT-VARIANTS-001: Repeated-stem answer-set variants still require editorial classification.
 
 - Severity: P2
-- Evidence: Preview has 1 repeated canonicalQuestionId value(s).
-- Affected: public/data/preview-questions.json, scripts/prepare-public-data.mjs
-- Required fix: When tuning preview quality, select distinct canonical/variant groups for the offline preview package.
+- Evidence: 135 answer-set variant group(s) remain in reports/content/answer-variant-groups.csv; these are not direct same-answer-set contradictions.
+- Affected: data/questions.enriched.json, reports/content/answer-variant-groups.csv, /admin.html
+- Required fix: Review and mark legitimate answer-set or image scenarios through the content-quality workflow; do not change factual answers automatically.
 - Owner: Content/editorial
 
 ### P2-CONTENT-ALT-001: Image-rich content still needs alt-description editorial work.

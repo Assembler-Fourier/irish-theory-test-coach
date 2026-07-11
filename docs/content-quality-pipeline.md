@@ -10,7 +10,8 @@ Irish Theory Test Coach uses a deterministic content-quality pipeline to help ed
 - Same question and answers with options in a different order.
 - Same image plus repeated question stem.
 - Near-duplicate stems using token similarity.
-- Repeated stems with conflicting saved correct answers.
+- Repeated stems with different answer-set variants.
+- Direct structural conflicts where the same normalised stem and answer set contain different saved correct-answer keys.
 - Structural lint findings such as duplicate options, missing answers, weak explanations, malformed image paths, missing image alt text, unsafe HTML, spelling issues, and inconsistent Irish/British English.
 
 ## Editorial States
@@ -37,11 +38,12 @@ Generated files are written under `reports/content/`:
 - `content-quality-summary.json`
 - `content-quality-summary.md`
 - `duplicate-groups.csv`
+- `answer-variant-groups.csv`
 - `conflicting-answer-groups.csv`
 - `category-mapping.csv`
 - `editorial-backlog.csv`
 
-The reports do not remove questions or change saved answers.
+The reports do not remove questions or change saved answers. Answer-set variants remain available for editorial classification, while only direct same-stem/same-answer-set contradictions enter the blocking conflict queue.
 
 ## Admin Workflow
 

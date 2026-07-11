@@ -1,7 +1,7 @@
 {
-  "generatedAt": "2026-07-11T20:11:20.148Z",
+  "generatedAt": "2026-07-11T22:03:08.560Z",
   "branch": "codex/commercial-v1",
-  "commit": "ddfc7d734d0aa7eb0a12ed46d84872f4cc25bd84",
+  "commit": "f93876c95d2f2ce0d26dceafbe12a7c6d4cf1181",
   "decision": "NO-GO",
   "product": {
     "productVersion": "0.1.0-commercial-v1",
@@ -52,39 +52,6 @@
       "retestRequirement": "Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted."
     },
     {
-      "id": "P1-CONTENT-001",
-      "severity": "P1",
-      "title": "Conflicting-answer groups remain unresolved before commercial launch.",
-      "evidence": "reports/content/content-quality-summary.json reports 175 conflicting-answer groups and 1436 editorial backlog items.",
-      "affectedFilesRoutes": [
-        "data/questions.enriched.json",
-        "reports/content/conflicting-answer-groups.csv",
-        "server/api/admin/content-quality.js",
-        "/app",
-        "/admin.html"
-      ],
-      "reproduction": "Run `npm run content:quality` and inspect reports/content/conflicting-answer-groups.csv.",
-      "requiredFix": "Review conflicting-answer groups in admin/content-quality workflow, mark legitimate variants or publish decisions, and do not silently change factual answers without approved source support.",
-      "owner": "Content/editorial lead",
-      "retestRequirement": "Run npm run content:quality, npm run validate, npm run qa, then spot-check affected question sessions and admin decisions."
-    },
-    {
-      "id": "P1-OPS-001",
-      "severity": "P1",
-      "title": "Backup restoration has not been tested in a non-production restore drill.",
-      "evidence": "docs/operations/restore-drill-record.md states the restore drill is not yet executed.",
-      "affectedFilesRoutes": [
-        "docs/operations/backup-restore.md",
-        "docs/operations/restore-drill-record.md",
-        "database/schema.sql",
-        "Neon project"
-      ],
-      "reproduction": "Open docs/operations/restore-drill-record.md and confirm no completed restoration date/source/target/checks are recorded.",
-      "requiredFix": "Run a Neon non-production restore from backup or branch, record row counts/integrity checks/elapsed time/problems, and keep secrets out of the record.",
-      "owner": "Operations",
-      "retestRequirement": "Record a completed restore drill, then run npm run check:migrations and npm run qa against the restored environment if feasible."
-    },
-    {
       "id": "P1-DOMAIN-001",
       "severity": "P1",
       "title": "Production canonical origin is still the Vercel app URL instead of a configured custom commercial domain.",
@@ -103,16 +70,17 @@
   ],
   "nonBlockingRisks": [
     {
-      "id": "P2-PREVIEW-001",
+      "id": "P2-CONTENT-VARIANTS-001",
       "severity": "P2",
-      "title": "Free preview package contains repeated canonical-question variants.",
-      "evidence": "Preview has 1 repeated canonicalQuestionId value(s).",
+      "title": "Repeated-stem answer-set variants still require editorial classification.",
+      "evidence": "135 answer-set variant group(s) remain in reports/content/answer-variant-groups.csv; these are not direct same-answer-set contradictions.",
       "affected": [
-        "public/data/preview-questions.json",
-        "scripts/prepare-public-data.mjs"
+        "data/questions.enriched.json",
+        "reports/content/answer-variant-groups.csv",
+        "/admin.html"
       ],
       "status": "open",
-      "requiredFix": "When tuning preview quality, select distinct canonical/variant groups for the offline preview package.",
+      "requiredFix": "Review and mark legitimate answer-set or image scenarios through the content-quality workflow; do not change factual answers automatically.",
       "owner": "Content/editorial"
     },
     {
@@ -141,7 +109,7 @@
       "previewLimit": 15,
       "underLimit": true,
       "noAnswerKeys": true,
-      "duplicateCanonicalCount": 1,
+      "duplicateCanonicalCount": 0,
       "fullBankPublic": false
     },
     "routePresence": {

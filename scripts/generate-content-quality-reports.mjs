@@ -32,7 +32,19 @@ writeCsv("duplicate-groups.csv", analysis.duplicateGroups.flatMap((group) =>
     question_id: questionId,
     duplicate_reason: group.duplicateReason,
     review_status: group.reviewStatus,
+    answer_variant_candidates: group.answerVariantCandidates,
     conflicting_correct_answers: group.conflictingCorrectAnswers,
+  }))
+));
+writeCsv("answer-variant-groups.csv", analysis.answerVariantGroups.flatMap((group) =>
+  group.correctAnswers.map((answer) => ({
+    variant_group_id: group.variantGroupId,
+    canonical_question_id: group.canonicalQuestionId,
+    question_id: answer.questionId,
+    correct_index: answer.correctIndex,
+    correct_answer: answer.correctAnswer,
+    review_status: group.reviewStatus,
+    image_scenario_variant: group.legitimateScenarioVariant,
   }))
 ));
 writeCsv("conflicting-answer-groups.csv", analysis.conflictingAnswerGroups.flatMap((group) =>
@@ -67,6 +79,7 @@ console.log([
   `Content quality reports generated in ${path.relative(root, reportsDir)}`,
   `- questions: ${analysis.summary.totalQuestions}`,
   `- duplicate groups: ${analysis.summary.duplicateGroups}`,
+  `- answer-set variant groups: ${analysis.summary.answerVariantGroups}`,
   `- conflicts: ${analysis.summary.conflictingAnswerGroups}`,
   `- lint findings: ${analysis.summary.lintFindings}`,
 ].join("\n"));
@@ -99,6 +112,7 @@ Generated: ${analysis.generatedAt}
 - Total questions analysed: ${summary.totalQuestions}
 - Canonical categories: ${summary.canonicalCategories}
 - Duplicate groups: ${summary.duplicateGroups}
+- Answer-set variant groups: ${summary.answerVariantGroups}
 - Conflicting-answer groups: ${summary.conflictingAnswerGroups}
 - Lint findings: ${summary.lintFindings}
 - Editorial backlog items: ${summary.editorialBacklog}
@@ -107,7 +121,9 @@ Generated: ${analysis.generatedAt}
 
 - Content rights are confirmed by the project owner.
 - No question is removed or quarantined by this report.
-- Conflicting answers are sent to editorial review; no heuristic silently changes an answer.
+- Repeated stems with different answer sets remain in editorial review without being mislabeled as direct contradictions.
+- A blocking conflict requires the same normalised stem and answer set to contain different correct-answer keys.
+- No heuristic silently changes an answer.
 - High-yield remains an estimated study-priority signal, not official exam frequency.
 
 ## Top Lint Types
@@ -120,10 +136,11 @@ ${countBy(analysis.duplicateGroups, "duplicateReason").slice(0, 12).map((item) =
 
 ## Next Editorial Actions
 
-1. Review \`conflicting-answer-groups.csv\` first.
-2. Review exact/normalised duplicates and decide whether variants are legitimate.
-3. Use \`category-mapping.csv\` to approve category aliases and identify unmapped categories.
-4. Work through \`editorial-backlog.csv\` by priority.
+1. Review \`conflicting-answer-groups.csv\` first; these are direct structural contradictions.
+2. Review \`answer-variant-groups.csv\` and mark legitimate answer-set or image scenarios.
+3. Review exact/normalised duplicates and decide whether variants are legitimate.
+4. Use \`category-mapping.csv\` to approve category aliases and identify unmapped categories.
+5. Work through \`editorial-backlog.csv\` by priority.
 `;
 }
 

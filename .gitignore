@@ -11,6 +11,9 @@ data/raw/
 !.env.example
 output/
 reports/*
+!reports/content/
+reports/content/*
+!reports/content/answer-variant-groups.csv
 !reports/security/
 !reports/security/*.md
 !reports/final/

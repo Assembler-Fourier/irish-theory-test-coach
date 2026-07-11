@@ -42,6 +42,7 @@ const restoreDrillNotExecuted = /not yet executed/i.test(restoreDrillText);
 const content = {
   totalQuestions: contentSummary?.summary?.totalQuestions || product.totalPublishedQuestions,
   duplicateGroups: contentSummary?.summary?.duplicateGroups || 0,
+  answerVariantGroups: contentSummary?.summary?.answerVariantGroups || 0,
   conflictingAnswerGroups: contentSummary?.summary?.conflictingAnswerGroups || 0,
   lintFindings: contentSummary?.summary?.lintFindings || 0,
   editorialBacklog: contentSummary?.summary?.editorialBacklog || 0,
@@ -67,6 +68,16 @@ const nonBlockingRisks = [
     affected: ["public/data/preview-questions.json", "scripts/prepare-public-data.mjs"],
     status: previewLeakChecks.duplicateCanonicalCount ? "open" : "not_applicable",
     requiredFix: "When tuning preview quality, select distinct canonical/variant groups for the offline preview package.",
+    owner: "Content/editorial",
+  },
+  {
+    id: "P2-CONTENT-VARIANTS-001",
+    severity: "P2",
+    title: "Repeated-stem answer-set variants still require editorial classification.",
+    evidence: `${content.answerVariantGroups} answer-set variant group(s) remain in reports/content/answer-variant-groups.csv; these are not direct same-answer-set contradictions.`,
+    affected: ["data/questions.enriched.json", "reports/content/answer-variant-groups.csv", "/admin.html"],
+    status: content.answerVariantGroups > 0 ? "open" : "not_applicable",
+    requiredFix: "Review and mark legitimate answer-set or image scenarios through the content-quality workflow; do not change factual answers automatically.",
     owner: "Content/editorial",
   },
   {
@@ -198,8 +209,8 @@ function contentBlockers() {
   return [{
     id: "P1-CONTENT-001",
     severity: "P1",
-    title: "Conflicting-answer groups remain unresolved before commercial launch.",
-    evidence: `reports/content/content-quality-summary.json reports ${content.conflictingAnswerGroups} conflicting-answer groups and ${content.editorialBacklog} editorial backlog items.`,
+    title: "Direct same-question answer conflicts remain unresolved before commercial launch.",
+    evidence: `reports/content/content-quality-summary.json reports ${content.conflictingAnswerGroups} direct same-stem/same-answer-set conflict group(s) and ${content.editorialBacklog} editorial backlog items.`,
     affectedFilesRoutes: [
       "data/questions.enriched.json",
       "reports/content/conflicting-answer-groups.csv",
@@ -208,7 +219,7 @@ function contentBlockers() {
       "/admin.html",
     ],
     reproduction: "Run `npm run content:quality` and inspect reports/content/conflicting-answer-groups.csv.",
-    requiredFix: "Review conflicting-answer groups in admin/content-quality workflow, mark legitimate variants or publish decisions, and do not silently change factual answers without approved source support.",
+    requiredFix: "Review direct conflicts in the admin/content-quality workflow and publish an auditable decision; do not silently change factual answers without approved source support.",
     owner: "Content/editorial lead",
     retestRequirement: "Run npm run content:quality, npm run validate, npm run qa, then spot-check affected question sessions and admin decisions.",
   }];
@@ -566,6 +577,7 @@ function contentQualityStatus() {
     "",
     `- Total questions: ${content.totalQuestions}`,
     `- Duplicate groups: ${content.duplicateGroups}`,
+    `- Answer-set variant groups: ${content.answerVariantGroups}`,
     `- Conflicting-answer groups: ${content.conflictingAnswerGroups}`,
     `- Lint findings: ${content.lintFindings}`,
     `- Editorial backlog items: ${content.editorialBacklog}`,

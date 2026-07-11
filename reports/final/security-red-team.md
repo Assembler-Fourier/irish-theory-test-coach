@@ -1,6 +1,6 @@
 # Security Red-Team Report
 
-Generated: 2026-07-11T20:11:20.148Z
+Generated: 2026-07-11T22:03:08.560Z
 
 NO-GO
 
@@ -35,16 +35,6 @@ NO-GO
 - Required fix: Complete and record test-mode purchases for Full Study Pass, launch offer if enabled, instructor_10, instructor_25, duplicate webhook replay, refund/dispute recording, and entitlement effects.
 - Owner: Payments / operations
 - Retest requirement: Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted.
-
-### P1-OPS-001: Backup restoration has not been tested in a non-production restore drill.
-
-- Severity: P1
-- Evidence: docs/operations/restore-drill-record.md states the restore drill is not yet executed.
-- Affected files/routes: docs/operations/backup-restore.md, docs/operations/restore-drill-record.md, database/schema.sql, Neon project
-- Reproduction: Open docs/operations/restore-drill-record.md and confirm no completed restoration date/source/target/checks are recorded.
-- Required fix: Run a Neon non-production restore from backup or branch, record row counts/integrity checks/elapsed time/problems, and keep secrets out of the record.
-- Owner: Operations
-- Retest requirement: Record a completed restore drill, then run npm run check:migrations and npm run qa against the restored environment if feasible.
 
 ## Notes
 
