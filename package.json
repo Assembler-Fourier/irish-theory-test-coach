@@ -18,7 +18,7 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "node scripts/generate-seo-assets.mjs && node scripts/prepare-public-data.mjs && node scripts/generate-product-runtime.mjs",
+    "build": "node scripts/generate-seo-assets.mjs && node scripts/generate-ia-pages.mjs && node scripts/prepare-public-data.mjs && node scripts/generate-product-runtime.mjs",
     "generate:seo": "node scripts/generate-seo-assets.mjs",
     "generate:product-runtime": "node scripts/generate-product-runtime.mjs",
     "import:owner-questions": "node scripts/import-owner-questions.mjs",

@@ -65,7 +65,10 @@ console.log(`SEO check passed for ${locs.length} sitemap URLs.`);
 
 function fileForPath(urlPath) {
   if (urlPath === "/") return path.join(publicDir, "index.html");
-  return path.join(publicDir, decodeURIComponent(urlPath).replace(/^\/+/, ""));
+  const clean = decodeURIComponent(urlPath).replace(/^\/+/, "");
+  const direct = path.join(publicDir, clean);
+  if (fs.existsSync(direct)) return direct;
+  return path.join(publicDir, `${clean}.html`);
 }
 
 function isLandingPage(relative) {

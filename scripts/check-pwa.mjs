@@ -15,6 +15,7 @@ const requiredFiles = [
   "icons/app-icon.svg",
   "icons/maskable-icon.svg",
   "index.html",
+  "app.html",
 ];
 
 const errors = [];
@@ -26,8 +27,10 @@ for (const file of requiredFiles) {
 }
 
 const index = readPublicFile("index.html");
+const appHtml = readPublicFile("app.html");
 const app = readPublicFile("app.js");
 if (!index.includes('rel="manifest"')) errors.push("index.html does not link the manifest.");
+if (!appHtml.includes('rel="manifest"')) errors.push("app.html does not link the manifest.");
 if (!app.includes("service-worker.js")) errors.push("app.js does not register service-worker.js.");
 
 const manifest = JSON.parse(readPublicFile("manifest.webmanifest"));
@@ -46,6 +49,7 @@ const serviceWorker = readPublicFile("service-worker.js");
   "activate",
   "fetch",
   "preview-questions.json",
+  "app.html",
   "product-summary.js",
   "offline.html",
 ].forEach((needle) => {

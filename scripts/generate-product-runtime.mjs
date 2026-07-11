@@ -6,6 +6,7 @@ import {
   buildReleaseManifest,
   formatAccessDuration,
   formatInteger,
+  formatMockLong,
   formatMockShort,
   formatUnlockCta,
   summaryForClient,
@@ -30,7 +31,7 @@ writePublicJson("release-manifest.json", releaseManifest);
 writePublicJson("pricing.json", pricingConfig);
 writePublicJs("pricing-config.js", "PRICING_CONFIG", pricingConfig);
 writePublicJs("config.js", "APP_CONFIG", { supportEmail });
-updateIndexHtml(clientSummary);
+updatePublicHtml(clientSummary);
 
 console.log(
   `Generated product runtime summary: ${formatInteger(clientSummary.totalPublishedQuestions)} questions, ` +
@@ -46,33 +47,38 @@ function writePublicJs(file, globalName, data) {
   fs.writeFileSync(path.join(publicDir, file), `window.${globalName} = ${JSON.stringify(data, null, 2)};\n`, "utf8");
 }
 
-function updateIndexHtml(product) {
-  const filePath = path.join(publicDir, "index.html");
-  if (!fs.existsSync(filePath)) return;
-  let html = fs.readFileSync(filePath, "utf8");
-
+function updatePublicHtml(product) {
   const values = {
     totalPublishedQuestions: formatInteger(product.totalPublishedQuestions),
     totalPublishedQuestionsLabel: `${formatInteger(product.totalPublishedQuestions)} questions`,
     estimatedPriorityQuestionCount: formatInteger(product.estimatedPriorityQuestionCount),
     signOrImageQuestionCount: formatInteger(product.signOrImageQuestionCount),
     previewLimit: formatInteger(product.previewLimit),
+    mockLongLabel: formatMockLong(product),
     mockShortLabel: formatMockShort(product),
     activePrice: product.activePrice,
     accessDuration: formatAccessDuration(product),
     unlockCta: formatUnlockCta(product),
   };
 
-  for (const [key, value] of Object.entries(values)) {
-    html = replaceDataValue(html, key, value);
+  for (const file of fs.readdirSync(publicDir)) {
+    if (!file.endsWith(".html")) continue;
+    const filePath = path.join(publicDir, file);
+    let html = fs.readFileSync(filePath, "utf8");
+    const before = html;
+
+    for (const [key, value] of Object.entries(values)) {
+      html = replaceDataValue(html, key, value);
+    }
+
+    html = html
+      .replace(/Preview \d+ questions/g, `Preview ${product.previewLimit} questions`)
+      .replace(/Unlock for EUR \d+\.\d{2}/g, formatUnlockCta(product))
+      .replace(/\d+-day access/g, formatAccessDuration(product))
+      .replace(/"price":\s*"\d+\.\d{2}"/g, `"price": "${numericPrice(product.activePrice)}"`);
+
+    if (html !== before) fs.writeFileSync(filePath, html, "utf8");
   }
-
-  html = html
-    .replace(/Preview \d+ questions/g, `Preview ${product.previewLimit} questions`)
-    .replace(/Unlock for EUR \d+\.\d{2}/g, formatUnlockCta(product))
-    .replace(/\d+-day access/g, formatAccessDuration(product));
-
-  fs.writeFileSync(filePath, html, "utf8");
 }
 
 function replaceDataValue(html, key, value) {
@@ -89,4 +95,9 @@ function escapeHtml(value) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+}
+
+function numericPrice(displayPrice) {
+  const match = String(displayPrice || "").match(/\d+(?:\.\d{1,2})?/);
+  return match ? Number(match[0]).toFixed(2) : "0.00";
 }

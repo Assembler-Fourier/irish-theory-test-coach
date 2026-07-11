@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-11-premium-delivery-1";
+const CACHE_VERSION = "ittc-pwa-2026-07-11-ia-v1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -7,6 +7,7 @@ const CACHE_NAMES = new Set([SHELL_CACHE, DATA_CACHE, IMAGE_CACHE]);
 const SHELL_ASSETS = [
   "./",
   "./index.html",
+  "./app.html",
   "./offline.html",
   "./styles.css?v=20260710-rebuild",
   "./app.js?v=20260710-rebuild",
@@ -27,8 +28,14 @@ const SHELL_ASSETS = [
   "./icons/app-icon.svg",
   "./icons/maskable-icon.svg",
   "./marketing/og-preview.svg",
+  "./marketing/app-workspace-preview.svg",
+  "./marketing/content-review-preview.svg",
   "./pricing.html",
   "./learn.html",
+  "./road-signs.html",
+  "./mock-exam.html",
+  "./account.html",
+  "./support.html",
   "./irish-theory-test-practice.html",
   "./mock-theory-test-ireland.html",
   "./irish-road-signs-test.html",
@@ -41,6 +48,8 @@ const DATA_ASSETS = [
 
 const COMMON_IMAGE_ASSETS = [
   "./marketing/og-preview.svg",
+  "./marketing/app-workspace-preview.svg",
+  "./marketing/content-review-preview.svg",
 ];
 
 self.addEventListener("install", (event) => {

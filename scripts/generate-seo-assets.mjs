@@ -5,6 +5,10 @@ import {
   buildProductSummary,
   formatAccessDuration,
 } from "../shared/product-summary.js";
+import {
+  finalCta as sharedFinalCta,
+  siteFooter as sharedSiteFooter,
+} from "../shared/static-components.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
@@ -203,18 +207,18 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
   <body>
     <div class="shell seo-shell">
       <header class="seo-topbar">
-        <a class="brand-mark" href="./index.html">Irish Theory Test Coach</a>
+        <a class="brand-mark" href="/">Irish Theory Test Coach</a>
         <nav class="site-nav" aria-label="Primary navigation">
-          <a href="./index.html">App</a>
-          <a href="./learn.html">Learn</a>
-          <a href="./irish-road-signs-test.html">Road signs</a>
-          <a href="./mock-theory-test-ireland.html">Mock exam</a>
-          <a href="./pricing.html">Pricing</a>
+          <a href="/app">App</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a href="/pricing">Pricing</a>
         </nav>
       </header>
       <main class="seo-main">
         <nav class="breadcrumbs" aria-label="Breadcrumb">
-          <a href="./index.html">Home</a>
+          <a href="/">Home</a>
           <span>${escapeHtml(item.h1)}</span>
         </nav>
         <section class="seo-hero seo-hero-compact">
@@ -223,8 +227,8 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
             <h1>${escapeHtml(item.h1)}</h1>
             <p>${escapeHtml(item.intro)}</p>
             <div class="seo-cta-row">
-              <a class="button-primary" href="./index.html#questionMount">${escapeHtml(item.cta)}</a>
-              <a class="button-secondary" href="./pricing.html">View pricing</a>
+              <a class="button-primary" href="/app">${escapeHtml(item.cta)}</a>
+              <a class="button-secondary" href="/pricing">View pricing</a>
             </div>
             <p class="hero-disclaimer">${disclaimer}</p>
           </div>
@@ -248,16 +252,7 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
           <h2>FAQ</h2>
           ${item.faqs.map(([q, a]) => `<details open><summary>${escapeHtml(q)}</summary><p>${escapeHtml(a)}</p></details>`).join("\n          ")}
         </section>
-        <section class="seo-cta-strip">
-          <div>
-            <h2>Start with the free preview, then unlock the full study path when it fits.</h2>
-            <p>${disclaimer} No guaranteed-pass or official-frequency claims.</p>
-          </div>
-          <div class="seo-cta-row">
-            <a class="button-primary" href="./index.html#questionMount">Start free preview</a>
-            <a class="button-secondary" href="./pricing.html">Unlock full coach</a>
-          </div>
-        </section>
+        ${sharedFinalCta({ root: "", body: `${disclaimer} No guaranteed-pass or official-frequency claims.` })}
       </main>
       ${footer()}
     </div>
@@ -299,7 +294,7 @@ function pricingCards() {
             ["Full Study Pass", planPrice("full_study_pass"), `One-time ${formatAccessDuration(productSummary)} to the full coach, mocks, review, signs, and restore access.`, "full_study_pass"],
             ["Instructor 10", planPrice("instructor_10", "EUR 29.00"), "Ten learner codes for instructors and small groups.", "instructor_10"],
             ["Instructor 25", planPrice("instructor_25", "EUR 69.00"), "Twenty-five learner codes for instructors with larger groups.", "instructor_25"],
-          ].map(([label, price, copy, plan]) => `<article class="pricing-plan-card"><h2>${label}</h2><strong>${price}</strong><p>${copy}</p>${plan ? `<button class="button-primary" data-plan-checkout="${plan}" type="button">Choose ${label}</button>` : '<a class="button-secondary" href="./index.html#questionMount">Start preview</a>'}<p class="pricing-plan-status" role="status" aria-live="polite"></p><p><a href="./index.html#restoreEmail">Restore access</a> or <a href="./contact.html">contact support</a>.</p></article>`).join("\n          ")}
+          ].map(([label, price, copy, plan]) => `<article class="pricing-plan-card"><h2>${label}</h2><strong>${price}</strong><p>${copy}</p>${plan ? `<button class="button-primary" data-plan-checkout="${plan}" type="button">Choose ${label}</button>` : '<a class="button-secondary" href="/app">Start preview</a>'}<p class="pricing-plan-status" role="status" aria-live="polite"></p><p><a href="/app#restoreEmail">Restore access</a> or <a href="/support">contact support</a>.</p></article>`).join("\n          ")}
         </section>`;
 }
 
@@ -314,23 +309,7 @@ function relatedLink(slug) {
 }
 
 function footer() {
-  const links = [
-    ["Irish theory test practice", "irish-theory-test-practice.html"],
-    ["Mock theory test", "mock-theory-test-ireland.html"],
-    ["Road signs quiz", "irish-road-signs-test.html"],
-    ["Study plan", "theory-test-study-plan.html"],
-    ["Pricing", "pricing.html"],
-    ["Instructor codes", "for-driving-instructors.html"],
-    ["Privacy", "privacy.html"],
-    ["Contact", "contact.html"],
-  ];
-  return `<footer class="site-footer seo-footer">
-        <section class="seo-footer-links" aria-label="SEO footer links">
-          <h2>Irish Theory Test Coach guides</h2>
-          <nav>${links.map(([label, href]) => `<a href="./${href}">${label}</a>`).join("\n            ")}</nav>
-        </section>
-        <p>${disclaimer}</p>
-      </footer>`;
+  return sharedSiteFooter({ root: "", disclaimer });
 }
 
 function breadcrumbJsonLd(item) {
@@ -500,7 +479,7 @@ function renderLegalPage(item) {
   <body>
     <div class="shell legal-shell">
       <header class="legal-header">
-        <a href="./index.html">Irish Theory Test Coach</a>
+        <a href="/">Irish Theory Test Coach</a>
         <p>${disclaimer}</p>
       </header>
       <main class="legal-page">

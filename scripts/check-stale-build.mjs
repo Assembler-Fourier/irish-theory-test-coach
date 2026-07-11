@@ -133,7 +133,9 @@ function checkSitemapTargets() {
   if (!locs.length) errors.push("sitemap.xml has no URLs.");
   for (const pathname of locs) {
     const file = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
-    if (!fs.existsSync(path.join(publicDir, file))) errors.push(`sitemap.xml contains missing page ${pathname}.`);
+    const direct = path.join(publicDir, file);
+    const html = path.join(publicDir, `${file}.html`);
+    if (!fs.existsSync(direct) && !fs.existsSync(html)) errors.push(`sitemap.xml contains missing page ${pathname}.`);
   }
 }
 

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="560" viewBox="0 0 820 560" role="img" aria-labelledby="title desc">
+  <title id="title">Content review methodology preview</title>
+  <desc id="desc">Stylised content quality workflow with taxonomy, duplicate groups, conflicts, and reports.</desc>
+  <rect width="820" height="560" rx="20" fill="#f4f6f8"/>
+  <rect x="42" y="42" width="736" height="476" rx="16" fill="#fff" stroke="#d9dee6"/>
+  <text x="74" y="92" fill="#17212b" font-family="Arial" font-size="24" font-weight="700">Content quality workflow</text>
+  <g font-family="Arial" font-size="15" font-weight="700">
+    <rect x="74" y="132" width="190" height="88" rx="12" fill="#eef5f2" stroke="#b6d8ce"/><text x="98" y="168" fill="#1f4f46">Canonical taxonomy</text><text x="98" y="193" fill="#52606a" font-weight="400">Map category aliases</text>
+    <rect x="314" y="132" width="190" height="88" rx="12" fill="#f7f8fb" stroke="#d9dee6"/><text x="338" y="168" fill="#1f4f46">Duplicate analysis</text><text x="338" y="193" fill="#52606a" font-weight="400">Group variants</text>
+    <rect x="554" y="132" width="190" height="88" rx="12" fill="#fff7e0" stroke="#eac75b"/><text x="578" y="168" fill="#755300">Conflict queue</text><text x="578" y="193" fill="#52606a" font-weight="400">No silent answer picks</text>
+    <rect x="194" y="278" width="190" height="88" rx="12" fill="#f7f8fb" stroke="#d9dee6"/><text x="218" y="314" fill="#1f4f46">Learner reports</text><text x="218" y="339" fill="#52606a" font-weight="400">Question problem action</text>
+    <rect x="434" y="278" width="190" height="88" rx="12" fill="#eef5f2" stroke="#b6d8ce"/><text x="458" y="314" fill="#1f4f46">Admin decisions</text><text x="458" y="339" fill="#52606a" font-weight="400">Versioned and audited</text>
+  </g>
+  <path d="M264 176h50M504 176h50M409 220v58M384 322h50" fill="none" stroke="#8b96a3" stroke-width="3" stroke-linecap="round"/>
+</svg>

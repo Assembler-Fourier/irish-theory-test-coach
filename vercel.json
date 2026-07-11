@@ -7,7 +7,19 @@
       "includeFiles": "data/**"
     }
   },
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/app.html", "destination": "/app", "permanent": true },
+    { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
+    { "source": "/learn.html", "destination": "/learn", "permanent": true },
+    { "source": "/irish-road-signs-test", "destination": "/road-signs", "permanent": false },
+    { "source": "/irish-theory-test-road-signs", "destination": "/road-signs", "permanent": false },
+    { "source": "/mock-theory-test-ireland", "destination": "/mock-exam", "permanent": false },
+    { "source": "/car-theory-test-mock-exam", "destination": "/mock-exam", "permanent": false },
+    { "source": "/contact", "destination": "/support", "permanent": false }
+  ],
   "rewrites": [
+    { "source": "/api/admin/content-quality", "destination": "/api/admin-content-quality" },
     { "source": "/api/admin/entitlements", "destination": "/api/admin-entitlements" },
     { "source": "/api/admin/export", "destination": "/api/admin-export" },
     { "source": "/api/admin/generate-questions", "destination": "/api/admin-generate-questions" },

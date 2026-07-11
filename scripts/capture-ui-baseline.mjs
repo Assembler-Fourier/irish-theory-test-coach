@@ -24,32 +24,32 @@ const screenshotStates = [
     name: "desktop-homepage",
     viewport: desktopViewport,
     path: "/",
-    ready: ".hero-panel",
+    ready: ".marketing-hero",
     noScroll: true,
   },
   {
     name: "desktop-homepage-1280",
     viewport: desktopMediumViewport,
     path: "/",
-    ready: ".hero-panel",
+    ready: ".marketing-hero",
     noScroll: true,
   },
   {
     name: "desktop-quiz-1024",
     viewport: desktopSmallViewport,
-    path: "/",
+    path: "/app",
     ready: ".question-view",
   },
   {
     name: "desktop-app-preview",
     viewport: desktopViewport,
-    path: "/",
+    path: "/app",
     ready: ".question-view",
   },
   {
     name: "desktop-paywall",
     viewport: desktopViewport,
-    path: "/",
+    path: "/app",
     ready: ".paywall-view",
     alignTop: true,
     setup: async (page) => {
@@ -59,7 +59,7 @@ const screenshotStates = [
   {
     name: "answer-feedback",
     viewport: desktopViewport,
-    path: "/",
+    path: "/app",
     ready: ".feedback:not(.hidden)",
     setup: async (page) => {
       await page.click(".answer-option");
@@ -68,7 +68,7 @@ const screenshotStates = [
   {
     name: "restore-access",
     viewport: desktopViewport,
-    path: "/",
+    path: "/app",
     ready: "#restoreEmail",
     setup: async (page) => {
       await page.click("#restoreAccessLink");
@@ -84,14 +84,14 @@ const screenshotStates = [
   {
     name: "pricing-page",
     viewport: desktopViewport,
-    path: "/pricing.html",
+    path: "/pricing",
     ready: "main",
     noScroll: true,
   },
   {
     name: "learn-hub",
     viewport: desktopViewport,
-    path: "/learn.html",
+    path: "/learn",
     ready: "main",
     noScroll: true,
   },
@@ -120,45 +120,45 @@ const screenshotStates = [
     name: "mobile-first-load",
     viewport: mobileViewport,
     path: "/",
-    ready: ".hero-panel",
+    ready: ".marketing-hero",
     noScroll: true,
   },
   {
     name: "mobile-first-load-360",
     viewport: mobileSmallViewport,
     path: "/",
-    ready: ".hero-panel",
+    ready: ".marketing-hero",
     noScroll: true,
   },
   {
     name: "mobile-quiz-360",
     viewport: mobileSmallViewport,
-    path: "/",
+    path: "/app",
     ready: ".question-view",
   },
   {
     name: "mobile-app-preview",
     viewport: mobileViewport,
-    path: "/",
+    path: "/app",
     ready: ".question-view",
   },
   {
     name: "mobile-first-load-430",
     viewport: mobileLargeViewport,
     path: "/",
-    ready: ".hero-panel",
+    ready: ".marketing-hero",
     noScroll: true,
   },
   {
     name: "mobile-quiz-430",
     viewport: mobileLargeViewport,
-    path: "/",
+    path: "/app",
     ready: ".question-view",
   },
   {
     name: "mobile-paywall",
     viewport: mobileViewport,
-    path: "/",
+    path: "/app",
     ready: ".paywall-view",
     alignTop: true,
     setup: async (page) => {

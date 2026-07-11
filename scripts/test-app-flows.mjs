@@ -9,6 +9,7 @@ const publicDir = path.join(repoRoot, "public");
 const nonAffiliation = "Independent practice tool. Not affiliated with RSA or Prometric.";
 
 const flowChecks = [
+  checkMarketingHomeContract,
   checkPreviewLoads,
   checkAnswerFlowContract,
   checkPremiumPaywallContract,
@@ -23,6 +24,7 @@ try {
   const context = {
     baseUrl: server.baseUrl,
     html: await fetchText(server.baseUrl, "/"),
+    appHtml: await fetchText(server.baseUrl, "/app"),
     appJs: await fetchText(server.baseUrl, "/app.js"),
     previewPackage: await fetchJson(server.baseUrl, "/data/preview-questions.json"),
     productSummary: await fetchJson(server.baseUrl, "/product-summary.json"),
@@ -37,10 +39,17 @@ try {
   await server.close();
 }
 
-async function checkPreviewLoads({ html, appJs, previewPackage }) {
-  assert.match(html, /id="questionMount"/, "Preview workspace is missing.");
-  assert.match(html, /id="questionTemplate"/, "Question template is missing.");
-  assert.match(html, /type="module"\s+src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app module script is missing.");
+async function checkMarketingHomeContract({ html }) {
+  assert.match(html, /A clearer way to practise for the Irish theory test/, "Homepage should be a commercial landing page.");
+  assert.doesNotMatch(html, /id="questionMount"/, "Homepage must not show the learner dashboard question mount.");
+  assert.doesNotMatch(html, /src="\.\/app\.js/, "Homepage must not load the learner app bundle.");
+  assert.match(html, /href="\/app"/, "Homepage should link to the learner app route.");
+}
+
+async function checkPreviewLoads({ appHtml, appJs, previewPackage }) {
+  assert.match(appHtml, /id="questionMount"/, "Preview workspace is missing.");
+  assert.match(appHtml, /id="questionTemplate"/, "Question template is missing.");
+  assert.match(appHtml, /type="module"\s+src="\.\/app\.js(?:\?[^\"]+)?"/, "Frontend app module script is missing.");
   assert.match(appJs, /DATA_URLS = \["\.\/data\/preview-questions\.json"/, "App is not loading the preview package first.");
   assert.ok(Array.isArray(previewPackage.questions), "Preview package should include a questions array.");
   assert.ok(previewPackage.questions.length > 0, "Preview package should include questions.");
@@ -52,8 +61,8 @@ async function checkPreviewLoads({ html, appJs, previewPackage }) {
   assertNoAnswerKeys(previewPackage);
 }
 
-function checkAnswerFlowContract({ html, appJs }) {
-  assert.match(html, /<div class="answer-list"><\/div>/, "Answer list mount is missing.");
+function checkAnswerFlowContract({ appHtml, appJs }) {
+  assert.match(appHtml, /<div class="answer-list"><\/div>/, "Answer list mount is missing.");
   assert.match(appJs, /button\.className = "answer-option"/, "Answer buttons are not created.");
   assert.match(appJs, /revealAnswerFromServer\(question, index\)/, "Answer reveal is not routed through the secure API.");
   assert.match(appJs, /paintAnswers\(answerList, question, index\)/, "Answer selection does not paint answers.");
@@ -64,15 +73,15 @@ function checkAnswerFlowContract({ html, appJs }) {
   assert.match(appJs, /eventName: "question_answered"/, "Answer analytics event is missing.");
 }
 
-function checkPremiumPaywallContract({ html, appJs }) {
-  assert.match(html, /id="paywallTemplate"/, "Paywall template is missing.");
-  assert.match(html, /id="modeHighYield"/, "High-yield premium mode button is missing.");
-  assert.match(html, /id="modeHardest"/, "Hardest premium mode button is missing.");
-  assert.match(html, /id="modeSigns"/, "Road-sign premium mode button is missing.");
-  assert.match(html, /id="modeExam"/, "Mock-test premium mode button is missing.");
-  assert.match(html, /Unlock for EUR 4\.99/, "Paywall price copy is missing.");
-  assert.match(html, /pricing-config\.js/, "Frontend pricing config is missing.");
-  assert.match(html, /Have a code\?/, "Referral code form is missing.");
+function checkPremiumPaywallContract({ appHtml, appJs }) {
+  assert.match(appHtml, /id="paywallTemplate"/, "Paywall template is missing.");
+  assert.match(appHtml, /id="modeHighYield"/, "High-yield premium mode button is missing.");
+  assert.match(appHtml, /id="modeHardest"/, "Hardest premium mode button is missing.");
+  assert.match(appHtml, /id="modeSigns"/, "Road-sign premium mode button is missing.");
+  assert.match(appHtml, /id="modeExam"/, "Mock-test premium mode button is missing.");
+  assert.match(appHtml, /Unlock for EUR 4\.99/, "Paywall price copy is missing.");
+  assert.match(appHtml, /pricing-config\.js/, "Frontend pricing config is missing.");
+  assert.match(appHtml, /Have a code\?/, "Referral code form is missing.");
   assert.match(appJs, /function requiresAccess\(mode\)/, "Premium access guard is missing.");
   assert.match(appJs, /\["highYield", "hardest", "signs", "exam", "review"\]\.includes\(mode\)/, "Premium modes are not guarded.");
   assert.match(appJs, /trackEvent\("paywall_viewed"/, "Paywall analytics event is missing.");
@@ -94,18 +103,18 @@ async function checkLegalPagesLoad({ baseUrl }) {
   }
 }
 
-function checkRestoreAccessContract({ html, appJs }) {
-  assert.match(html, /id="restoreAccessLink"/, "Restore access link is missing.");
-  assert.match(html, /id="restoreForm"/, "Restore access form is missing.");
-  assert.match(html, /id="restoreEmail"\s+type="email"/, "Restore email input is missing.");
+function checkRestoreAccessContract({ appHtml, appJs }) {
+  assert.match(appHtml, /id="restoreAccessLink"/, "Restore access link is missing.");
+  assert.match(appHtml, /id="restoreForm"/, "Restore access form is missing.");
+  assert.match(appHtml, /id="restoreEmail"\s+type="email"/, "Restore email input is missing.");
   assert.match(appJs, /function focusRestoreAccess\(event, source = "unknown"\)/, "Restore access focus handler is missing.");
   assert.match(appJs, /function requestLoginLink\(event\)/, "Magic-link request handler is missing.");
   assert.match(appJs, /\/api\/request-login-link/, "Restore access form is not wired to the API.");
 }
 
-function checkMockTestContract({ html, appJs, productSummary }) {
-  assert.match(html, /id="startExamBtn"/, "Start mock test button is missing.");
-  assert.match(html, /id="examBar"/, "Mock test status bar is missing.");
+function checkMockTestContract({ appHtml, appJs, productSummary }) {
+  assert.match(appHtml, /id="startExamBtn"/, "Start mock test button is missing.");
+  assert.match(appHtml, /id="examBar"/, "Mock test status bar is missing.");
   assert.equal(productSummary.mockSize, 40, "Product summary should expose the 40-question mock size.");
   assert.equal(productSummary.mockDurationMinutes, 45, "Product summary should expose the 45-minute mock duration.");
   assert.match(appJs, /const EXAM_SIZE = positiveNumber\(PRODUCT_SUMMARY\.mockSize, 40\);/, "Mock test should use product summary mock size.");
@@ -158,7 +167,9 @@ function resolvePublicPath(requestUrl) {
   const pathname = decodeURIComponent(url.pathname);
   const relativePath = pathname === "/" ? "index.html" : pathname.replace(/^\/+/, "");
   const resolved = path.resolve(publicDir, relativePath);
-  return resolved === publicDir || resolved.startsWith(`${publicDir}${path.sep}`) ? resolved : null;
+  if (!(resolved === publicDir || resolved.startsWith(`${publicDir}${path.sep}`))) return null;
+  if (path.extname(resolved)) return resolved;
+  return `${resolved}.html`;
 }
 
 async function fetchText(baseUrl, urlPath) {

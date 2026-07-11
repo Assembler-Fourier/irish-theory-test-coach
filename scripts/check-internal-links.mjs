@@ -7,6 +7,7 @@ const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
 const htmlFiles = fs.readdirSync(publicDir).filter((name) => name.endsWith(".html"));
 const existing = new Set(htmlFiles);
+const existingRoutes = new Set(htmlFiles.map((name) => name.replace(/\.html$/i, "")));
 const errors = [];
 
 for (const file of htmlFiles) {
@@ -15,10 +16,10 @@ for (const file of htmlFiles) {
   const localHtmlLinks = links
     .filter((href) => href.startsWith("./") || href.startsWith("/"))
     .map((href) => href.replace(/^\.?\//, "").split("#")[0])
-    .filter((href) => href.endsWith(".html") || href === "");
+    .filter((href) => href.endsWith(".html") || href === "" || existingRoutes.has(href));
   for (const href of localHtmlLinks) {
     const target = href || "index.html";
-    if (!existing.has(target)) errors.push(`${file} links to missing ${target}.`);
+    if (!existing.has(target) && !existing.has(`${target}.html`)) errors.push(`${file} links to missing ${target}.`);
   }
   if (!["admin.html", "offline.html"].includes(file) && localHtmlLinks.length < 4) {
     errors.push(`${file} has fewer than 4 internal HTML links.`);

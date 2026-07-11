@@ -13,10 +13,10 @@ for (const file of fs.readdirSync(publicDir).filter((name) => name.endsWith(".ht
   const html = fs.readFileSync(filePath, "utf8");
   const size = fs.statSync(filePath).size;
   if (size > htmlBudgetBytes) errors.push(`${file} exceeds HTML budget (${size} bytes).`);
-  if (file !== "index.html" && file !== "offline.html" && /src="\.\/app\.js"/.test(html)) {
+  if (!["app.html", "index.html", "offline.html"].includes(file) && /src="\.\/app\.js"/.test(html)) {
     errors.push(`${file} loads app.js unnecessarily.`);
   }
-  if (file !== "index.html" && /questions\.enriched\.json|questions\.json/.test(html)) {
+  if (!["app.html", "index.html"].includes(file) && /questions\.enriched\.json|questions\.json/.test(html)) {
     errors.push(`${file} references full question data.`);
   }
   for (const img of html.matchAll(/<img\b([^>]*)>/gi)) {

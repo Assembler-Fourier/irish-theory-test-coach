@@ -25,7 +25,10 @@ for (const file of fs.readdirSync(publicDir).filter((name) => name.endsWith(".ht
   if (noindex) continue;
 
   const route = file === "index.html" ? "" : file;
-  if (!sitemapUrls.has(route)) errors.push(`${file} is indexable but missing from sitemap.xml.`);
+  const cleanRoute = file === "index.html" ? "" : file.replace(/\.html$/i, "");
+  if (!sitemapUrls.has(route) && !sitemapUrls.has(cleanRoute)) {
+    errors.push(`${file} is indexable but missing from sitemap.xml.`);
+  }
 
   const title = matchContent(html, /<title>([^<]+)<\/title>/i);
   const description = matchContent(html, /<meta\s+name="description"\s+content="([^"]+)"/i);
