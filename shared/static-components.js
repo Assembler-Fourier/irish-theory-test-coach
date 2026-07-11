@@ -65,6 +65,8 @@ export function siteFooter(options = {}) {
           <a href="${root}/terms.html">Terms</a>
           <a href="${root}/refunds.html">Refunds</a>
           <a href="${root}/contact.html">Contact</a>
+          <a href="${root}/accessibility.html">Accessibility</a>
+          <a href="${root}/content-methodology.html">Content methodology</a>
         </nav>
         <p class="footer-disclaimer">${escapeHtml(disclaimer)}</p>
       </footer>`;

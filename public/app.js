@@ -349,6 +349,30 @@ import { createProgressController } from "./progress-controller.js";
     return Number(value || 0).toLocaleString("en-IE");
   }
 
+  function renderReviewNote(element, question) {
+    if (!element) return;
+    const parts = [`Content version ${PRODUCT_SUMMARY.contentVersion || "current"}.`];
+    const reviewDate = formatReviewDate(question.reviewedAt);
+    if (reviewDate) {
+      const status = clean(question.reviewedStatus).replace(/_/g, " ");
+      parts.push(`Last review: ${reviewDate}${status ? ` (${status})` : ""}.`);
+    }
+    parts.push("If something looks wrong, use Report a problem after answering.");
+    element.textContent = parts.join(" ");
+  }
+
+  function formatReviewDate(value) {
+    const raw = clean(value);
+    if (!raw) return "";
+    const date = new Date(raw);
+    if (Number.isNaN(date.getTime())) return "";
+    return date.toLocaleDateString("en-IE", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    });
+  }
+
   function normalizeScoreBreakdown(value) {
     if (!value || typeof value !== "object") return {};
     return {
@@ -617,6 +641,7 @@ import { createProgressController } from "./progress-controller.js";
     const priority = fragment.querySelector(".priority-pill");
     const highYieldBadge = fragment.querySelector(".high-yield-reason-badge");
     const priorityMeta = fragment.querySelector(".priority-meta");
+    const reviewNote = fragment.querySelector(".question-review-note");
     const number = fragment.querySelector(".question-number");
     const title = fragment.querySelector(".question-title");
     const imageWrap = fragment.querySelector(".question-image-wrap");
@@ -635,6 +660,7 @@ import { createProgressController } from "./progress-controller.js";
     number.textContent = `Question ${question.id} - ${config.positionLabel}`;
     title.textContent = question.question;
     article.classList.toggle("is-exam-question", Boolean(config.isExam));
+    renderReviewNote(reviewNote, question);
 
     const metaParts = [];
     if (question.hardestRank) metaParts.push(`#${question.hardestRank} on archived hardest list`);

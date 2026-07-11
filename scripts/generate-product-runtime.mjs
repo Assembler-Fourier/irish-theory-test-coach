@@ -12,16 +12,23 @@ import {
   summaryForClient,
 } from "../shared/product-summary.js";
 import { getPublicPricingConfig } from "../shared/pricing-config.js";
+import {
+  assertBusinessReadyForProduction,
+  buildBusinessConfig,
+  publicBusinessConfig,
+} from "../shared/business-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
 const publicDir = path.join(root, "public");
 
-const supportEmail = process.env.SUPPORT_EMAIL || "support@irish-theory-test-coach.com";
 const summary = buildProductSummary({ root, env: process.env });
 const clientSummary = summaryForClient(summary);
 const pricingConfig = getPublicPricingConfig(process.env);
 const releaseManifest = buildReleaseManifest(summary, { env: process.env });
+const businessConfig = buildBusinessConfig(process.env);
+assertBusinessReadyForProduction(businessConfig, process.env);
+const clientBusinessConfig = publicBusinessConfig(businessConfig);
 
 fs.mkdirSync(publicDir, { recursive: true });
 
@@ -30,7 +37,16 @@ writePublicJs("product-summary.js", "PRODUCT_SUMMARY", clientSummary);
 writePublicJson("release-manifest.json", releaseManifest);
 writePublicJson("pricing.json", pricingConfig);
 writePublicJs("pricing-config.js", "PRICING_CONFIG", pricingConfig);
-writePublicJs("config.js", "APP_CONFIG", { supportEmail });
+writePublicJson("business-config.json", clientBusinessConfig);
+writePublicJs("business-config.js", "BUSINESS_CONFIG", clientBusinessConfig);
+writePublicJs("config.js", "APP_CONFIG", {
+  supportEmail: clientBusinessConfig.supportEmail,
+  privacyEmail: clientBusinessConfig.privacyEmail,
+  refundEmail: clientBusinessConfig.refundEmail,
+  securityEmail: clientBusinessConfig.securityEmail,
+  publicProductName: clientBusinessConfig.publicProductName,
+  launchBlockers: clientBusinessConfig.launchBlockers,
+});
 updatePublicHtml(clientSummary);
 
 console.log(
@@ -59,6 +75,8 @@ function updatePublicHtml(product) {
     activePrice: product.activePrice,
     accessDuration: formatAccessDuration(product),
     unlockCta: formatUnlockCta(product),
+    contentVersion: product.contentVersion,
+    productVersion: product.productVersion,
   };
 
   for (const file of fs.readdirSync(publicDir)) {

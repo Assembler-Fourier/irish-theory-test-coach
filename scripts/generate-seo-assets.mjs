@@ -73,7 +73,6 @@ for (const item of allPages) {
 }
 
 writeHomeMetadata();
-writeLegalPages();
 writeSitemap(allPages);
 writeRobots();
 writeDocs();

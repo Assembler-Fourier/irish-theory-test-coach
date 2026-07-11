@@ -44,6 +44,7 @@ alter table purchases
   add column if not exists referral_code text,
   add column if not exists checkout_attempt_id uuid,
   add column if not exists environment text,
+  add column if not exists policy_versions jsonb not null default '{}'::jsonb,
   add column if not exists refunded_amount integer not null default 0,
   add column if not exists disputed_amount integer not null default 0,
   add column if not exists entitlement_effect text,
@@ -64,9 +65,13 @@ create table if not exists checkout_attempts (
   status text not null default 'created',
   failure_reason text,
   metadata jsonb not null default '{}'::jsonb,
+  accepted_policy_versions jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table checkout_attempts
+  add column if not exists accepted_policy_versions jsonb not null default '{}'::jsonb;
 
 create table if not exists stripe_events (
   id uuid primary key default gen_random_uuid(),

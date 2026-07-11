@@ -92,10 +92,12 @@ function checkPremiumPaywallContract({ appHtml, appJs }) {
 
 async function checkLegalPagesLoad({ baseUrl }) {
   const pages = [
-    ["/privacy.html", "Privacy Policy"],
+    ["/privacy.html", "Privacy Notice"],
     ["/terms.html", "Terms of Use"],
     ["/refunds.html", "Refund Policy"],
     ["/contact.html", "Contact"],
+    ["/accessibility.html", "Accessibility Statement"],
+    ["/content-methodology.html", "Content Methodology"],
   ];
 
   for (const [urlPath, title] of pages) {

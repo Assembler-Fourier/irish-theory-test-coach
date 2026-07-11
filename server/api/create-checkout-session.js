@@ -6,6 +6,12 @@ import {
   markCheckoutAttemptStripeSession,
 } from "../../lib/payment-ledger.js";
 import { resolveCheckoutPlan } from "../../shared/pricing-config.js";
+import { buildProductSummary } from "../../shared/product-summary.js";
+import {
+  assertBusinessReadyForProduction,
+  buildBusinessConfig,
+  checkoutPolicyMetadata,
+} from "../../shared/business-config.js";
 import { applyReferralCodeToCheckoutPlan } from "../../lib/referrals.js";
 import { checkRateLimit, compoundRateLimitKey, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import { readValidatedJson, fieldString } from "../../lib/request-validation.js";
@@ -59,6 +65,16 @@ export default async function handler(req, res) {
   let plan;
   let referral = null;
   let sessionUser = null;
+  let productSummary;
+  let policy;
+  try {
+    productSummary = buildProductSummary({ env: process.env });
+    const businessConfig = buildBusinessConfig(process.env);
+    assertBusinessReadyForProduction(businessConfig, process.env);
+    policy = checkoutPolicyMetadata(businessConfig);
+  } catch {
+    return res.status(500).json({ error: "Checkout is not configured" });
+  }
   const requestedPlanKey = cleanPlanKey(body.planKey);
   try {
     sessionUser = await getSessionUser(req, env.databaseUrl).catch(() => null);
@@ -93,7 +109,11 @@ export default async function handler(req, res) {
     metadata: {
       source: cleanText(body.source, 80),
       userAgent: cleanText(req.headers?.["user-agent"], 240),
+      productVersion: productSummary.productVersion,
+      contentVersion: productSummary.contentVersion,
+      policyVersions: policy.accepted_policy_versions,
     },
+    acceptedPolicyVersions: policy.accepted_policy_versions,
   });
 
   const params = new URLSearchParams();
@@ -110,8 +130,16 @@ export default async function handler(req, res) {
   params.set("metadata[plan_label]", plan.label);
   params.set("metadata[entitlement_days]", String(plan.entitlementDays || 90));
   params.set("metadata[environment]", env.paymentEnvironment || "local");
+  params.set("metadata[product_version]", productSummary.productVersion);
+  params.set("metadata[content_version]", productSummary.contentVersion);
   params.set("metadata[one_time_payment]", "true");
-  params.set("metadata[legal_review_required]", "true");
+  params.set("metadata[legal_review_required]", policy.legal_review_required);
+  params.set("metadata[policy_version_privacy]", policy.policy_version_privacy);
+  params.set("metadata[policy_version_terms]", policy.policy_version_terms);
+  params.set("metadata[policy_version_refunds]", policy.policy_version_refunds);
+  params.set("metadata[policy_version_accessibility]", policy.policy_version_accessibility);
+  params.set("metadata[policy_version_content_methodology]", policy.policy_version_content_methodology);
+  params.set("metadata[policy_effective_date]", policy.policy_effective_date);
   if (referral?.code) {
     params.set("metadata[referral_code]", referral.code);
   }

@@ -387,6 +387,8 @@ function renderSupportPage() {
               ["Terms", "/terms.html", "Product-use terms and independent status."],
               ["Refunds", "/refunds.html", "Digital access refund policy."],
               ["Contact", "/contact.html", "Support email and message guidance."],
+              ["Accessibility", "/accessibility.html", "Accessibility target, known limitations, and contact route."],
+              ["Content methodology", "/content-methodology.html", "How practice content, priority scoring, and corrections are handled."],
             ].map(linkCard).join("\n            ")}
           </div>
         </section>
@@ -417,6 +419,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
       ${siteFooter({ root: "", disclaimer })}
     </div>
     <script src="./config.js?v=20260710-rebuild"></script>
+    <script src="./business-config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
     ${canonicalPath === "/pricing" ? '<script src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
     <script src="./trust.js?v=20260710-rebuild"></script>

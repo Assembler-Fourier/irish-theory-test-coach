@@ -12,6 +12,7 @@ import {
   summaryForClient,
 } from "../shared/product-summary.js";
 import { getPublicPricingConfig } from "../shared/pricing-config.js";
+import { buildBusinessConfig, publicBusinessConfig } from "../shared/business-config.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
@@ -21,6 +22,7 @@ const errors = [];
 checkGeneratedDataCopies();
 checkProductSummary();
 checkPricingRuntime();
+checkBusinessRuntime();
 checkMarketingCounts();
 checkSitemapTargets();
 checkReleaseManifest();
@@ -95,6 +97,17 @@ function checkPricingRuntime() {
     const html = readText(path.join(publicDir, file));
     if (!html.includes(active.displayPrice)) errors.push(`${file} does not include active price ${active.displayPrice}.`);
     if (!html.includes(formatAccessDuration(summary))) errors.push(`${file} does not include access duration ${formatAccessDuration(summary)}.`);
+  }
+}
+
+function checkBusinessRuntime() {
+  const expected = publicBusinessConfig(buildBusinessConfig(process.env));
+  const business = readJson(path.join(publicDir, "business-config.json"));
+  assertDeepEqualForCheck(business, expected, "business-config.json differs from shared business config.");
+  const businessJs = readText(path.join(publicDir, "business-config.js"));
+  if (!businessJs.includes("window.BUSINESS_CONFIG")) errors.push("public/business-config.js is missing BUSINESS_CONFIG global.");
+  if (!businessJs.includes(`"configVersion": ${expected.configVersion}`)) {
+    errors.push("public/business-config.js configVersion is stale.");
   }
 }
 
