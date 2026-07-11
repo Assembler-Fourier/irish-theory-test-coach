@@ -4,6 +4,7 @@
   const state = {
     locked: false,
     stats: null,
+    payments: null,
     selectedQuestion: null,
     sourceDocuments: [],
     generatedQuestions: [],
@@ -27,6 +28,9 @@
     entitlementSubmitBtn: document.getElementById("entitlementSubmitBtn"),
     entitlementsMount: document.getElementById("entitlementsMount"),
     purchasesMount: document.getElementById("purchasesMount"),
+    checkoutAttemptsMount: document.getElementById("checkoutAttemptsMount"),
+    stripeEventsMount: document.getElementById("stripeEventsMount"),
+    instructorCodesMount: document.getElementById("instructorCodesMount"),
     revenueMount: document.getElementById("revenueMount"),
     planSalesMount: document.getElementById("planSalesMount"),
     referralPerformanceMount: document.getElementById("referralPerformanceMount"),
@@ -134,6 +138,7 @@
         loadUsers(),
         loadEntitlements(),
         loadReferrals(),
+        loadPayments(),
         loadQuestions(),
         loadContentQuality(),
         loadGeneratedPipeline(),
@@ -171,6 +176,12 @@
   async function loadReferrals() {
     const payload = await fetchJson("/api/admin/referrals");
     renderReferrals(payload.referrals || []);
+  }
+
+  async function loadPayments() {
+    const payload = await fetchJson("/api/admin/payments");
+    state.payments = payload;
+    renderPayments(payload);
   }
 
   async function loadQuestions() {
@@ -590,7 +601,9 @@
       ["Estimated Stripe fees", formatMoney(revenue.estimatedStripeFees, "eur"), "Approximate, not accounting advice"],
       ["Estimated net", formatMoney(revenue.estimatedNetRevenue, "eur"), "Gross minus estimated fees"],
       ["Refunds", formatNumber(revenue.refundCount || 0), "Refund records if available"],
+      ["Refund amount", formatMoney(revenue.refundAmount || 0, "eur"), "Successful or recorded refund amount"],
       ["Referral revenue", formatMoney(revenue.referralRevenue, "eur"), "Purchases linked to referral codes"],
+      ["Instructor revenue", formatMoney(revenue.instructorRevenue, "eur"), "Instructor pack purchases"],
     ];
     renderAdminItems(els.revenueMount, metrics.map(([title, value, subtitle]) => ({ title, subtitle, badges: [statusBadge(value, "primary")] })), "No revenue yet", "Revenue appears after paid Stripe purchases are recorded.");
 
@@ -630,6 +643,56 @@
       })),
       "No referral codes yet",
       "Create an instructor or launch code using the form above."
+    );
+  }
+
+  function renderPayments(payload) {
+    renderAdminItems(
+      els.checkoutAttemptsMount,
+      (payload.attempts || []).map((attempt) => ({
+        title: attempt.resolved_plan_key || attempt.requested_plan_key || "Checkout attempt",
+        subtitle: `${attempt.email || attempt.anonymous_id || "Anonymous"} | ${attempt.environment || "env unknown"} | ${formatDate(attempt.created_at)}`,
+        badges: [
+          statusBadge(labelStatus(attempt.status), badgeTone(attempt.status)),
+          statusBadge(attempt.referral_code || "No code", "info"),
+        ],
+        details: attempt.failure_reason ? [`Failure: ${attempt.failure_reason}`] : [],
+      })),
+      "No checkout attempts yet",
+      "Checkout attempts appear before Stripe redirects a learner."
+    );
+
+    renderAdminItems(
+      els.stripeEventsMount,
+      (payload.events || []).map((event) => ({
+        title: event.type || event.stripe_event_id,
+        subtitle: `${event.stripe_event_id} | ${formatDate(event.last_received_at)}`,
+        badges: [
+          statusBadge(labelStatus(event.processing_status), badgeTone(event.processing_status)),
+          statusBadge(`${formatNumber(event.replay_count || 0)} replays`, "neutral"),
+        ],
+        details: event.failure_reason ? [`Failure: ${event.failure_reason}`] : [],
+      })),
+      "No Stripe webhook events yet",
+      "Webhook events appear after Stripe sends signed payment events."
+    );
+
+    renderAdminItems(
+      els.instructorCodesMount,
+      (payload.instructorCodes || []).slice(0, 25).map((code) => ({
+        title: code.code,
+        subtitle: `${code.purchase_email || "No buyer email"} | ${formatNumber(code.redemption_count || 0)} of ${formatNumber(code.max_redemptions || 1)} used`,
+        badges: [
+          statusBadge(labelStatus(code.status), badgeTone(code.status)),
+          statusBadge(code.plan_key || "Instructor code", "info"),
+        ],
+        details: [
+          code.redeemed_by_email ? `Redeemed by ${code.redeemed_by_email}` : "Not redeemed",
+          code.expires_at ? `Expires ${formatDate(code.expires_at)}` : "No expiry recorded",
+        ],
+      })),
+      "No instructor codes yet",
+      "Paid instructor packs will generate private learner codes here."
     );
   }
 
@@ -1241,6 +1304,18 @@
     if (["failed", "cancelled", "refunded"].includes(normalized)) return "danger";
     if (["pending", "open", "processing"].includes(normalized)) return "warning";
     return "neutral";
+  }
+
+  function badgeTone(status) {
+    const normalized = String(status || "").toLowerCase();
+    if (["active", "fulfilled", "processed", "paid", "succeeded", "stripe_session_created"].includes(normalized)) return "success";
+    if (["failed", "async_payment_failed", "revoked", "expired", "refunded", "disputed"].includes(normalized)) return "danger";
+    if (["processing", "pending", "return_seen", "payment_pending"].includes(normalized)) return "warning";
+    return "neutral";
+  }
+
+  function labelStatus(status) {
+    return normalizeBadgeLabel(status || "unknown");
   }
 
   function questionStatusTone(status) {

@@ -24,7 +24,9 @@ export default async function handler(req, res) {
     const type = String(req.query.type || "purchases");
     const csv = type === "referrals"
       ? await exportReferralPerformance(env.databaseUrl)
-      : await exportPurchases(env.databaseUrl);
+      : type === "instructor-codes"
+        ? await exportInstructorCodes(env.databaseUrl)
+        : await exportPurchases(env.databaseUrl);
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader("Content-Disposition", `attachment; filename="${type}.csv"`);
     return res.status(200).send(csv);
@@ -34,11 +36,39 @@ export default async function handler(req, res) {
   }
 }
 
+async function exportInstructorCodes(databaseUrl) {
+  return withDb(databaseUrl, async (client) => {
+    const result = await client.query(`
+      select code, purchase_email, plan_key, status, redemption_count, max_redemptions,
+             entitlement_duration_days, expires_at, redeemed_by_email, redeemed_at,
+             revoked_at, created_at
+      from instructor_codes
+      order by created_at desc
+      limit 10000
+    `);
+    return toCsv(result.rows, [
+      "code",
+      "purchase_email",
+      "plan_key",
+      "status",
+      "redemption_count",
+      "max_redemptions",
+      "entitlement_duration_days",
+      "expires_at",
+      "redeemed_by_email",
+      "redeemed_at",
+      "revoked_at",
+      "created_at",
+    ]);
+  });
+}
+
 async function exportPurchases(databaseUrl) {
   return withDb(databaseUrl, async (client) => {
     const result = await client.query(`
       select created_at, email, amount, currency, status, plan_key, referral_code,
-             stripe_checkout_session_id, stripe_payment_intent_id
+             stripe_checkout_session_id, stripe_payment_intent_id, stripe_charge_id,
+             refunded_amount, disputed_amount, entitlement_effect
       from purchases
       order by created_at desc
       limit 5000
@@ -53,6 +83,10 @@ async function exportPurchases(databaseUrl) {
       "referral_code",
       "stripe_checkout_session_id",
       "stripe_payment_intent_id",
+      "stripe_charge_id",
+      "refunded_amount",
+      "disputed_amount",
+      "entitlement_effect",
     ]);
   });
 }

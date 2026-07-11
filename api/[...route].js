@@ -22,6 +22,7 @@ import adminContentQuality from "../server/api/admin/content-quality.js";
 import adminEntitlements from "../server/api/admin/entitlements.js";
 import adminExport from "../server/api/admin/export.js";
 import adminGenerateQuestions from "../server/api/admin/generate-questions.js";
+import adminPayments from "../server/api/admin/payments.js";
 import adminQuestions from "../server/api/admin/questions.js";
 import adminReferrals from "../server/api/admin/referrals.js";
 import adminStats from "../server/api/admin/stats.js";
@@ -60,6 +61,8 @@ const routes = new Map([
   ["admin-export", adminExport],
   ["admin/generate-questions", adminGenerateQuestions],
   ["admin-generate-questions", adminGenerateQuestions],
+  ["admin/payments", adminPayments],
+  ["admin-payments", adminPayments],
   ["admin/questions", adminQuestions],
   ["admin-questions", adminQuestions],
   ["admin/referrals", adminReferrals],

@@ -1857,6 +1857,11 @@ import { createProgressController } from "./progress-controller.js";
       if (!response.ok || !payload.ok) {
         throw new Error(payload.error || "Payment could not be verified");
       }
+      if (payload.fulfillmentPending) {
+        window.history.replaceState({}, "", window.location.pathname);
+        setStatus("Payment received. Access is being activated securely; refresh in a moment or use Restore access with your checkout email.");
+        return;
+      }
       state.entitlement = {
         active: true,
         email: payload.email || "",

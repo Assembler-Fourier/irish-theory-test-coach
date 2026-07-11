@@ -291,10 +291,10 @@ function pricingCards() {
           ${[
             ["Free preview", "EUR 0", `${productSummary.previewLimit} questions, basic progress, and a quick look at the study flow.`, ""],
             ["Launch offer", planPrice("launch_offer"), "One-time launch access for the beta/launch period when enabled.", "launch_offer"],
-            ["Full Study Pass", planPrice("full_study_pass"), `One-time ${formatAccessDuration(productSummary)} to the full coach, mocks, review, signs, and restore access.`, "full_study_pass"],
+            ["Full Study Pass", planPrice("full_study_pass"), `One-time ${formatAccessDuration(productSummary)} to the full coach, mocks, review, signs, and restore access. Repeat purchases extend access.`, "full_study_pass"],
             ["Instructor 10", planPrice("instructor_10", "EUR 29.00"), "Ten learner codes for instructors and small groups.", "instructor_10"],
             ["Instructor 25", planPrice("instructor_25", "EUR 69.00"), "Twenty-five learner codes for instructors with larger groups.", "instructor_25"],
-          ].map(([label, price, copy, plan]) => `<article class="pricing-plan-card"><h2>${label}</h2><strong>${price}</strong><p>${copy}</p>${plan ? `<button class="button-primary" data-plan-checkout="${plan}" type="button">Choose ${label}</button>` : '<a class="button-secondary" href="/app">Start preview</a>'}<p class="pricing-plan-status" role="status" aria-live="polite"></p><p><a href="/app#restoreEmail">Restore access</a> or <a href="/support">contact support</a>.</p></article>`).join("\n          ")}
+          ].map(([label, price, copy, plan]) => `<article class="pricing-plan-card"><h2>${label}</h2><strong>${price}</strong><p>${copy}</p>${plan ? `<button class="button-primary" data-plan-checkout="${plan}" type="button">Choose ${label}</button>` : '<a class="button-secondary" href="/app">Start preview</a>'}<p class="pricing-plan-status" role="status" aria-live="polite"></p><p><a href="/app#restoreEmail">Restore access</a>, <a href="/refunds.html">refunds</a>, <a href="/terms.html">terms</a>, or <a href="/support">support</a>.</p></article>`).join("\n          ")}
         </section>`;
 }
 

@@ -121,7 +121,7 @@ export function pricingCards(productSummary, options = {}) {
           <p class="eyebrow">Full Study Pass</p>
           <h3>Complete learner access</h3>
           <strong>${escapeHtml(full.displayPrice)}</strong>
-          <p>${escapeHtml(accessLabel)}. One-time access to the full practice path.</p>
+          <p>${escapeHtml(accessLabel)}. One-time access to the full practice path. Repeat purchases extend access.</p>
           <ul>
             <li>${productSummary.totalPublishedQuestions?.toLocaleString("en-IE") || "Full"} practice questions</li>
             <li>${productSummary.estimatedPriorityQuestionCount?.toLocaleString("en-IE") || "Estimated"} priority drills</li>
@@ -129,6 +129,7 @@ export function pricingCards(productSummary, options = {}) {
             <li>Mock exams and review mode</li>
           </ul>
           <a class="button-primary" href="${root}/pricing">Unlock full coach</a>
+          <p class="pricing-support-note"><a href="${root}/refunds.html">Refunds</a>, <a href="${root}/terms.html">terms</a>, and <a href="${root}/support">support</a> are visible before checkout.</p>
         </article>
         <article class="pricing-card">
           <p class="eyebrow">Launch offer</p>

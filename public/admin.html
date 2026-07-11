@@ -100,9 +100,30 @@
             <div class="admin-export-actions">
               <a class="button-secondary" href="/api/admin/export?type=purchases">Export purchases CSV</a>
               <a class="button-secondary" href="/api/admin/export?type=referrals">Export referrals CSV</a>
+              <a class="button-secondary" href="/api/admin/export?type=instructor-codes">Export instructor codes CSV</a>
             </div>
           </div>
           <div id="purchasesMount" class="admin-table-wrap"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="paymentsHeading">
+          <div class="panel-heading">
+            <h2 id="paymentsHeading">Payment operations</h2>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Checkout attempts</h3>
+              <div id="checkoutAttemptsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Webhook events</h3>
+              <div id="stripeEventsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Instructor codes</h3>
+              <div id="instructorCodesMount" class="admin-list"></div>
+            </section>
+          </div>
         </section>
 
         <section class="admin-section" aria-labelledby="revenueHeading">

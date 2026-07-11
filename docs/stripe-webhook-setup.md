@@ -1,6 +1,6 @@
 # Stripe Webhook Setup
 
-Use this webhook so paid access is recorded even when a buyer closes the browser before returning to the success page.
+Use this webhook so paid access is recorded even when a buyer closes the browser before returning to the success page. The browser success URL must not be treated as fulfillment.
 
 ## Endpoint
 
@@ -22,10 +22,22 @@ https://your-domain.example/api/stripe-webhook
 2. Go to Developers -> Webhooks.
 3. Select Add endpoint.
 4. Enter the production endpoint URL ending in `/api/stripe-webhook`.
-5. Select this event only:
+5. Select these events:
 
 ```text
 checkout.session.completed
+checkout.session.async_payment_succeeded
+checkout.session.async_payment_failed
+checkout.session.expired
+refund.created
+refund.updated
+charge.refunded
+charge.dispute.created
+charge.dispute.updated
+charge.dispute.closed
+charge.dispute.funds_withdrawn
+charge.dispute.funds_reinstated
+payment_intent.payment_failed
 ```
 
 6. Save the endpoint.
@@ -40,11 +52,16 @@ Production must have:
 
 ```text
 STRIPE_SECRET_KEY
-STRIPE_PRICE_ID
+STRIPE_PRICE_ID_FULL
+STRIPE_PRICE_ID_LAUNCH
+STRIPE_PRICE_ID_INSTRUCTOR_10
+STRIPE_PRICE_ID_INSTRUCTOR_25
 STRIPE_WEBHOOK_SECRET
 DATABASE_URL
 PUBLIC_SITE_URL
 SUPPORT_EMAIL
+PAYMENT_ENVIRONMENT
+STRIPE_PRICE_MODE
 ```
 
 After adding or changing environment variables, redeploy production.
@@ -57,7 +74,7 @@ Run the schema migration before enabling the production webhook:
 npm run db:migrate
 ```
 
-The schema adds `purchases.stripe_payment_intent_id` and a unique index so webhook retries and checkout-return verification update the same purchase.
+The schema adds checkout attempts, stored Stripe events, payment refunds, payment disputes, and instructor-code inventory. It also adds purchase metadata so webhook retries update the same purchase.
 
 ## Test Procedure
 
@@ -69,12 +86,13 @@ npm run test:webhook
 
 2. Deploy to Vercel after checks pass.
 3. In Stripe Dashboard -> Developers -> Webhooks, open the endpoint.
-4. Send a test `checkout.session.completed` event.
+4. Send test `checkout.session.completed`, `checkout.session.expired`, and duplicate webhook events.
 5. Confirm the webhook response is `2xx`.
 6. Make one real low-value checkout test only when you intentionally want to test live mode.
 7. Confirm Neon has:
    - one `users` row for the checkout email
    - one `purchases` row for the Stripe Checkout session
    - one active `entitlements` row for `irish-theory-test-coach`
+   - one processed `stripe_events` row per Stripe event ID
 
-The existing checkout success-page verifier still works. If both the webhook and success-page verifier run, they use the same idempotent purchase recording path.
+The checkout success-page verifier only reads fulfillment status. It does not grant entitlement by itself.

@@ -143,16 +143,36 @@ async function loadDbStats(databaseUrl) {
         limit 10
       `),
       client.query(`
-        select coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0)::int as gross_revenue,
-               round((coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0) * 0.015) + (count(*) filter (where status in ('paid', 'complete', 'succeeded')) * 25))::int as estimated_stripe_fees,
-               count(*) filter (where status in ('refunded'))::int as refund_count,
-               coalesce(sum(amount) filter (where referral_code is not null and status in ('paid', 'complete', 'succeeded')), 0)::int as referral_revenue
-        from purchases
+        with paid_purchases as (
+          select *
+          from purchases
+          where status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')
+        ),
+        purchase_summary as (
+          select coalesce(sum(amount), 0)::int as gross_revenue,
+                 count(*)::int as purchase_count,
+                 coalesce(sum(amount) filter (where referral_code is not null), 0)::int as referral_revenue,
+                 coalesce(sum(amount) filter (where plan_key like 'instructor_%'), 0)::int as instructor_revenue
+          from paid_purchases
+        ),
+        refund_summary as (
+          select count(*) filter (where status in ('succeeded', 'paid', 'recorded'))::int as refund_count,
+                 coalesce(sum(amount) filter (where status in ('succeeded', 'paid', 'recorded')), 0)::int as refund_amount
+          from payment_refunds
+        )
+        select ps.gross_revenue,
+               round((ps.gross_revenue * 0.015) + (ps.purchase_count * 25))::int as estimated_stripe_fees,
+               rs.refund_count,
+               rs.refund_amount,
+               ps.referral_revenue,
+               ps.instructor_revenue
+        from purchase_summary ps
+        cross join refund_summary rs
       `),
       client.query(`
         select coalesce(nullif(plan_key, ''), 'unknown') as plan_key,
                count(*)::int as sales,
-               coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded')), 0)::int as revenue
+               coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')), 0)::int as revenue
         from purchases
         group by 1
         order by revenue desc, sales desc
@@ -164,7 +184,7 @@ async function loadDbStats(databaseUrl) {
                count(rr.id)::int as redemptions,
                count(rr.id) filter (where rr.status = 'checkout_started')::int as checkout_starts,
                count(rr.id) filter (where rr.status = 'purchased')::int as purchases,
-               coalesce(sum(p.amount) filter (where p.status in ('paid', 'complete', 'succeeded')), 0)::int as revenue
+               coalesce(sum(p.amount) filter (where p.status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')), 0)::int as revenue
         from referral_codes rc
         left join referral_redemptions rr on rr.code = rc.code
         left join purchases p on p.stripe_checkout_session_id = rr.stripe_checkout_session_id
@@ -177,15 +197,18 @@ async function loadDbStats(databaseUrl) {
     const revenueRow = revenue.rows[0] || {};
     const grossRevenue = Number(revenueRow.gross_revenue || 0);
     const estimatedStripeFees = Number(revenueRow.estimated_stripe_fees || 0);
+    const refundAmount = Number(revenueRow.refund_amount || 0);
 
     return {
       totals: totals.rows[0],
       revenue: {
         grossRevenue,
         estimatedStripeFees,
-        estimatedNetRevenue: Math.max(0, grossRevenue - estimatedStripeFees),
+        estimatedNetRevenue: Math.max(0, grossRevenue - estimatedStripeFees - refundAmount),
         refundCount: Number(revenueRow.refund_count || 0),
+        refundAmount,
         referralRevenue: Number(revenueRow.referral_revenue || 0),
+        instructorRevenue: Number(revenueRow.instructor_revenue || 0),
         salesByPlan: planSales.rows.map((row) => ({
           planKey: row.plan_key,
           sales: Number(row.sales || 0),

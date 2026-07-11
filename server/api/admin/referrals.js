@@ -49,10 +49,11 @@ async function listReferrals(databaseUrl) {
              rc.expires_at,
              rc.entitlement_duration_days,
              rc.grant_entitlement,
+             rc.allowed_plan_keys,
              rc.active,
              count(rr.id)::int as redemptions,
              count(rr.id) filter (where rr.status = 'purchased')::int as purchases,
-             coalesce(sum(p.amount) filter (where p.status in ('paid', 'complete', 'succeeded')), 0)::int as revenue
+             coalesce(sum(p.amount) filter (where p.status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')), 0)::int as revenue
       from referral_codes rc
       left join referral_redemptions rr on rr.code = rc.code
       left join purchases p on p.stripe_checkout_session_id = rr.stripe_checkout_session_id
@@ -85,11 +86,12 @@ async function upsertReferral(databaseUrl, admin, body) {
           expires_at,
           entitlement_duration_days,
           grant_entitlement,
+          allowed_plan_keys,
           active,
           created_by,
           created_by_email
         )
-        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11, $12, $13)
         on conflict (code) do update
         set description = excluded.description,
             discount_percent = excluded.discount_percent,
@@ -99,6 +101,7 @@ async function upsertReferral(databaseUrl, admin, body) {
             expires_at = excluded.expires_at,
             entitlement_duration_days = excluded.entitlement_duration_days,
             grant_entitlement = excluded.grant_entitlement,
+            allowed_plan_keys = excluded.allowed_plan_keys,
             active = excluded.active,
             updated_at = now()
         returning *
@@ -113,6 +116,7 @@ async function upsertReferral(databaseUrl, admin, body) {
         body.expiresAt ? new Date(body.expiresAt).toISOString() : null,
         clampInt(body.entitlementDurationDays || 90, 1, 365),
         Boolean(body.grantEntitlement),
+        JSON.stringify(cleanPlanKeys(body.allowedPlanKeys)),
         body.active !== false,
         admin.userId,
         admin.email,
@@ -136,6 +140,13 @@ function cleanText(value, maxLength) {
 
 function cleanPlanKey(value) {
   return String(value || "").replace(/[^a-zA-Z0-9_-]/g, "").slice(0, 80);
+}
+
+function cleanPlanKeys(value) {
+  const list = Array.isArray(value)
+    ? value
+    : String(value || "").split(",");
+  return [...new Set(list.map(cleanPlanKey).filter(Boolean))].slice(0, 10);
 }
 
 function clampInt(value, min, max) {

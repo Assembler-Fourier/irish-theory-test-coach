@@ -1,4 +1,9 @@
-import { readJsonBody } from "../../lib/auth.js";
+import { isValidEmail, readJsonBody } from "../../lib/auth.js";
+import {
+  lookupInstructorCode,
+  redeemInstructorCode,
+} from "../../lib/instructor-codes.js";
+import { checkRateLimit, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
 import {
   grantReferralEntitlement,
   lookupReferralCode,
@@ -25,38 +30,80 @@ export default async function handler(req, res) {
 
   try {
     const body = await readJsonBody(req);
+    const limit = checkRateLimit({
+      key: `${rateLimitKey(req, "code-redemption")}:${String(body.code || "").toUpperCase().slice(0, 24)}`,
+      limit: 12,
+      windowMs: 10 * 60 * 1000,
+    });
+    if (!limit.allowed) {
+      return sendRateLimited(res, limit);
+    }
+
     const code = normalizeReferralCode(body.code);
     if (!code) {
       return res.status(400).json({ error: "Code could not be applied" });
     }
 
-    if (body.email) {
-      const grant = await grantReferralEntitlement(env.databaseUrl, code, body.email, {
-        anonymousId: body.anonymousId,
-      });
+    if (body.email && isValidEmail(body.email)) {
+      const grant = await tryGrantCode(env, body, req);
+      if (!grant) {
+        return res.status(400).json({ error: "Code could not be applied" });
+      }
       return res.status(200).json({
         ok: true,
-        code: grant.referral.code,
+        code: grant.code,
         grantEntitlement: true,
         message: "Code applied. Check restore access with the same email.",
       });
     }
 
     const referral = await lookupReferralCode(env.databaseUrl, code);
-    if (!referral) {
+    if (referral) {
+      return res.status(200).json({
+        ok: true,
+        code: referral.code,
+        grantEntitlement: referral.grantEntitlement,
+        fixedPricePlan: referral.fixedPricePlan,
+        discountPercent: referral.discountPercent,
+        description: referral.description,
+      });
+    }
+
+    const instructorCode = await lookupInstructorCode(env.databaseUrl, body.code);
+    if (!instructorCode) {
       return res.status(404).json({ error: "Code could not be applied" });
     }
 
     return res.status(200).json({
       ok: true,
-      code: referral.code,
-      grantEntitlement: referral.grantEntitlement,
-      fixedPricePlan: referral.fixedPricePlan,
-      discountPercent: referral.discountPercent,
-      description: referral.description,
+      code: instructorCode.code,
+      grantEntitlement: true,
+      description: "Instructor access code",
     });
   } catch (error) {
     console.error("Referral code request failed", safeErrorSummary(error));
     return res.status(400).json({ error: "Code could not be applied" });
+  }
+}
+
+async function tryGrantCode(env, body, req) {
+  try {
+    const referralGrant = await grantReferralEntitlement(env.databaseUrl, body.code, body.email, {
+      anonymousId: body.anonymousId,
+    });
+    return { code: referralGrant.referral.code, type: "referral" };
+  } catch {
+    // Continue to instructor-code redemption with the same generic public response.
+  }
+
+  try {
+    const grant = await redeemInstructorCode(env.databaseUrl, body.code, body.email, {
+      anonymousId: body.anonymousId,
+      ipAddress: String(req.headers?.["x-forwarded-for"] || "").split(",")[0].trim(),
+      userAgent: req.headers?.["user-agent"],
+    });
+    return { code: grant.code, type: "instructor_code" };
+  } catch {
+    return null;
   }
 }

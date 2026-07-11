@@ -204,7 +204,7 @@ function renderPricingPage() {
     description: "Compare Irish Theory Test Coach free preview, launch offer, Full Study Pass, and instructor access-code packs with transparent independent-product wording.",
     bodyClass: "marketing-page",
     main: `<main class="marketing-main compact-main">
-        ${pageHero("Pricing", "Clear learner pricing with no fake urgency.", `Start free, then unlock the full coach for ${summary.activePrice} when the complete study path is useful.`, "Start free preview", "/app")}
+        ${pageHero("Pricing", "Clear learner pricing with no fake urgency.", `Start free, then unlock the full coach for ${summary.activePrice} when the complete study path is useful. One-time access lasts ${summary.accessDurationDays} days; repeat purchases extend access.`, "Start free preview", "/app")}
         ${pricingCards(summary, { root: "" })}
         <section class="marketing-section comparison-section">
           <h2>What each plan includes</h2>
@@ -217,6 +217,8 @@ function renderPricingPage() {
                 <tr><td>Road-sign/image drills</td><td>Sample only</td><td>${formatInteger(summary.signOrImageQuestionCount)}</td><td>Included per code</td></tr>
                 <tr><td>Mock exams</td><td>No</td><td>${formatMockLong(summary)}</td><td>Included per code</td></tr>
                 <tr><td>Restore access</td><td>No purchase needed</td><td>Email restore</td><td>Code/account support</td></tr>
+                <tr><td>Renewal behavior</td><td>Not needed</td><td>Repeat purchase extends access</td><td>New pack creates new codes</td></tr>
+                <tr><td>Support links</td><td>Footer</td><td><a href="/refunds.html">Refunds</a>, <a href="/terms.html">terms</a>, <a href="/support">support</a></td><td><a href="/support">Support</a></td></tr>
               </tbody>
             </table>
           </div>
