@@ -5,7 +5,11 @@
     locked: false,
     stats: null,
     payments: null,
+    instructors: null,
+    supportCases: [],
+    audit: [],
     selectedQuestion: null,
+    selectedUser: null,
     sourceDocuments: [],
     generatedQuestions: [],
     contentQuality: null,
@@ -15,12 +19,17 @@
     status: document.getElementById("adminStatus"),
     protectedState: document.getElementById("adminProtectedState"),
     protectedCopy: document.getElementById("adminProtectedCopy"),
+    overviewRangeForm: document.getElementById("overviewRangeForm"),
+    overviewFromInput: document.getElementById("overviewFromInput"),
+    overviewToInput: document.getElementById("overviewToInput"),
     refreshBtn: document.getElementById("refreshBtn"),
     metricGrid: document.getElementById("metricGrid"),
     launchReadinessMount: document.getElementById("launchReadinessMount"),
+    operationalWarningsMount: document.getElementById("operationalWarningsMount"),
     userSearchForm: document.getElementById("userSearchForm"),
     userSearchInput: document.getElementById("userSearchInput"),
     usersMount: document.getElementById("usersMount"),
+    userDetailMount: document.getElementById("userDetailMount"),
     entitlementForm: document.getElementById("entitlementForm"),
     entitlementEmail: document.getElementById("entitlementEmail"),
     entitlementAction: document.getElementById("entitlementAction"),
@@ -31,6 +40,16 @@
     checkoutAttemptsMount: document.getElementById("checkoutAttemptsMount"),
     stripeEventsMount: document.getElementById("stripeEventsMount"),
     instructorCodesMount: document.getElementById("instructorCodesMount"),
+    refundsMount: document.getElementById("refundsMount"),
+    disputesMount: document.getElementById("disputesMount"),
+    instructorFilterForm: document.getElementById("instructorFilterForm"),
+    instructorSearchInput: document.getElementById("instructorSearchInput"),
+    instructorStatusInput: document.getElementById("instructorStatusInput"),
+    instructorAccountsMount: document.getElementById("instructorAccountsMount"),
+    instructorPacksMount: document.getElementById("instructorPacksMount"),
+    instructorInventoryMount: document.getElementById("instructorInventoryMount"),
+    instructorRedemptionsMount: document.getElementById("instructorRedemptionsMount"),
+    instructorPerformanceMount: document.getElementById("instructorPerformanceMount"),
     revenueMount: document.getElementById("revenueMount"),
     planSalesMount: document.getElementById("planSalesMount"),
     referralPerformanceMount: document.getElementById("referralPerformanceMount"),
@@ -45,6 +64,11 @@
     analyticsFunnelMount: document.getElementById("analyticsFunnelMount"),
     missedCategoriesMount: document.getElementById("missedCategoriesMount"),
     missedQuestionsMount: document.getElementById("missedQuestionsMount"),
+    modeUsageMount: document.getElementById("modeUsageMount"),
+    deviceClassMount: document.getElementById("deviceClassMount"),
+    conversionSourceMount: document.getElementById("conversionSourceMount"),
+    mockCompletionMount: document.getElementById("mockCompletionMount"),
+    reportFrequencyMount: document.getElementById("reportFrequencyMount"),
     questionSearchForm: document.getElementById("questionSearchForm"),
     questionSearchInput: document.getElementById("questionSearchInput"),
     questionCategoryInput: document.getElementById("questionCategoryInput"),
@@ -56,6 +80,7 @@
     selectedQuestionStatus: document.getElementById("selectedQuestionStatus"),
     questionExplanationInput: document.getElementById("questionExplanationInput"),
     questionNotesInput: document.getElementById("questionNotesInput"),
+    questionDetailMount: document.getElementById("questionDetailMount"),
     questionsMount: document.getElementById("questionsMount"),
     reloadContentQualityBtn: document.getElementById("reloadContentQualityBtn"),
     contentQualitySummaryMount: document.getElementById("contentQualitySummaryMount"),
@@ -78,19 +103,36 @@
     generatedDraftStatus: document.getElementById("generatedDraftStatus"),
     generatedQuestionsMount: document.getElementById("generatedQuestionsMount"),
     attemptSummaryMount: document.getElementById("attemptSummaryMount"),
+    auditFilterForm: document.getElementById("auditFilterForm"),
+    auditSearchInput: document.getElementById("auditSearchInput"),
+    auditActionInput: document.getElementById("auditActionInput"),
+    auditTargetTypeInput: document.getElementById("auditTargetTypeInput"),
     auditMount: document.getElementById("auditMount"),
+    supportFilterForm: document.getElementById("supportFilterForm"),
+    supportStatusInput: document.getElementById("supportStatusInput"),
+    supportSearchInput: document.getElementById("supportSearchInput"),
+    supportCaseForm: document.getElementById("supportCaseForm"),
+    supportEmailInput: document.getElementById("supportEmailInput"),
+    supportCategoryInput: document.getElementById("supportCategoryInput"),
+    supportPriorityInput: document.getElementById("supportPriorityInput"),
+    supportNotesInput: document.getElementById("supportNotesInput"),
+    supportCasesMount: document.getElementById("supportCasesMount"),
   };
 
   init();
 
   function init() {
+    setDefaultOverviewRange();
     bindEvents();
     updateEntitlementActionTone();
     refreshAll();
   }
 
   function bindEvents() {
-    els.refreshBtn.addEventListener("click", refreshAll);
+    els.overviewRangeForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      refreshAll();
+    });
     els.userSearchForm.addEventListener("submit", (event) => {
       event.preventDefault();
       loadUsers();
@@ -119,6 +161,26 @@
       event.preventDefault();
       await saveReferralCode();
     });
+    els.instructorFilterForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loadInstructors();
+    });
+    els.supportFilterForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loadSupport();
+    });
+    els.supportCaseForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await createSupportCase();
+    });
+    els.auditFilterForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await loadAudit();
+    });
+    els.userDetailMount.addEventListener("click", handleUserDetailAction);
+    els.supportCasesMount.addEventListener("click", handleSupportAction);
+    els.instructorInventoryMount.addEventListener("click", handleInstructorAction);
+    els.stripeEventsMount.addEventListener("click", handlePaymentAction);
     els.entitlementAction.addEventListener("change", updateEntitlementActionTone);
     els.questionReviewForm.addEventListener("click", async (event) => {
       const button = event.target.closest("[data-review-action]");
@@ -127,21 +189,31 @@
     });
   }
 
+  function setDefaultOverviewRange() {
+    const today = new Date();
+    const start = new Date(today.getTime() - 30 * 24 * 60 * 60 * 1000);
+    els.overviewToInput.value = toDateInputValue(today);
+    els.overviewFromInput.value = toDateInputValue(start);
+  }
+
   async function refreshAll() {
     if (state.locked) return;
     setProtectedState(false);
     setStatus("Loading admin dashboard...", "loading");
     renderAdminSkeletons();
     try {
+      await loadStats();
       await Promise.all([
-        loadStats(),
-        loadUsers(),
-        loadEntitlements(),
-        loadReferrals(),
-        loadPayments(),
-        loadQuestions(),
-        loadContentQuality(),
-        loadGeneratedPipeline(),
+        loadOptionalPanel(loadUsers, [els.usersMount, els.userDetailMount]),
+        loadOptionalPanel(loadEntitlements, [els.entitlementsMount]),
+        loadOptionalPanel(loadReferrals, [els.referralsMount]),
+        loadOptionalPanel(loadPayments, [els.checkoutAttemptsMount, els.stripeEventsMount, els.instructorCodesMount, els.refundsMount, els.disputesMount]),
+        loadOptionalPanel(loadInstructors, [els.instructorAccountsMount, els.instructorPacksMount, els.instructorInventoryMount, els.instructorRedemptionsMount, els.instructorPerformanceMount]),
+        loadOptionalPanel(loadSupport, [els.supportCasesMount]),
+        loadOptionalPanel(loadAudit, [els.auditMount]),
+        loadOptionalPanel(loadQuestions, [els.questionsMount, els.questionDetailMount]),
+        loadOptionalPanel(loadContentQuality, [els.contentQualitySummaryMount, els.contentConflictMount, els.contentDuplicateMount, els.categoryMappingMount, els.editorialBacklogMount, els.qualityDecisionsMount]),
+        loadOptionalPanel(loadGeneratedPipeline, [els.sourceDocumentsMount, els.generatedQuestionsMount]),
       ]);
       setStatus("Admin dashboard ready.", "success");
     } catch (error) {
@@ -149,16 +221,31 @@
     }
   }
 
+  async function loadOptionalPanel(loader, mounts) {
+    try {
+      await loader();
+    } catch (error) {
+      if (Number(error.status) === 403) {
+        mounts.forEach((mount) => renderRestricted(mount));
+        return;
+      }
+      throw error;
+    }
+  }
+
   async function loadStats() {
-    const payload = await fetchJson("/api/admin/stats");
+    const params = new URLSearchParams();
+    if (els.overviewFromInput.value) params.set("from", els.overviewFromInput.value);
+    if (els.overviewToInput.value) params.set("to", els.overviewToInput.value);
+    const payload = await fetchJson(`/api/admin/stats?${params.toString()}`);
     state.stats = payload.stats;
     renderMetrics(payload.stats);
     renderLaunchReadiness(payload.stats);
+    renderOperationalWarnings(payload.stats.operationalWarnings || []);
     renderPurchases(payload.stats.recentPurchases || []);
     renderRevenue(payload.stats.revenue || {});
     renderAnalytics(payload.stats.analytics || {});
     renderAttemptSummary(payload.stats.attemptSummary || []);
-    renderAudit(payload.stats.recentAudit || []);
   }
 
   async function loadUsers() {
@@ -182,6 +269,34 @@
     const payload = await fetchJson("/api/admin/payments");
     state.payments = payload;
     renderPayments(payload);
+  }
+
+  async function loadInstructors() {
+    const params = new URLSearchParams();
+    params.set("q", els.instructorSearchInput.value.trim());
+    params.set("status", els.instructorStatusInput.value);
+    const payload = await fetchJson(`/api/admin/instructors?${params.toString()}`);
+    state.instructors = payload;
+    renderInstructors(payload);
+  }
+
+  async function loadSupport() {
+    const params = new URLSearchParams();
+    params.set("status", els.supportStatusInput.value);
+    params.set("q", els.supportSearchInput.value.trim());
+    const payload = await fetchJson(`/api/admin/support?${params.toString()}`);
+    state.supportCases = payload.cases || [];
+    renderSupportCases(state.supportCases);
+  }
+
+  async function loadAudit() {
+    const params = new URLSearchParams();
+    params.set("q", els.auditSearchInput.value.trim());
+    params.set("action", els.auditActionInput.value.trim());
+    params.set("targetType", els.auditTargetTypeInput.value.trim());
+    const payload = await fetchJson(`/api/admin/audit?${params.toString()}`);
+    state.audit = payload.audit || [];
+    renderAudit(state.audit, payload.pagination);
   }
 
   async function loadQuestions() {
@@ -211,14 +326,23 @@
 
   async function saveEntitlement() {
     setStatus("Saving entitlement...");
+    const action = els.entitlementAction.value;
+    const isRevoke = action === "revoke";
+    if (isRevoke && !window.confirm("Revoke this learner's access?")) {
+      setStatus("Entitlement change cancelled.", "warning");
+      return;
+    }
+    const reason = window.prompt("Reason for this entitlement change", action) || action;
     try {
       const payload = await fetchJson("/api/admin/entitlements", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: els.entitlementEmail.value.trim(),
-          action: els.entitlementAction.value,
+          action,
           days: Number(els.entitlementDays.value || 0),
+          confirm: isRevoke,
+          reason,
         }),
       });
       setStatus(`Entitlement ${payload.entitlement.active ? "active" : "inactive"} for ${payload.entitlement.email}.`);
@@ -332,6 +456,7 @@
   async function saveQuestionReview(action) {
     if (!state.selectedQuestion) return;
 
+    if (action === "archive" && !window.confirm("Archive this question from publication?")) return;
     setStatus("Saving question review...");
     try {
       const payload = await fetchJson("/api/admin/questions", {
@@ -342,12 +467,143 @@
           action,
           explanation: els.questionExplanationInput.value.trim(),
           notes: els.questionNotesInput.value.trim(),
+          confirm: action === "archive",
         }),
       });
       state.selectedQuestion = payload.question;
       renderSelectedQuestion(payload.question);
       await Promise.all([loadStats(), loadQuestions()]);
       setStatus(`Question ${payload.question.id} marked ${payload.question.reviewedStatus}.`);
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function loadUserDetail(email) {
+    setStatus("Loading user detail...");
+    try {
+      const payload = await fetchJson(`/api/admin/users?email=${encodeURIComponent(email)}`);
+      state.selectedUser = payload.user || null;
+      renderUserDetail(state.selectedUser);
+      setStatus(payload.user ? "User detail loaded." : "No user detail found.", payload.user ? "success" : "warning");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function mutateUser(action, email) {
+    if (!email) return;
+    const destructive = action === "revoke_sessions" || action === "account_deletion_request";
+    if (destructive && !window.confirm(`Confirm ${normalizeBadgeLabel(action)} for ${maskEmail(email)}?`)) return;
+    const reason = window.prompt("Reason or support note", action) || action;
+    setStatus("Saving user operation...");
+    try {
+      await fetchJson("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          email,
+          reason,
+          confirm: action === "revoke_sessions",
+        }),
+      });
+      await Promise.all([loadUserDetail(email), loadSupport(), loadAudit()]);
+      setStatus("User operation saved.", "success");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function createSupportCase() {
+    setStatus("Creating support case...");
+    try {
+      await fetchJson("/api/admin/support", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "create",
+          requesterEmail: els.supportEmailInput.value.trim(),
+          category: els.supportCategoryInput.value,
+          priority: els.supportPriorityInput.value,
+          internalNotes: els.supportNotesInput.value.trim(),
+          reason: "admin_created_support_case",
+        }),
+      });
+      els.supportCaseForm.reset();
+      els.supportPriorityInput.value = "normal";
+      await Promise.all([loadSupport(), loadStats(), loadAudit()]);
+      setStatus("Support case created.", "success");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function updateSupportCase(caseId, action) {
+    const item = state.supportCases.find((supportCase) => supportCase.id === caseId);
+    if (!item) return;
+    const resolution = action === "resolve" ? window.prompt("Resolution note", item.resolution || "") || "Resolved by admin." : item.resolution || "";
+    const internalNotes = window.prompt("Internal note", item.internalNotes || "") || item.internalNotes || "";
+    setStatus("Updating support case...");
+    try {
+      await fetchJson("/api/admin/support", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          id: caseId,
+          status: action === "resolve" ? "resolved" : item.status,
+          priority: item.priority,
+          internalNotes,
+          resolution,
+          reason: action,
+        }),
+      });
+      await Promise.all([loadSupport(), loadAudit()]);
+      setStatus("Support case updated.", "success");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function revokeInstructorCode(code) {
+    if (!code || !window.confirm(`Revoke instructor code ${code}?`)) return;
+    const reason = window.prompt("Reason for revoking this code", "admin_revoked") || "admin_revoked";
+    setStatus("Revoking instructor code...");
+    try {
+      await fetchJson("/api/admin/instructors", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "revoke_code",
+          code,
+          reason,
+          confirm: true,
+        }),
+      });
+      await Promise.all([loadInstructors(), loadPayments(), loadAudit()]);
+      setStatus("Instructor code revoked.", "success");
+    } catch (error) {
+      handleError(error);
+    }
+  }
+
+  async function replayStripeEvent(stripeEventId) {
+    if (!stripeEventId || !window.confirm(`Replay Stripe event ${stripeEventId}?`)) return;
+    const reason = window.prompt("Replay reason", "admin_replay") || "admin_replay";
+    setStatus("Replaying Stripe event...");
+    try {
+      await fetchJson("/api/admin/payments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "replay_stripe_event",
+          stripeEventId,
+          reason,
+        }),
+      });
+      await Promise.all([loadPayments(), loadStats(), loadAudit()]);
+      setStatus("Stripe event replay requested.", "success");
     } catch (error) {
       handleError(error);
     }
@@ -369,18 +625,58 @@
     return payload;
   }
 
+  function handleUserDetailAction(event) {
+    const button = event.target.closest("[data-user-action]");
+    if (!button) return;
+    mutateUser(button.dataset.userAction, button.dataset.email);
+  }
+
+  function handleSupportAction(event) {
+    const button = event.target.closest("[data-support-action]");
+    if (!button) return;
+    updateSupportCase(button.dataset.caseId, button.dataset.supportAction);
+  }
+
+  function handleInstructorAction(event) {
+    const button = event.target.closest("[data-instructor-action]");
+    if (!button) return;
+    if (button.dataset.instructorAction === "revoke_code") {
+      revokeInstructorCode(button.dataset.code);
+    }
+  }
+
+  function handlePaymentAction(event) {
+    const button = event.target.closest("[data-payment-action]");
+    if (!button) return;
+    if (button.dataset.paymentAction === "replay_stripe_event") {
+      replayStripeEvent(button.dataset.stripeEventId);
+    }
+  }
+
   function renderMetrics(stats) {
     const totals = stats.totals || {};
     const questions = stats.questions || {};
+    const revenue = stats.revenue || {};
+    const funnel = stats.analytics?.funnel || [];
+    const eventValue = (eventName) => Number(funnel.find((item) => item.eventName === eventName)?.events || 0);
     const metrics = [
       ["Users", totals.users || 0, "Learner accounts"],
       ["Admins", totals.admins || 0, "Server-authorized"],
       ["Purchases", totals.purchases || 0, "Stripe records"],
       ["Active access", totals.active_entitlements || 0, "Current unlocks"],
-      ["Inactive access", totals.inactive_entitlements || 0, "Expired or revoked"],
+      ["Expired access", totals.expired_entitlements || 0, "Access ended"],
+      ["Gross revenue", formatMoney(revenue.grossRevenue, "eur"), "Selected period"],
+      ["Refunds", formatMoney(revenue.refundAmount, "eur"), `${formatNumber(revenue.refundCount || 0)} refund records`],
+      ["Net recorded", formatMoney(revenue.estimatedNetRevenue, "eur"), "Gross minus estimated fees/refunds"],
+      ["Preview starts", eventValue("preview_started"), "Selected period"],
+      ["Checkout starts", eventValue("checkout_clicked") + eventValue("referral_checkout_started"), "Selected period"],
+      ["Completed purchases", eventValue("checkout_success"), "Selected period"],
+      ["Restore success", eventValue("restore_access_success"), "Selected period"],
+      ["Mock starts", eventValue("mock_started"), "Selected period"],
+      ["Mock completions", eventValue("mock_completed"), "Selected period"],
       ["Attempts", totals.attempts || 0, "Synced answers"],
       ["Flags", totals.flags || 0, "Saved review marks"],
-      ["Analytics events", stats.analytics?.last30DaysEventCount || 0, "Last 30 days"],
+      ["Analytics events", stats.analytics?.last30DaysEventCount || 0, "Selected period"],
       ["Source notes", totals.source_documents || 0, "Admin notes"],
       ["Draft queue", totals.generated_question_drafts || 0, "AI drafts"],
       ["Questions", questions.total || 0, "Public bank"],
@@ -395,7 +691,7 @@
       if (index < 4) card.classList.add("metric-card-primary");
       card.innerHTML = "<span></span><strong></strong><em></em>";
       card.querySelector("span").textContent = label;
-      card.querySelector("strong").textContent = formatNumber(value);
+      card.querySelector("strong").textContent = typeof value === "string" ? value : formatNumber(value);
       card.querySelector("em").textContent = caption;
       els.metricGrid.append(card);
     });
@@ -420,9 +716,21 @@
     `;
 
     [
+      els.operationalWarningsMount,
       els.usersMount,
+      els.userDetailMount,
       els.entitlementsMount,
       els.purchasesMount,
+      els.checkoutAttemptsMount,
+      els.stripeEventsMount,
+      els.instructorCodesMount,
+      els.refundsMount,
+      els.disputesMount,
+      els.instructorAccountsMount,
+      els.instructorPacksMount,
+      els.instructorInventoryMount,
+      els.instructorRedemptionsMount,
+      els.instructorPerformanceMount,
       els.revenueMount,
       els.planSalesMount,
       els.referralPerformanceMount,
@@ -430,7 +738,13 @@
       els.analyticsFunnelMount,
       els.missedCategoriesMount,
       els.missedQuestionsMount,
+      els.modeUsageMount,
+      els.deviceClassMount,
+      els.conversionSourceMount,
+      els.mockCompletionMount,
+      els.reportFrequencyMount,
       els.questionsMount,
+      els.questionDetailMount,
       els.contentQualitySummaryMount,
       els.contentConflictMount,
       els.contentDuplicateMount,
@@ -441,6 +755,7 @@
       els.generatedQuestionsMount,
       els.attemptSummaryMount,
       els.auditMount,
+      els.supportCasesMount,
     ].forEach((mount) => {
       mount.innerHTML = `
         <div class="admin-empty-state skeleton-block" aria-hidden="true">
@@ -504,6 +819,22 @@
     });
   }
 
+  function renderOperationalWarnings(warnings) {
+    renderAdminItems(
+      els.operationalWarningsMount,
+      warnings.map((warning) => ({
+        title: normalizeBadgeLabel(warning.warning_type || "warning"),
+        subtitle: `${warning.title || "Operational item"} | ${warning.detail || "Needs review"} | ${formatDate(warning.created_at)}`,
+        badges: [
+          statusBadge("Review", warning.warning_type === "payment_dispute" || warning.warning_type === "failed_webhook" ? "danger" : "warning"),
+          statusBadge(warning.target_id || "No target", "neutral"),
+        ],
+      })),
+      "No operational warnings",
+      "Failed webhooks, failed checkouts, urgent support cases, and active disputes will appear here."
+    );
+  }
+
   function renderUsers(users) {
     els.usersMount.innerHTML = "";
     if (!users.length) {
@@ -513,7 +844,7 @@
 
     users.forEach((user) => {
       const item = adminItem({
-        title: user.email,
+        title: user.maskedEmail || maskEmail(user.email),
         subtitle: "Click to inspect purchase IDs and prepare an entitlement change.",
         badges: [roleBadge(user.role), entitlementBadge(user.entitlement)],
         details: [
@@ -525,9 +856,164 @@
       });
       item.addEventListener("click", () => {
         els.entitlementEmail.value = user.email;
-        renderPurchases(user.purchases || []);
+        els.supportEmailInput.value = user.email;
+        loadUserDetail(user.email);
       });
       els.usersMount.append(item);
+    });
+  }
+
+  function renderUserDetail(user) {
+    els.userDetailMount.innerHTML = "";
+    if (!user) {
+      renderEmpty(els.userDetailMount, "No user selected", "Choose a learner from the Users list to inspect account, access, progress, and support operations.");
+      return;
+    }
+
+    const wrapper = document.createElement("article");
+    wrapper.className = "admin-detail-panel";
+    const header = adminItem({
+      title: user.maskedEmail || maskEmail(user.email),
+      subtitle: `${user.displayName || "Learner account"} | Created ${formatDate(user.createdAt)} | Last active ${formatDate(user.lastActiveAt)}`,
+      badges: [
+        roleBadge(user.role),
+        statusBadge(user.deleteRequestedAt ? "Deletion requested" : "Account active", user.deleteRequestedAt ? "warning" : "success"),
+      ],
+      details: [
+        detail("Progress", `${formatNumber(user.progressSummary?.attempts || 0)} attempts, ${formatNumber(user.progressSummary?.flags || 0)} flags`),
+        detail("Distinct questions", user.progressSummary?.distinctQuestions || 0),
+        detail("Mocks", user.progressSummary?.mocks || 0),
+        detail("Last attempt", formatDate(user.progressSummary?.lastAttemptAt)),
+      ],
+    });
+
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    [
+      ["account_export_request", "Create export request", ""],
+      ["revoke_sessions", "Revoke sessions", "danger"],
+      ["account_deletion_request", "Create deletion request", "danger"],
+    ].forEach(([action, label, tone]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.userAction = action;
+      button.dataset.email = user.email;
+      button.textContent = label;
+      if (tone) button.className = tone;
+      actions.append(button);
+    });
+
+    wrapper.append(
+      header,
+      actions,
+      detailSection("Entitlement history", user.entitlements || [], entitlementDetailItem),
+      detailSection("Purchase history", user.purchases || [], purchaseDetailItem),
+      detailSection("Sessions", user.sessions || [], sessionDetailItem),
+      detailSection("Support notes", user.supportCases || [], supportDetailItem),
+      detailSection("Account requests", user.deletionRequests || [], requestDetailItem)
+    );
+    els.userDetailMount.append(wrapper);
+  }
+
+  function detailSection(title, rows, formatter) {
+    const section = document.createElement("section");
+    section.className = "admin-detail-section";
+    const heading = document.createElement("h3");
+    heading.textContent = title;
+    section.append(heading);
+    const list = document.createElement("div");
+    list.className = "admin-list";
+    if (!rows.length) {
+      renderEmpty(list, `No ${title.toLowerCase()}`, "Nothing recorded yet.");
+    } else {
+      rows.slice(0, 20).forEach((row) => list.append(formatter(row)));
+    }
+    section.append(list);
+    return section;
+  }
+
+  function entitlementDetailItem(entitlement) {
+    return adminItem({
+      title: entitlement.product || "irish-theory-test-coach",
+      subtitle: `Source: ${entitlement.source || "unknown"} | Updated ${formatDate(entitlement.updated_at || entitlement.updatedAt)}`,
+      badges: [entitlementBadge(normalizeEntitlement(entitlement))],
+      details: [
+        detail("Expires", formatDate(entitlement.expires_at || entitlement.expiresAt)),
+        detail("Revoked", formatDate(entitlement.revoked_at || entitlement.revokedAt)),
+      ],
+    });
+  }
+
+  function purchaseDetailItem(purchase) {
+    return adminItem({
+      title: labelPlan(purchase.plan_key || purchase.planKey || "unknown"),
+      subtitle: `${formatMoney(purchase.amount, purchase.currency)} | ${purchase.environment || "env unknown"} | ${formatDate(purchase.created_at || purchase.createdAt)}`,
+      badges: [
+        statusBadge(labelStatus(purchase.status), purchaseStatusTone(purchase.status)),
+        statusBadge(purchase.refund_state || purchase.entitlement_effect || "Recorded", "neutral"),
+      ],
+      details: [
+        detail("Stripe session", purchase.stripe_checkout_session_id || purchase.checkoutSessionId),
+        detail("Payment intent", purchase.stripe_payment_intent_id || purchase.paymentIntentId),
+        detail("Referral", purchase.referral_code || purchase.referralCode),
+      ],
+    });
+  }
+
+  function sessionDetailItem(session) {
+    return adminItem({
+      title: session.revoked_at ? "Revoked session" : "Active or recent session",
+      subtitle: `${formatDate(session.created_at)} | Last seen ${formatDate(session.last_seen_at)}`,
+      badges: [statusBadge(session.revoked_at ? "Revoked" : "Session", session.revoked_at ? "danger" : "success")],
+      details: [
+        detail("Expires", formatDate(session.expires_at)),
+        detail("Reason", session.revoked_reason || "None"),
+      ],
+    });
+  }
+
+  function supportDetailItem(supportCase) {
+    return adminItem({
+      title: `${supportCase.category} support`,
+      subtitle: `${supportCase.internal_notes || "No note"} | ${formatDate(supportCase.updated_at || supportCase.updatedAt)}`,
+      badges: [
+        statusBadge(supportCase.status || "open", badgeTone(supportCase.status)),
+        statusBadge(supportCase.priority || "normal", supportCase.priority === "urgent" || supportCase.priority === "high" ? "warning" : "neutral"),
+      ],
+    });
+  }
+
+  function requestDetailItem(request) {
+    return adminItem({
+      title: request.status || "requested",
+      subtitle: `${request.reason || "No reason"} | ${formatDate(request.created_at || request.createdAt)}`,
+      badges: [statusBadge("Account request", "warning")],
+    });
+  }
+
+  function versionDetailItem(version) {
+    return adminItem({
+      title: `Version ${version.version_number || version.versionNumber || "?"}`,
+      subtitle: `${version.change_note || version.reason || "No change note"} | ${formatDate(version.created_at || version.createdAt)}`,
+      badges: [
+        statusBadge(version.reviewed_status || "review", reviewStatusTone(version.reviewed_status)),
+        statusBadge(version.safe_to_show ? "Safe to show" : "Hidden", version.safe_to_show ? "success" : "warning"),
+      ],
+      details: [
+        detail("Editor", version.changed_by_email || "Unknown"),
+        detail("Fields", Array.isArray(version.fields_changed) ? version.fields_changed.join(", ") : "Not recorded"),
+      ],
+    });
+  }
+
+  function questionReportItem(report) {
+    return adminItem({
+      title: report.reason_category || "learner_report",
+      subtitle: `${report.comment || "No comment"} | ${formatDate(report.created_at || report.createdAt)}`,
+      badges: [
+        statusBadge(report.status || "open", badgeTone(report.status)),
+        statusBadge(report.content_version || "content", "neutral"),
+      ],
     });
   }
 
@@ -672,6 +1158,9 @@
           statusBadge(`${formatNumber(event.replay_count || 0)} replays`, "neutral"),
         ],
         details: event.failure_reason ? [`Failure: ${event.failure_reason}`] : [],
+        actions: event.processing_status === "failed"
+          ? [actionButton("Replay", "replay_stripe_event", { stripeEventId: event.stripe_event_id, kind: "payment" })]
+          : [],
       })),
       "No Stripe webhook events yet",
       "Webhook events appear after Stripe sends signed payment events."
@@ -694,6 +1183,157 @@
       "No instructor codes yet",
       "Paid instructor packs will generate private learner codes here."
     );
+
+    renderAdminItems(
+      els.refundsMount,
+      (payload.refunds || []).slice(0, 12).map((refund) => ({
+        title: `${formatMoney(refund.amount, refund.currency)} refund`,
+        subtitle: `${maskEmail(refund.email)} | ${refund.reason || "No reason"} | ${formatDate(refund.created_at)}`,
+        badges: [
+          statusBadge(labelStatus(refund.status), badgeTone(refund.status)),
+          statusBadge(refund.entitlement_effect || "No entitlement effect", "neutral"),
+        ],
+      })),
+      "No refund records",
+      "Refunds are tracked from webhook/admin payment operations."
+    );
+
+    renderAdminItems(
+      els.disputesMount,
+      (payload.disputes || []).slice(0, 12).map((dispute) => ({
+        title: `${formatMoney(dispute.amount, dispute.currency)} dispute`,
+        subtitle: `${maskEmail(dispute.email)} | ${dispute.reason || "No reason"} | ${formatDate(dispute.created_at)}`,
+        badges: [
+          statusBadge(labelStatus(dispute.status), badgeTone(dispute.status)),
+          statusBadge(dispute.entitlement_effect || "No entitlement effect", "warning"),
+        ],
+        details: [detail("Stripe dispute", dispute.stripe_dispute_id)],
+      })),
+      "No dispute records",
+      "Disputes and chargebacks will appear here when recorded."
+    );
+  }
+
+  function renderInstructors(payload) {
+    renderAdminItems(
+      els.instructorAccountsMount,
+      (payload.accounts || []).map((account) => ({
+        title: account.maskedEmail || maskEmail(account.email),
+        subtitle: `${account.organisation || account.name || "Instructor account"} | ${formatNumber(account.used_codes || 0)}/${formatNumber(account.code_count || 0)} used`,
+        badges: [
+          statusBadge(`${formatNumber(account.pack_purchases || 0)} packs`, "info"),
+          statusBadge("Instructor", "primary"),
+        ],
+        details: [
+          detail("Created", formatDate(account.created_at)),
+          detail("Updated", formatDate(account.updated_at)),
+        ],
+      })),
+      "No instructor accounts",
+      "Instructor accounts appear after instructor pack purchases or admin setup."
+    );
+
+    renderAdminItems(
+      els.instructorPacksMount,
+      (payload.packPurchases || []).map((purchase) => ({
+        title: labelPlan(purchase.plan_key),
+        subtitle: `${maskEmail(purchase.email)} | ${formatMoney(purchase.amount, purchase.currency)} | ${formatDate(purchase.created_at)}`,
+        badges: [
+          statusBadge(labelStatus(purchase.status), purchaseStatusTone(purchase.status)),
+          statusBadge(`${formatNumber(purchase.generated_codes || 0)} codes`, "info"),
+        ],
+        details: [
+          detail("Stripe session", purchase.stripe_checkout_session_id),
+          detail("Used codes", purchase.used_codes || 0),
+          detail("Environment", purchase.environment),
+        ],
+      })),
+      "No instructor pack purchases",
+      "Instructor pack checkouts will appear here."
+    );
+
+    els.instructorInventoryMount.innerHTML = "";
+    const codes = payload.codes || [];
+    if (!codes.length) {
+      renderEmpty(els.instructorInventoryMount, "No code inventory", "Generated learner codes will appear here after instructor pack fulfillment.");
+    } else {
+      codes.slice(0, 60).forEach((code) => {
+        const item = adminItem({
+          title: code.code,
+          subtitle: `${maskEmail(code.purchase_email)} | ${formatNumber(code.redemption_count || 0)} of ${formatNumber(code.max_redemptions || 1)} used`,
+          badges: [
+            statusBadge(labelStatus(code.status), badgeTone(code.status)),
+            statusBadge(code.plan_key || "Study pass", "info"),
+          ],
+          details: [
+            detail("Expires", formatDate(code.expires_at)),
+            detail("Redeemed by", code.redeemed_by_email ? maskEmail(code.redeemed_by_email) : "None"),
+            detail("Updated", formatDate(code.updated_at)),
+          ],
+        });
+        if (code.status !== "revoked") {
+          const actions = document.createElement("div");
+          actions.className = "review-actions";
+          actions.append(actionButton("Revoke code", "revoke_code", { code: code.code, kind: "instructor", tone: "danger" }));
+          item.append(actions);
+        }
+        els.instructorInventoryMount.append(item);
+      });
+    }
+
+    renderAdminItems(
+      els.instructorRedemptionsMount,
+      (payload.redemptions || []).map((redemption) => ({
+        title: redemption.code,
+        subtitle: `${redemption.maskedEmail || maskEmail(redemption.email)} | Buyer ${maskEmail(redemption.purchase_email)} | ${formatDate(redemption.created_at)}`,
+        badges: [statusBadge(labelStatus(redemption.status), badgeTone(redemption.status))],
+      })),
+      "No redemptions yet",
+      "Learner code redemptions will appear here."
+    );
+
+    renderAdminItems(
+      els.instructorPerformanceMount,
+      (payload.performance || []).map((row) => ({
+        title: maskEmail(row.instructor_email),
+        subtitle: `${formatNumber(row.used)} used | ${formatNumber(row.active)} active | ${formatNumber(row.revoked)} revoked`,
+        badges: [statusBadge(`${formatNumber(row.codes)} codes`, "primary")],
+      })),
+      "No instructor performance yet",
+      "Performance appears after instructor codes are generated and redeemed."
+    );
+  }
+
+  function renderSupportCases(cases) {
+    els.supportCasesMount.innerHTML = "";
+    if (!cases.length) {
+      renderEmpty(els.supportCasesMount, "No support cases", "Create a case from the form above or wait for account requests to appear.");
+      return;
+    }
+
+    cases.forEach((supportCase) => {
+      const item = adminItem({
+        title: `${supportCase.category} | ${supportCase.maskedRequesterEmail || maskEmail(supportCase.requesterEmail)}`,
+        subtitle: `${supportCase.internalNotes || "No internal note"} | Updated ${formatDate(supportCase.updatedAt)}`,
+        badges: [
+          statusBadge(supportCase.status || "open", badgeTone(supportCase.status)),
+          statusBadge(supportCase.priority || "normal", supportCase.priority === "urgent" || supportCase.priority === "high" ? "warning" : "neutral"),
+        ],
+        details: [
+          detail("Assigned", supportCase.assignedAdminEmail || "Unassigned"),
+          detail("Purchase session", supportCase.stripeCheckoutSessionId || "None"),
+          detail("Resolution", supportCase.resolution || "None"),
+        ],
+      });
+      const actions = document.createElement("div");
+      actions.className = "review-actions";
+      actions.append(
+        actionButton("Update note", "update", { kind: "support", caseId: supportCase.id }),
+        actionButton("Resolve", "resolve", { kind: "support", caseId: supportCase.id, tone: "primary" })
+      );
+      item.append(actions);
+      els.supportCasesMount.append(item);
+    });
   }
 
   function renderAdminItems(mount, items, emptyTitle, emptyCopy) {
@@ -703,12 +1343,19 @@
       return;
     }
     items.forEach((item) => {
-      mount.append(adminItem({
+      const node = adminItem({
         title: item.title,
         subtitle: item.subtitle,
         badges: item.badges || [],
         details: item.details || [],
-      }));
+      });
+      if (item.actions?.length) {
+        const actions = document.createElement("div");
+        actions.className = "review-actions";
+        item.actions.forEach((action) => actions.append(action));
+        node.append(actions);
+      }
+      mount.append(node);
     });
   }
 
@@ -716,6 +1363,39 @@
     renderFunnel(analytics.funnel || [], analytics.paywall || {});
     renderMissedCategories(analytics.missedCategories || []);
     renderMissedQuestions(analytics.missedQuestions || []);
+    renderSimpleMetricList(els.modeUsageMount, analytics.modeUsage || [], "mode", "events", "No mode usage yet", "Mode usage appears after learners switch study modes.");
+    renderSimpleMetricList(els.deviceClassMount, analytics.deviceClass || [], "device_class", "events", "No device data yet", "Device class is derived from privacy-safe event properties when present.");
+    renderSimpleMetricList(els.conversionSourceMount, analytics.conversionSource || [], "source", "events", "No conversion source yet", "Checkout source attribution appears after pricing and referral events.");
+    renderMockCompletion(analytics.mockCompletion || {});
+    renderSimpleMetricList(els.reportFrequencyMount, analytics.reportFrequency || [], "question_id", "reports", "No question reports yet", "Learner problem reports will appear here for content review.");
+  }
+
+  function renderSimpleMetricList(mount, rows, labelKey, valueKey, emptyTitle, emptyCopy) {
+    renderAdminItems(
+      mount,
+      rows.map((row) => ({
+        title: labelKey === "question_id" ? `Question ${row[labelKey]}` : normalizeBadgeLabel(row[labelKey]),
+        subtitle: `${formatNumber(row[valueKey] || 0)} ${normalizeBadgeLabel(valueKey)}`,
+        badges: [statusBadge("Directional", "neutral")],
+      })),
+      emptyTitle,
+      emptyCopy
+    );
+  }
+
+  function renderMockCompletion(mockCompletion) {
+    const starts = Number(mockCompletion.starts || 0);
+    const completions = Number(mockCompletion.completions || 0);
+    renderAdminItems(
+      els.mockCompletionMount,
+      [{
+        title: "Mock completion",
+        subtitle: `${formatNumber(completions)} completions from ${formatNumber(starts)} starts`,
+        badges: [statusBadge(starts ? `${Math.round((completions / starts) * 100)}%` : "0%", "primary")],
+      }],
+      "No mock activity",
+      "Mock starts and completions appear after learners use exam mode."
+    );
   }
 
   function renderFunnel(funnel, paywall) {
@@ -988,6 +1668,7 @@
     }
 
     if (action === "archive_redundant" && !window.confirm("Archive non-canonical records in this group?")) return;
+    body.confirm = action === "archive_redundant";
 
     body.reason = window.prompt("Reason or editorial note", action) || action;
     setStatus("Saving content-quality decision...");
@@ -1169,12 +1850,19 @@
     });
   }
 
-  function selectQuestion(question) {
+  async function selectQuestion(question) {
     state.selectedQuestion = question;
     renderSelectedQuestion(question);
+    try {
+      const payload = await fetchJson(`/api/admin/questions?questionId=${encodeURIComponent(question.id)}`);
+      state.selectedQuestion = payload.question || question;
+      renderSelectedQuestion(state.selectedQuestion, payload);
+    } catch (error) {
+      handleError(error);
+    }
   }
 
-  function renderSelectedQuestion(question) {
+  function renderSelectedQuestion(question, detailPayload = null) {
     els.questionReviewForm.classList.remove("hidden");
     els.selectedQuestionLabel.textContent = `#${question.id} ${question.category}`;
     els.selectedQuestionStatus.textContent = "";
@@ -1184,6 +1872,19 @@
     );
     els.questionExplanationInput.value = question.explanation || "";
     els.questionNotesInput.value = question.notes || "";
+    renderQuestionDetail(detailPayload);
+  }
+
+  function renderQuestionDetail(payload) {
+    els.questionDetailMount.innerHTML = "";
+    if (!payload) {
+      renderEmpty(els.questionDetailMount, "Loading question detail", "Version history and learner reports will appear here.");
+      return;
+    }
+    els.questionDetailMount.append(
+      detailSection("Version history", payload.versions || [], versionDetailItem),
+      detailSection("Learner reports", payload.reports || [], questionReportItem)
+    );
   }
 
   function renderAttemptSummary(summary) {
@@ -1206,18 +1907,28 @@
     });
   }
 
-  function renderAudit(rows) {
+  function renderAudit(rows, pagination = null) {
     els.auditMount.innerHTML = "";
     if (!rows.length) {
       renderEmpty(els.auditMount, "No audit rows yet", "Admin mutations will write audit entries here.");
       return;
     }
 
+    if (pagination) {
+      const summary = document.createElement("p");
+      summary.className = "admin-section-note";
+      summary.textContent = `${formatNumber(pagination.total || rows.length)} audit rows available. Showing ${formatNumber(rows.length)}.`;
+      els.auditMount.append(summary);
+    }
+
     rows.forEach((entry) => {
       const item = adminItem({
         title: entry.action,
-        subtitle: `${entry.admin_email} -> ${entry.target_email || entry.target_id || entry.target_type} | ${formatDate(entry.created_at)}`,
-        badges: [statusBadge("Audit", "neutral")],
+        subtitle: `${entry.admin_email} -> ${entry.target_email || entry.target_id || entry.target_type} | ${entry.reason || "No reason"} | ${formatDate(entry.created_at)}`,
+        badges: [
+          statusBadge("Audit", "neutral"),
+          statusBadge(entry.request_correlation_id || "No correlation", "info"),
+        ],
       });
       els.auditMount.append(item);
     });
@@ -1255,7 +1966,13 @@
 
     if (details.length) {
       const list = document.createElement("dl");
-      list.append(...details);
+      details.forEach((itemDetail) => {
+        if (itemDetail instanceof Node) {
+          list.append(itemDetail);
+          return;
+        }
+        list.append(detail("Detail", itemDetail));
+      });
       item.append(list);
     }
 
@@ -1272,6 +1989,24 @@
     row.append(cell);
   }
 
+  function actionButton(label, action, options = {}) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    if (options.tone) button.className = options.tone;
+    if (options.kind === "payment") {
+      button.dataset.paymentAction = action;
+      button.dataset.stripeEventId = options.stripeEventId || "";
+    } else if (options.kind === "instructor") {
+      button.dataset.instructorAction = action;
+      button.dataset.code = options.code || "";
+    } else if (options.kind === "support") {
+      button.dataset.supportAction = action;
+      button.dataset.caseId = options.caseId || "";
+    }
+    return button;
+  }
+
   function statusBadge(label, tone = "neutral") {
     const badge = document.createElement("span");
     badge.className = `admin-status-badge ${tone}`;
@@ -1281,7 +2016,11 @@
 
   function roleBadge(role) {
     const normalized = String(role || "user").toLowerCase();
-    return statusBadge(normalized === "admin" ? "Admin" : "User", normalized === "admin" ? "primary" : "neutral");
+    if (normalized === "owner") return statusBadge("Owner", "primary");
+    if (normalized === "admin") return statusBadge("Admin", "primary");
+    if (normalized === "content_editor") return statusBadge("Content editor", "info");
+    if (normalized === "support") return statusBadge("Support", "warning");
+    return statusBadge("User", "neutral");
   }
 
   function entitlementBadge(entitlement) {
@@ -1355,11 +2094,27 @@
     mount.append(empty);
   }
 
+  function renderRestricted(mount) {
+    mount.innerHTML = "";
+    const restricted = document.createElement("div");
+    restricted.className = "admin-empty-state admin-restricted-state";
+    const heading = document.createElement("strong");
+    heading.textContent = "Role permission required";
+    const copy = document.createElement("p");
+    copy.textContent = "Your admin role does not allow this operation. Server-side authorization is still enforced.";
+    restricted.append(heading, copy);
+    mount.append(restricted);
+  }
+
   function handleError(error) {
-    if (error.status === 401 || error.status === 403) {
+    if (error.status === 401 || (error.status === 403 && !state.stats)) {
       state.locked = true;
       setProtectedState(true, error.status);
       setStatus("Admin access required.", "warning");
+      return;
+    }
+    if (error.status === 403) {
+      setStatus("Your admin role does not allow that operation.", "warning");
       return;
     }
     setStatus(adminSafeErrorMessage(error), "error");
@@ -1402,6 +2157,24 @@
     return "Inactive";
   }
 
+  function normalizeEntitlement(entitlement) {
+    const expiresAt = entitlement.expires_at || entitlement.expiresAt || null;
+    const revokedAt = entitlement.revoked_at || entitlement.revokedAt || null;
+    const rawActive = Boolean(entitlement.active ?? entitlement.rawActive);
+    return {
+      active: rawActive && !revokedAt && (!expiresAt || new Date(expiresAt).getTime() > Date.now()),
+      revokedAt,
+      expiresAt,
+    };
+  }
+
+  function maskEmail(email) {
+    const [name, domain] = String(email || "").split("@");
+    if (!domain) return "hidden";
+    const visible = name.length <= 2 ? name.slice(0, 1) : name.slice(0, 2);
+    return `${visible}***@${domain}`;
+  }
+
   function updateEntitlementActionTone() {
     const isRevoke = els.entitlementAction.value === "revoke";
     els.entitlementSubmitBtn.classList.toggle("danger", isRevoke);
@@ -1423,6 +2196,10 @@
     const date = new Date(value);
     if (Number.isNaN(date.getTime())) return "None";
     return date.toLocaleString();
+  }
+
+  function toDateInputValue(date) {
+    return date.toISOString().slice(0, 10);
   }
 
   function labelEvent(eventName) {

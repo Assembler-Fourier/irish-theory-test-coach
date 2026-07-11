@@ -1,4 +1,4 @@
-import { requireAdmin, sendAdminError } from "../../../lib/admin.js";
+import { requireAdmin, sendAdminError, testAuthzOk } from "../../../lib/admin.js";
 import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
@@ -20,8 +20,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    await requireAdmin(req, env.databaseUrl);
     const type = String(req.query.type || "purchases");
+    const permission = ["purchases", "referrals", "instructor-codes"].includes(type) ? "manage_payments" : "view_overview";
+    const admin = await requireAdmin(req, env.databaseUrl, { permission });
+    if (testAuthzOk(req, res, admin, permission)) return;
     const csv = type === "referrals"
       ? await exportReferralPerformance(env.databaseUrl)
       : type === "instructor-codes"

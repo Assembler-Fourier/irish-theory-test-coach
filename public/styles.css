@@ -3330,6 +3330,31 @@ button.is-loading::after,
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.admin-range-form,
+.admin-inline-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: end;
+  justify-content: flex-end;
+}
+
+.admin-range-form label,
+.admin-inline-form label {
+  display: grid;
+  gap: var(--space-1);
+  color: var(--color-muted);
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.admin-range-form input,
+.admin-inline-form input,
+.admin-inline-form select {
+  min-height: 42px;
+  min-width: 150px;
+}
+
 .admin-form-stack,
 .admin-draft-grid {
   display: grid;
@@ -3417,6 +3442,22 @@ button.is-loading::after,
   background: var(--color-surface);
 }
 
+.admin-detail-panel {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.admin-detail-section {
+  display: grid;
+  gap: var(--space-3);
+  border-top: 1px solid var(--color-line);
+  padding-top: var(--space-4);
+}
+
+.admin-detail-section h3 {
+  margin: 0;
+}
+
 .admin-item-heading,
 .admin-badge-row,
 .review-editor-heading,
@@ -3494,6 +3535,11 @@ button.is-loading::after,
 
 .admin-empty-state p {
   margin: var(--space-2) 0 0;
+}
+
+.admin-restricted-state {
+  border-style: solid;
+  background: var(--color-surface-soft);
 }
 
 .admin-table-wrap {
@@ -4088,6 +4134,22 @@ button.is-loading::after,
   .admin-form,
   .admin-form-wide {
     grid-template-columns: 1fr;
+  }
+
+  .admin-range-form,
+  .admin-inline-form {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .admin-range-form label,
+  .admin-inline-form label,
+  .admin-range-form input,
+  .admin-inline-form input,
+  .admin-inline-form select,
+  .admin-range-form button,
+  .admin-inline-form button {
+    width: 100%;
   }
 }
 

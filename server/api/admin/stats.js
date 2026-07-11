@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { requireAdmin, sendAdminError } from "../../../lib/admin.js";
+import { requireAdmin, sendAdminError, testAuthzOk } from "../../../lib/admin.js";
 import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
@@ -41,9 +41,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    await requireAdmin(req, env.databaseUrl);
+    const admin = await requireAdmin(req, env.databaseUrl, { permission: "view_overview" });
+    if (testAuthzOk(req, res, admin, "view_overview")) return;
+    const range = parseDateRange(req.query || {});
     const [dbStats, questionStats] = await Promise.all([
-      loadDbStats(env.databaseUrl),
+      loadDbStats(env.databaseUrl, range),
       loadQuestionStats(),
     ]);
     return res.status(200).json({ ok: true, stats: { ...dbStats, questions: questionStats } });
@@ -53,7 +55,7 @@ export default async function handler(req, res) {
   }
 }
 
-async function loadDbStats(databaseUrl) {
+async function loadDbStats(databaseUrl, range) {
   return withDb(databaseUrl, async (client) => {
     const [
       totals,
@@ -63,11 +65,14 @@ async function loadDbStats(databaseUrl) {
       revenue,
       planSales,
       referralPerformance,
+      operationalWarnings,
     ] = await Promise.all([
       client.query(`
         select
           (select count(*)::int from users) as users,
-          (select count(*)::int from users where role = 'admin') as admins,
+          (select count(*)::int from users where role in ('owner', 'admin')) as admins,
+          (select count(*)::int from users where role = 'content_editor') as content_editors,
+          (select count(*)::int from users where role = 'support') as support_users,
           (select count(*)::int from purchases) as purchases,
           (
             select count(*)::int
@@ -83,6 +88,13 @@ async function loadDbStats(databaseUrl) {
               or revoked_at is not null
               or (expires_at is not null and expires_at <= now())
           ) as inactive_entitlements,
+          (
+            select count(*)::int
+            from entitlements
+            where expires_at is not null
+              and expires_at <= now()
+              and revoked_at is null
+          ) as expired_entitlements,
           (select count(*)::int from attempts) as attempts,
           (select count(*)::int from flags) as flags,
           (select count(*)::int from source_documents) as source_documents,
@@ -133,11 +145,14 @@ async function loadDbStats(databaseUrl) {
       client.query(`
         select email, stripe_checkout_session_id, stripe_payment_intent_id, plan_key, referral_code, amount, currency, status, created_at
         from purchases
+        where created_at >= $1::timestamptz
+          and created_at < $2::timestamptz
         order by created_at desc
         limit 8
-      `),
+      `, [range.start, range.end]),
       client.query(`
-        select admin_email, action, target_type, target_email, target_id, metadata, created_at
+        select admin_email, action, target_type, target_email, target_id,
+               reason, request_correlation_id, metadata, created_at
         from admin_audit_log
         order by created_at desc
         limit 10
@@ -147,6 +162,8 @@ async function loadDbStats(databaseUrl) {
           select *
           from purchases
           where status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')
+            and created_at >= $1::timestamptz
+            and created_at < $2::timestamptz
         ),
         purchase_summary as (
           select coalesce(sum(amount), 0)::int as gross_revenue,
@@ -159,6 +176,8 @@ async function loadDbStats(databaseUrl) {
           select count(*) filter (where status in ('succeeded', 'paid', 'recorded'))::int as refund_count,
                  coalesce(sum(amount) filter (where status in ('succeeded', 'paid', 'recorded')), 0)::int as refund_amount
           from payment_refunds
+          where created_at >= $1::timestamptz
+            and created_at < $2::timestamptz
         )
         select ps.gross_revenue,
                round((ps.gross_revenue * 0.015) + (ps.purchase_count * 25))::int as estimated_stripe_fees,
@@ -168,15 +187,17 @@ async function loadDbStats(databaseUrl) {
                ps.instructor_revenue
         from purchase_summary ps
         cross join refund_summary rs
-      `),
+      `, [range.start, range.end]),
       client.query(`
         select coalesce(nullif(plan_key, ''), 'unknown') as plan_key,
                count(*)::int as sales,
                coalesce(sum(amount) filter (where status in ('paid', 'complete', 'succeeded', 'partially_refunded', 'refunded')), 0)::int as revenue
         from purchases
+        where created_at >= $1::timestamptz
+          and created_at < $2::timestamptz
         group by 1
         order by revenue desc, sales desc
-      `),
+      `, [range.start, range.end]),
       client.query(`
         select rc.code,
                rc.description,
@@ -188,12 +209,53 @@ async function loadDbStats(databaseUrl) {
         from referral_codes rc
         left join referral_redemptions rr on rr.code = rc.code
         left join purchases p on p.stripe_checkout_session_id = rr.stripe_checkout_session_id
+          and p.created_at >= $1::timestamptz
+          and p.created_at < $2::timestamptz
         group by rc.code
         order by revenue desc, redemptions desc
         limit 20
+      `, [range.start, range.end]),
+      client.query(`
+        select *
+        from (
+          select 'failed_webhook' as warning_type,
+                 stripe_event_id as target_id,
+                 type as title,
+                 failure_reason as detail,
+                 last_received_at as created_at
+          from stripe_events
+          where processing_status = 'failed'
+          union all
+          select 'failed_checkout' as warning_type,
+                 coalesce(stripe_checkout_session_id, id::text) as target_id,
+                 resolved_plan_key as title,
+                 failure_reason as detail,
+                 updated_at as created_at
+          from checkout_attempts
+          where status in ('stripe_request_failed', 'stripe_rejected', 'async_payment_failed', 'payment_failed')
+          union all
+          select 'open_support_case' as warning_type,
+                 id::text as target_id,
+                 category as title,
+                 priority as detail,
+                 updated_at as created_at
+          from support_cases
+          where status in ('open', 'waiting')
+            and priority in ('high', 'urgent')
+          union all
+          select 'payment_dispute' as warning_type,
+                 stripe_dispute_id as target_id,
+                 status as title,
+                 reason as detail,
+                 updated_at as created_at
+          from payment_disputes
+          where status not in ('won', 'warning_closed')
+        ) warnings
+        order by created_at desc
+        limit 20
       `),
     ]);
-    const analytics = await loadAnalyticsStats(client);
+    const analytics = await loadAnalyticsStats(client, range);
     const revenueRow = revenue.rows[0] || {};
     const grossRevenue = Number(revenueRow.gross_revenue || 0);
     const estimatedStripeFees = Number(revenueRow.estimated_stripe_fees || 0);
@@ -201,6 +263,7 @@ async function loadDbStats(databaseUrl) {
 
     return {
       totals: totals.rows[0],
+      range,
       revenue: {
         grossRevenue,
         estimatedStripeFees,
@@ -236,12 +299,13 @@ async function loadDbStats(databaseUrl) {
       })),
       recentPurchases: recentPurchases.rows,
       recentAudit: recentAudit.rows,
+      operationalWarnings: operationalWarnings.rows,
       analytics,
     };
   });
 }
 
-async function loadAnalyticsStats(client) {
+async function loadAnalyticsStats(client, range) {
   const tableResult = await client.query("select to_regclass('public.events') as table_name");
   if (!tableResult.rows[0]?.table_name) {
     return emptyAnalyticsStats();
@@ -260,46 +324,104 @@ async function loadAnalyticsStats(client) {
                count(*)::int as events,
                count(distinct anonymous_id)::int as visitors
         from events
-        where created_at >= now() - interval '30 days'
+        where created_at >= $2::timestamptz
+          and created_at < $3::timestamptz
           and event_name = any($1)
         group by event_name
       `,
-      [FUNNEL_EVENTS]
+      [FUNNEL_EVENTS, range.start, range.end]
     ),
     client.query(`
       select coalesce(nullif(properties->>'category', ''), 'Uncategorised') as category,
              count(*)::int as misses
       from events
       where event_name = 'answer_wrong'
-        and created_at >= now() - interval '30 days'
+        and created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
       group by 1
       order by misses desc, category asc
       limit 10
-    `),
+    `, [range.start, range.end]),
     client.query(`
       select (properties->>'questionId')::int as question_id,
              coalesce(nullif(properties->>'category', ''), 'Uncategorised') as category,
              count(*)::int as misses
       from events
       where event_name = 'answer_wrong'
-        and created_at >= now() - interval '30 days'
+        and created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
         and properties->>'questionId' ~ '^[0-9]+$'
       group by 1, 2
       order by misses desc, question_id asc
       limit 10
-    `),
+    `, [range.start, range.end]),
     client.query(`
       select count(*) filter (where event_name = 'paywall_viewed')::int as paywall_views,
              count(*) filter (where event_name = 'checkout_clicked')::int as checkout_clicks
       from events
-      where created_at >= now() - interval '30 days'
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
         and event_name in ('paywall_viewed', 'checkout_clicked')
-    `),
+    `, [range.start, range.end]),
     client.query(`
       select count(*)::int as total
       from events
-      where created_at >= now() - interval '30 days'
-    `),
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+    `, [range.start, range.end]),
+  ]);
+
+  const [modeUsage, deviceClass, conversionSource, mockCompletion, reportFrequency] = await Promise.all([
+    client.query(`
+      select coalesce(nullif(properties->>'mode', ''), 'unknown') as mode,
+             count(*)::int as events
+      from events
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+        and event_name in ('mode_selected', 'question_answered', 'mock_started')
+      group by 1
+      order by events desc
+      limit 12
+    `, [range.start, range.end]),
+    client.query(`
+      select coalesce(nullif(properties->>'deviceClass', ''), 'unknown') as device_class,
+             count(*)::int as events
+      from events
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+      group by 1
+      order by events desc
+      limit 8
+    `, [range.start, range.end]),
+    client.query(`
+      select coalesce(nullif(properties->>'source', ''), 'direct') as source,
+             count(*)::int as events
+      from events
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+        and event_name in ('checkout_clicked', 'checkout_success', 'referral_checkout_started')
+      group by 1
+      order by events desc
+      limit 12
+    `, [range.start, range.end]),
+    client.query(`
+      select count(*) filter (where event_name = 'mock_started')::int as starts,
+             count(*) filter (where event_name = 'mock_completed')::int as completions
+      from events
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+        and event_name in ('mock_started', 'mock_completed')
+    `, [range.start, range.end]),
+    client.query(`
+      select question_id,
+             count(*)::int as reports
+      from question_problem_reports
+      where created_at >= $1::timestamptz
+        and created_at < $2::timestamptz
+      group by question_id
+      order by reports desc
+      limit 10
+    `, [range.start, range.end]),
   ]);
 
   const byName = new Map(funnel.rows.map((row) => [row.event_name, row]));
@@ -328,6 +450,14 @@ async function loadAnalyticsStats(client) {
       category: row.category,
       misses: row.misses,
     })),
+    modeUsage: modeUsage.rows,
+    deviceClass: deviceClass.rows,
+    conversionSource: conversionSource.rows,
+    mockCompletion: {
+      starts: Number(mockCompletion.rows[0]?.starts || 0),
+      completions: Number(mockCompletion.rows[0]?.completions || 0),
+    },
+    reportFrequency: reportFrequency.rows,
   };
 }
 
@@ -338,7 +468,33 @@ function emptyAnalyticsStats() {
     paywall: { views: 0, checkoutClicks: 0, clickRate: 0 },
     missedCategories: [],
     missedQuestions: [],
+    modeUsage: [],
+    deviceClass: [],
+    conversionSource: [],
+    mockCompletion: { starts: 0, completions: 0 },
+    reportFrequency: [],
   };
+}
+
+function parseDateRange(query) {
+  const endDate = parseDate(query.to) || new Date();
+  const startDate = parseDate(query.from) || new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+  if (startDate >= endDate) {
+    return {
+      start: new Date(endDate.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString(),
+      end: endDate.toISOString(),
+    };
+  }
+  return {
+    start: startDate.toISOString(),
+    end: endDate.toISOString(),
+  };
+}
+
+function parseDate(value) {
+  if (!value) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
 }
 
 async function loadQuestionStats() {

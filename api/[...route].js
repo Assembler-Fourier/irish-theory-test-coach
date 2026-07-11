@@ -18,14 +18,17 @@ import verifySession from "../server/api/verify-session.js";
 import v1Media from "../server/api/v1-media.js";
 import v1StudySessions from "../server/api/v1-study-sessions.js";
 import questionFeedback from "../server/api/question-feedback.js";
+import adminAudit from "../server/api/admin/audit.js";
 import adminContentQuality from "../server/api/admin/content-quality.js";
 import adminEntitlements from "../server/api/admin/entitlements.js";
 import adminExport from "../server/api/admin/export.js";
 import adminGenerateQuestions from "../server/api/admin/generate-questions.js";
+import adminInstructors from "../server/api/admin/instructors.js";
 import adminPayments from "../server/api/admin/payments.js";
 import adminQuestions from "../server/api/admin/questions.js";
 import adminReferrals from "../server/api/admin/referrals.js";
 import adminStats from "../server/api/admin/stats.js";
+import adminSupport from "../server/api/admin/support.js";
 import adminUsers from "../server/api/admin/users.js";
 
 export const config = {
@@ -53,6 +56,8 @@ const routes = new Map([
   ["referral-code", referralCode],
   ["stripe-webhook", stripeWebhook],
   ["verify-session", verifySession],
+  ["admin/audit", adminAudit],
+  ["admin-audit", adminAudit],
   ["admin/entitlements", adminEntitlements],
   ["admin-entitlements", adminEntitlements],
   ["admin/content-quality", adminContentQuality],
@@ -61,6 +66,8 @@ const routes = new Map([
   ["admin-export", adminExport],
   ["admin/generate-questions", adminGenerateQuestions],
   ["admin-generate-questions", adminGenerateQuestions],
+  ["admin/instructors", adminInstructors],
+  ["admin-instructors", adminInstructors],
   ["admin/payments", adminPayments],
   ["admin-payments", adminPayments],
   ["admin/questions", adminQuestions],
@@ -69,6 +76,8 @@ const routes = new Map([
   ["admin-referrals", adminReferrals],
   ["admin/stats", adminStats],
   ["admin-stats", adminStats],
+  ["admin/support", adminSupport],
+  ["admin-support", adminSupport],
   ["admin/users", adminUsers],
   ["admin-users", adminUsers],
 ]);

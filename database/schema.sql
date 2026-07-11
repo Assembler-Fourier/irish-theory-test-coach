@@ -19,17 +19,10 @@ alter table users
   add column if not exists notification_preferences jsonb not null default '{}'::jsonb,
   add column if not exists updated_at timestamptz not null default now();
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_constraint
-    where conname = 'users_role_check'
-  ) then
-    alter table users
-      add constraint users_role_check check (role in ('user', 'admin'));
-  end if;
-end $$;
+alter table users drop constraint if exists users_role_check;
+
+alter table users
+  add constraint users_role_check check (role in ('user', 'owner', 'admin', 'content_editor', 'support'));
 
 create table if not exists purchases (
   id uuid primary key default gen_random_uuid(),
@@ -347,6 +340,37 @@ create table if not exists account_deletion_requests (
   resolved_at timestamptz
 );
 
+create table if not exists support_cases (
+  id uuid primary key default gen_random_uuid(),
+  requester_email text not null,
+  requester_name text,
+  category text not null default 'general',
+  purchase_id uuid references purchases(id) on delete set null,
+  status text not null default 'open',
+  priority text not null default 'normal',
+  assigned_admin_user_id uuid references users(id) on delete set null,
+  assigned_admin_email text,
+  internal_notes text,
+  resolution text,
+  created_by uuid references users(id) on delete set null,
+  created_by_email text,
+  resolved_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table support_cases
+  add column if not exists requester_name text,
+  add column if not exists purchase_id uuid,
+  add column if not exists assigned_admin_user_id uuid,
+  add column if not exists assigned_admin_email text,
+  add column if not exists internal_notes text,
+  add column if not exists resolution text,
+  add column if not exists created_by uuid,
+  add column if not exists created_by_email text,
+  add column if not exists resolved_at timestamptz,
+  add column if not exists updated_at timestamptz not null default now();
+
 create table if not exists attempts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid,
@@ -396,9 +420,19 @@ create table if not exists admin_audit_log (
   target_type text not null,
   target_email text,
   target_id text,
+  before_state jsonb,
+  after_state jsonb,
+  reason text,
+  request_correlation_id text,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+
+alter table admin_audit_log
+  add column if not exists before_state jsonb,
+  add column if not exists after_state jsonb,
+  add column if not exists reason text,
+  add column if not exists request_correlation_id text;
 
 create table if not exists question_sources (
   id uuid primary key default gen_random_uuid(),
@@ -713,6 +747,10 @@ create index if not exists attempts_user_created_idx on attempts (user_id, creat
 create index if not exists attempts_user_question_created_idx on attempts (user_id, question_id, created_at desc);
 create index if not exists entitlements_email_idx on entitlements (email);
 create index if not exists admin_audit_log_created_idx on admin_audit_log (created_at desc);
+create index if not exists admin_audit_log_action_idx on admin_audit_log (action, created_at desc);
+create index if not exists admin_audit_log_correlation_idx
+  on admin_audit_log (request_correlation_id)
+  where request_correlation_id is not null;
 create index if not exists question_sources_question_idx on question_sources (question_id);
 create index if not exists question_reviews_status_idx on question_reviews (reviewed_status);
 create index if not exists question_reviews_variant_group_idx on question_reviews (variant_group_id);
@@ -754,6 +792,9 @@ create unique index if not exists mock_sessions_user_public_unique_idx
   on mock_sessions (user_id, session_public_id)
   where user_id is not null;
 create index if not exists account_deletion_requests_email_idx on account_deletion_requests (email, created_at desc);
+create index if not exists support_cases_status_priority_idx on support_cases (status, priority, updated_at desc);
+create index if not exists support_cases_requester_idx on support_cases (requester_email, created_at desc);
+create index if not exists support_cases_purchase_idx on support_cases (purchase_id) where purchase_id is not null;
 create unique index if not exists attempts_user_client_event_id_idx
   on attempts (user_id, client_event_id)
   where user_id is not null and client_event_id is not null;

@@ -1,6 +1,7 @@
 import {
   requireAdmin,
   sendAdminError,
+  testAuthzOk,
   writeAdminAuditLog,
 } from "../../../lib/admin.js";
 import { normalizeEmail, readJsonBody } from "../../../lib/auth.js";
@@ -27,7 +28,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, env.databaseUrl);
+    const permission = req.method === "POST" ? "manage_entitlements" : "view_users";
+    const admin = await requireAdmin(req, env.databaseUrl, { permission });
+    if (testAuthzOk(req, res, admin, permission)) return;
 
     if (req.method === "GET") {
       const q = String(req.query.q || "").trim().toLowerCase();
@@ -94,7 +97,25 @@ async function mutateEntitlement(databaseUrl, admin, body) {
     throw error;
   }
 
+  if (action === "revoke" && body.confirm !== true) {
+    const error = new Error("Confirmation is required for revoking access.");
+    error.statusCode = 400;
+    throw error;
+  }
+
   return withTransaction(databaseUrl, async (client) => {
+    const beforeResult = await client.query(
+      `
+        select email, product, active, source, expires_at, revoked_at, updated_at
+        from entitlements
+        where lower(email) = lower($1)
+          and product = $2
+        limit 1
+      `,
+      [email, PRODUCT]
+    );
+    const beforeState = beforeResult.rows[0] || null;
+
     await client.query(
       `
         insert into users (email)
@@ -151,17 +172,6 @@ async function mutateEntitlement(databaseUrl, admin, body) {
       );
     }
 
-    await writeAdminAuditLog(client, admin, {
-      action: `entitlement.${action}`,
-      targetType: "entitlement",
-      targetEmail: email,
-      metadata: {
-        product: PRODUCT,
-        expiresAt,
-        days,
-      },
-    });
-
     const result = await client.query(
       `
         select email, product, active, source, expires_at, revoked_at, created_at, updated_at
@@ -172,7 +182,23 @@ async function mutateEntitlement(databaseUrl, admin, body) {
       `,
       [email, PRODUCT]
     );
-    return formatEntitlement(result.rows[0]);
+    const entitlement = formatEntitlement(result.rows[0]);
+
+    await writeAdminAuditLog(client, admin, {
+      action: `entitlement.${action}`,
+      targetType: "entitlement",
+      targetEmail: email,
+      beforeState,
+      afterState: result.rows[0] || null,
+      reason: cleanOptionalText(body.reason, 500),
+      metadata: {
+        product: PRODUCT,
+        expiresAt,
+        days,
+      },
+    });
+
+    return entitlement;
   });
 }
 
@@ -187,6 +213,10 @@ function parseExpiresAt(value, days) {
   }
 
   return null;
+}
+
+function cleanOptionalText(value, maxLength) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength);
 }
 
 function formatEntitlement(row) {

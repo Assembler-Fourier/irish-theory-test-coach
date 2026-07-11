@@ -1,5 +1,5 @@
 import { readJsonBody } from "../../../lib/auth.js";
-import { requireAdmin, sendAdminError, writeAdminAuditLog } from "../../../lib/admin.js";
+import { requireAdmin, sendAdminError, testAuthzOk, writeAdminAuditLog } from "../../../lib/admin.js";
 import { normalizeReferralCode } from "../../../lib/referrals.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import {
@@ -17,7 +17,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, env.databaseUrl);
+    const admin = await requireAdmin(req, env.databaseUrl, { permission: "manage_instructors" });
+    if (testAuthzOk(req, res, admin, "manage_instructors")) return;
     if (req.method === "GET") {
       const referrals = await listReferrals(env.databaseUrl);
       return res.status(200).json({ ok: true, referrals });

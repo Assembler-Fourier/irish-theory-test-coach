@@ -1,4 +1,4 @@
-import { requireAdmin, sendAdminError, writeAdminAuditLog } from "../../../lib/admin.js";
+import { requireAdmin, sendAdminError, testAuthzOk, writeAdminAuditLog } from "../../../lib/admin.js";
 import { readJsonBody } from "../../../lib/auth.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import { revokeInstructorCode } from "../../../lib/instructor-codes.js";
@@ -23,7 +23,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, authEnv.databaseUrl);
+    const admin = await requireAdmin(req, authEnv.databaseUrl, { permission: "manage_payments" });
+    if (testAuthzOk(req, res, admin, "manage_payments")) return;
 
     if (req.method === "GET") {
       const payload = await getPaymentReconciliation(authEnv.databaseUrl);
@@ -35,6 +36,9 @@ export default async function handler(req, res) {
       const action = String(body.action || "");
 
       if (action === "record_refund") {
+        if (body.entitlementEffect === "revoke" && body.confirm !== true) {
+          return res.status(400).json({ error: "Confirmation is required" });
+        }
         const result = await recordManualRefund(authEnv.databaseUrl, {
           ...body,
           actorUserId: admin.userId,
@@ -44,6 +48,12 @@ export default async function handler(req, res) {
           action: "record_manual_refund",
           targetType: "payment_refund",
           targetEmail: body.email || "",
+          reason: String(body.reason || "").slice(0, 500),
+          afterState: {
+            amount: Number(body.amount || 0),
+            entitlementEffect: String(body.entitlementEffect || "none"),
+            stripeObject: String(body.stripeObject || body.stripeRefundId || ""),
+          },
           metadata: {
             amount: Number(body.amount || 0),
             entitlementEffect: String(body.entitlementEffect || "none"),
@@ -53,11 +63,16 @@ export default async function handler(req, res) {
       }
 
       if (action === "revoke_instructor_code") {
+        if (body.confirm !== true) {
+          return res.status(400).json({ error: "Confirmation is required" });
+        }
         const revoked = await revokeInstructorCode(authEnv.databaseUrl, body.code, admin);
         await audit(authEnv.databaseUrl, admin, {
           action: "revoke_instructor_code",
           targetType: "instructor_code",
           targetId: String(body.code || "").slice(0, 80),
+          reason: String(body.reason || "admin_revoked").slice(0, 500),
+          afterState: { revoked },
           metadata: { revoked },
         });
         return res.status(200).json({ ok: true, revoked });
@@ -70,6 +85,8 @@ export default async function handler(req, res) {
           action: "replay_stripe_event",
           targetType: "stripe_event",
           targetId: String(body.stripeEventId || "").slice(0, 120),
+          reason: String(body.reason || "admin_replay").slice(0, 500),
+          afterState: replay,
           metadata: replay,
         });
         return res.status(200).json({ ok: true, replay });

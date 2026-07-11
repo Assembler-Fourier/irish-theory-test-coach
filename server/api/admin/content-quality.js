@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   requireAdmin,
   sendAdminError,
+  testAuthzOk,
   writeAdminAuditLog,
 } from "../../../lib/admin.js";
 import { readJsonBody } from "../../../lib/auth.js";
@@ -41,7 +42,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, env.databaseUrl);
+    const admin = await requireAdmin(req, env.databaseUrl, { permission: req.method === "POST" ? "manage_content" : "view_content" });
+    if (testAuthzOk(req, res, admin, req.method === "POST" ? "manage_content" : "view_content")) return;
 
     if (req.method === "POST") {
       const body = await readJsonBody(req);
@@ -109,6 +111,12 @@ async function saveQualityDecision(databaseUrl, admin, body) {
 
   if (action === "change_category" && (!Number.isInteger(questionId) || !newCategory)) {
     const error = new Error("A question ID and category are required.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (action === "archive_redundant" && body.confirm !== true) {
+    const error = new Error("Confirmation is required.");
     error.statusCode = 400;
     throw error;
   }
@@ -196,6 +204,9 @@ async function saveQualityDecision(databaseUrl, admin, body) {
       action: `content_quality.${action}`,
       targetType: "question_quality",
       targetId: groupId,
+      beforeState: oldVersion,
+      afterState: newVersion,
+      reason: reason || action,
       metadata: {
         questionIds,
         canonicalQuestionId,
