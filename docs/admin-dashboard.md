@@ -1,12 +1,12 @@
 # Admin Dashboard
 
-The admin dashboard lives at:
+The admin dashboard is available at:
 
 ```text
-/admin.html
+/admin
 ```
 
-Every admin API verifies the httpOnly session cookie and checks `users.role = 'admin'` server-side. Frontend checks are display-only and must never be treated as authorization.
+Every admin API verifies the HTTP-only session cookie and checks the user's server-side role. Supported roles are `owner`, `admin`, `content_editor`, and `support`, with permissions restricted by operation. Frontend checks are display-only and must never be treated as authorization.
 
 ## Apply The Migration
 
@@ -23,22 +23,25 @@ This adds:
 - `entitlements.revoked_at`
 - `admin_audit_log`
 
-## Promote The First Admin In Neon
+## Configure The First Owner In Neon
 
-1. Log in once through magic-link login using the email that should become admin. This creates or confirms the `users` row.
-2. Open the Neon SQL editor.
-3. Run this statement with your admin email:
+1. Configure `EMAIL_FROM` and `EMAIL_PROVIDER_API_KEY` so the passwordless login link can be delivered through Resend.
+2. Log in once using the email that should own the workspace. This creates or confirms the `users` row.
+3. Open the Neon SQL editor.
+4. Run this statement with the owner's email:
 
 ```sql
 insert into users (email, role)
-values ('you@example.com', 'admin')
+values ('you@example.com', 'owner')
 on conflict (email) do update
-set role = 'admin',
+set role = 'owner',
     updated_at = now();
 ```
 
-4. Log out and log back in so the session reads the updated role.
-5. Open `/admin.html`.
+5. Log out and log back in so the session reads the updated role.
+6. Open `/admin`.
+
+The commercial Preview owner flow was verified through one-time token consumption, `/api/me`, `/api/admin/stats`, and logout. A configured email provider is still required for ordinary inbox delivery.
 
 Do not expose SQL connection strings, session cookies, magic links, or provider keys in screenshots, docs, or chat.
 

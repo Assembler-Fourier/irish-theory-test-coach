@@ -1,133 +1,176 @@
 # Irish Theory Test Coach
 
-A mobile-first Category B theory-test practice product for Irish learner drivers. It combines a focused question experience, estimated priority drills, road-sign practice, timed mock exams, weak-area review, secure paid access, and an admin content workflow.
+I built Irish Theory Test Coach as a commercial-grade learning product for Irish Category B learner drivers. It started as a question recovery project and grew into a complete study platform with protected premium content, timed mock exams, progress coaching, passwordless accounts, payments, instructor codes, and an operator dashboard.
 
-**Independent practice tool. Not affiliated with RSA or Prometric.** The project does not promise a guaranteed pass or claim official exam frequency.
+This repository is public as a portfolio case study. It shows how I approach product design, backend security, payment reliability, content operations, accessibility, SEO, and production readiness in one working system.
 
-## Live Product
+> **Independent practice tool. Not affiliated with RSA or Prometric.** The product does not guarantee a pass or claim to know official exam frequency.
 
-- **App:** [irish-theory-test-coach.vercel.app](https://irish-theory-test-coach.vercel.app)
-- **Pricing:** [View learner and instructor plans](https://irish-theory-test-coach.vercel.app/pricing)
-- **Learning hub:** [Browse study guides](https://irish-theory-test-coach.vercel.app/learn)
-- **Admin:** [Protected admin workspace](https://irish-theory-test-coach.vercel.app/admin)
-- **Sitemap:** [View the production sitemap](https://irish-theory-test-coach.vercel.app/sitemap.xml)
+## Try It
 
-![Irish Theory Test Coach desktop interface](docs/images/portfolio-desktop.png)
+- **Live product preview:** [Open Irish Theory Test Coach](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app)
+- **Learner workspace:** [Start the 15-question preview](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/app)
+- **Pricing:** [View learner and instructor plans](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/pricing)
+- **Learning hub:** [Browse the study guides](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/learn)
 
-## Product Highlights
+The custom `.ie` domain is still completing registry activation. The Vercel Preview is the current review environment and intentionally uses Stripe sandbox payments.
 
-- Published question count, estimated-priority count, sign/image count, preview limit, mock settings, access duration, and active learner price are generated from the runtime product summary during build.
-- Six study modes: revise, estimated priority, hardest, road signs, mock test, and review.
-- 40-question, 45-minute mock flow with a 35-answer practice pass mark.
-- Daily target, missed-question cleanup, category accuracy, flags, and recommended next actions.
-- Mobile-first quiz UI with accessible answer states and coaching feedback.
-- Free 15-question preview and a EUR 4.99 one-time Full Study Pass with 90-day access.
-- Stripe Checkout, server-side entitlement verification, webhook endpoint, and restore-access flow.
-- Neon Postgres persistence for users, purchases, entitlements, sessions, progress, analytics, referrals, and content review.
-- Server-authorized admin dashboard for users, entitlements, revenue, referrals, questions, and generated drafts.
-- Privacy-safe first-party analytics, installable PWA support, offline shell caching, and 33 indexable public URLs.
+![Current Irish Theory Test Coach learner workspace](docs/images/portfolio-desktop.png)
 
 <p align="center">
-  <img src="docs/images/portfolio-mobile.png" width="390" alt="Irish Theory Test Coach mobile question interface">
+  <img src="docs/images/portfolio-mobile.png" width="390" alt="Current Irish Theory Test Coach mobile question experience">
 </p>
+
+## What I Built
+
+The learner experience includes:
+
+- 1,277 structured practice questions across the Category B topic bank
+- a 15-question free preview that does not expose premium answer keys
+- estimated-priority, hardest, road-sign, review, and revision modes
+- server-generated 40-question mock exams with a 45-minute timer
+- answer coaching, explanations, memory tips, flags, and missed-question review
+- category accuracy, daily targets, study streaks, and recommended next actions
+- passwordless account restoration and cross-device progress
+- installable PWA support and an offline free-preview shell
+
+The commercial and operator side includes:
+
+- Stripe Checkout for learner passes and instructor code packs
+- signed, idempotent Stripe webhook processing
+- refund, dispute, and repeat-purchase entitlement handling
+- cryptographically generated single-use instructor codes
+- server-authorized roles for owners, admins, editors, and support staff
+- users, purchases, entitlements, content QA, analytics, support, and audit-log views
+- first-party privacy-safe funnel analytics
+- static SEO pages, structured data, sitemap generation, and internal-link checks
+
+## The Engineering Work I Am Most Proud Of
+
+### Premium content is actually protected
+
+The browser receives only the free preview before authentication. Premium sessions are selected on the server, correct answers are withheld until submission, mock scoring is calculated server-side, and premium media routes require active access.
+
+### Payments survive real failure cases
+
+Checkout amounts and plan selection are server-authoritative. Webhook events are signature-verified and idempotent. The payment ledger represents completed, failed, expired, refunded, disputed, and replayed events. A won dispute restores only the entitlement revoked by that same dispute and preserves the learner's remaining access time.
+
+### Content quality is an operational workflow
+
+The content pipeline detects exact and near duplicates, answer-set variants, conflicting answers, category aliases, malformed options, unsafe HTML, weak explanations, and missing image descriptions. Editorial decisions are versioned and auditable instead of silently changing factual answers.
+
+### Build output cannot quietly drift
+
+Question counts, pricing, access duration, content versions, schema versions, and release metadata are generated from authoritative sources. Stale-build tests fail when marketing copy, public data, pricing, sitemap entries, or generated files disagree.
 
 ## Architecture
 
-```text
-public/                 Static product UI, PWA, legal pages, and SEO pages
-api/[...route].js       Consolidated Vercel Function router
-server/api/             Checkout, auth, progress, analytics, AI, and admin handlers
-lib/                    Database, auth, entitlement, referral, and environment helpers
-shared/                 Central pricing configuration
-database/schema.sql     Neon Postgres schema
-data/                   Question dataset, study reports, and local image assets
-scripts/                Build, QA, SEO, screenshot, migration, and recovery tools
-docs/                   Product, security, operations, content, and launch documentation
+```mermaid
+flowchart LR
+    Browser["Static learner app"] --> API["Vercel Functions"]
+    API --> Neon["Neon Postgres"]
+    API --> PrivateBank["Private question adapter"]
+    API --> Stripe["Stripe Checkout and webhooks"]
+    Browser --> Preview["Public 15-question package"]
+    Admin["Protected admin workspace"] --> API
+    Stripe --> Webhook["Raw-body webhook endpoint"]
+    Webhook --> Neon
 ```
 
-The current MVP deliberately uses static HTML, CSS, and JavaScript with Vercel serverless APIs. It avoids a framework migration so the app remains inexpensive to host and easy to inspect.
+```text
+public/                 Static learner app, marketing pages, PWA, and admin UI
+api/                    Vercel entrypoints and consolidated API router
+server/api/             Auth, study, payment, analytics, support, and admin handlers
+lib/                    Database, security, entitlement, content, and audit helpers
+shared/                 Authoritative pricing, product, business, and growth config
+database/               Idempotent schema and numbered migrations
+data/                   Owned question source data and media
+scripts/                Build, validation, QA, migration, evidence, and release tooling
+docs/                   Security, operations, content, design, SEO, and launch guides
+```
+
+I kept the product in modular vanilla JavaScript instead of migrating frameworks. That kept the runtime small, made the static marketing surface fast, and forced a clear boundary between browser code and privileged server behavior.
 
 ## Technology
 
-- HTML5, modern CSS, and vanilla JavaScript
-- Vercel static hosting and Functions
-- Neon Postgres via `pg`
-- Stripe Checkout and signed webhook handling
-- Secure HTTP-only magic-link sessions
-- Service worker and Web App Manifest
-- JSON-LD, sitemap, canonical metadata, and static SEO pages
-- Node.js and Python validation/build tooling
+| Area | Implementation |
+| --- | --- |
+| Frontend | Semantic HTML, modern CSS, modular vanilla JavaScript |
+| Hosting | Vercel static output and serverless Functions |
+| Database | Neon Postgres with `pg` and transactional migrations |
+| Payments | Stripe Checkout, signed webhooks, internal payment ledger |
+| Authentication | Single-use magic links and secure HTTP-only sessions |
+| Offline | Service worker, Web App Manifest, versioned preview cache |
+| Quality | Node and Python validation, browser tests, axe, visual snapshots |
+| SEO | Static HTML, canonical metadata, JSON-LD, sitemap, internal links |
 
-## Local Development
+## Verification
 
-Requirements: Node.js, npm, and Python 3.
+The current commercial Preview was tested against the exact deployed Git commit.
+
+| Check | Current result |
+| --- | --- |
+| Published dataset | 1,277 questions validated |
+| Public content exposure | 15 preview questions, no answer key |
+| Stripe sandbox matrix | 18 of 18 scenarios passed |
+| Payment reconciliation | 0 unresolved findings |
+| Accessibility | 7 states, 0 critical axe violations |
+| Visual regression | 15 deterministic mobile, tablet, and desktop screenshots |
+| Post-deploy smoke test | 11 of 11 routes and behaviors passed |
+| Dependency audit | 0 known vulnerabilities at the latest audit |
+
+Run the complete local quality gate with:
 
 ```powershell
-npm install
+npm ci
+npm run qa
+```
+
+That command validates the dataset, generated output, protected-content boundary, payment and webhook behavior, account policies, role authorization, security controls, PWA, SEO, accessibility, end-to-end flows, and visual baselines.
+
+## Run It Locally
+
+Requirements:
+
+- Node.js 22
+- npm
+- Python 3
+
+```powershell
+git clone https://github.com/Assembler-Fourier/irish-theory-test-coach.git
+cd irish-theory-test-coach
+npm ci
 npm run build
 npm run dev
 ```
 
-Open [http://localhost:5173/public/](http://localhost:5173/public/).
+Open `http://localhost:5173/public/` for the static product. Use `npx vercel dev` when testing serverless APIs locally.
 
-Copy `.env.example` to `.env.local` for local serverless work and replace placeholders locally. Never commit `.env.local`, Stripe keys, Neon credentials, webhook secrets, or email-provider keys.
+`.env.example` contains placeholders only. Real Stripe, Neon, email, session, and webhook credentials must remain in private environment variables.
 
-## Quality Gate
+## Admin And Security
 
-```powershell
-npm run qa
-```
+The admin workspace is not protected by hidden buttons. Every admin endpoint verifies the secure session and server-side role. The Preview owner flow has been tested through token consumption, `/api/me`, protected admin metrics, and logout.
 
-The full QA command validates:
+Operational documentation includes:
 
-- the published question bank and estimated-priority score breakdowns
-- JavaScript syntax and deployable data generation
-- PWA assets and cache declarations
-- sitemap, canonical metadata, structured data, and internal links
-- HTML, image, and data performance budgets
-- obvious live-secret patterns
-- preview, answer, paywall, legal, restore-access, mock, and API safety flows
+- [Threat model](docs/security/threat-model.md)
+- [Security controls](docs/security/security-controls.md)
+- [Incident response](docs/security/incident-response.md)
+- [Release runbook](docs/operations/release-runbook.md)
+- [Payment reconciliation](docs/operations/payment-reconciliation.md)
+- [Admin dashboard](docs/admin-dashboard.md)
 
-Capture the responsive visual baseline with:
+## Current Status
 
-```powershell
-npm run screenshots:ui
-```
+The full commercial build is deployed to Vercel Preview. Production promotion is deliberately held until the custom `.ie` domain leaves registry hold, HTTPS is issued, final credentials are rotated, and legal review is completed. Remaining content work is tracked openly in the generated QA reports rather than hidden behind a launch-ready claim.
 
-## Deployment
+## About Me
 
-Vercel uses:
+I am Uzair Waseem. I built this project end to end, including product design, data tooling, frontend UX, serverless APIs, database design, payments, authentication, admin operations, automated QA, and deployment.
 
-```text
-Build command: npm run build
-Output directory: public
-```
+For hiring conversations, the most useful places to start are the live Preview, the architecture above, and the security/payment modules under `server/api/` and `lib/`.
 
-Production configuration is documented in:
+## Source And Content
 
-- [`docs/release-checklist.md`](docs/release-checklist.md)
-- [`docs/secret-rotation-checklist.md`](docs/secret-rotation-checklist.md)
-- [`docs/stripe-webhook-setup.md`](docs/stripe-webhook-setup.md)
-- [`docs/admin-dashboard.md`](docs/admin-dashboard.md)
-
-The production checkout currently creates live EUR 4.99 Stripe sessions. Before accepting customer payments, configure the production `STRIPE_WEBHOOK_SECRET`, test `checkout.session.completed`, confirm the support mailbox, and rotate any credential previously shared in chat or terminal history.
-
-## Content Safety
-
-- Do not copy competitor question text.
-- Keep provenance for imported or recovered material.
-- Existing recovered questions require official cross-checking where marked.
-- AI-generated questions remain drafts until an admin reviews and approves them.
-- "High-yield" means estimated study priority, not official exam frequency.
-
-Runtime commercial summary files are generated during `npm run build`:
-
-- `public/product-summary.json`
-- `public/product-summary.js`
-- `public/release-manifest.json`
-
-Current official cross-check sources include [TheoryTest.ie](https://theorytest.ie/), its [revision material](https://theorytest.ie/revision-material/), and the RSA [Rules of the Road](https://www.rsa.ie/services/learner-drivers/resources/rules-of-the-road).
-
-## Repository Notes
-
-Durable engineering and product rules live in [`AGENTS.md`](AGENTS.md). The detailed UI and release documentation is under [`docs/`](docs/).
+The repository is available for portfolio review. Unless a separate licence says otherwise, no licence is granted to reuse the question bank, images, explanations, branding, or other content assets.
