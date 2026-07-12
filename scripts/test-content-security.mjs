@@ -234,11 +234,20 @@ function createMockResponse() {
 }
 
 async function withTestEnv(callback) {
-  const keys = ["NODE_ENV", "STUDY_SESSION_SECRET", "DATABASE_URL", "PUBLIC_SITE_URL"];
+  const keys = [
+    "NODE_ENV",
+    "VERCEL_ENV",
+    "PAYMENT_ENVIRONMENT",
+    "STUDY_SESSION_SECRET",
+    "DATABASE_URL",
+    "PUBLIC_SITE_URL",
+  ];
   const previous = new Map(keys.map((key) => [key, process.env[key]]));
   process.env.NODE_ENV = "test";
   process.env.STUDY_SESSION_SECRET = TEST_SECRET;
   process.env.PUBLIC_SITE_URL = "http://localhost:5173";
+  delete process.env.VERCEL_ENV;
+  delete process.env.PAYMENT_ENVIRONMENT;
   delete process.env.DATABASE_URL;
 
   try {

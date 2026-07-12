@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { validatePaymentTestEvidence } from "../lib/payment-test-evidence.js";
+import { inspectCommercialDomain } from "../lib/domain-validation.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
@@ -22,6 +24,17 @@ const preview = readJson("public/data/preview-questions.json");
 const contentSummary = readJson("reports/content/content-quality-summary.json", null);
 const sitemap = readText("public/sitemap.xml");
 const robots = readText("public/robots.txt");
+const paymentEvidence = readJson("reports/final/payment-test-evidence.json", null);
+const stablePreviewOrigin = process.env.PAYMENT_EVIDENCE_PREVIEW_ORIGIN ||
+  "https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app";
+const expectedDeploymentId = process.env.PAYMENT_EVIDENCE_DEPLOYMENT_ID || process.env.VERCEL_DEPLOYMENT_ID || "";
+const paymentEvidenceValidation = validatePaymentTestEvidence(paymentEvidence, {
+  commit,
+  branch,
+  deploymentId: expectedDeploymentId,
+  previewOrigin: stablePreviewOrigin,
+  launchOfferEnabled: Boolean(pricing.launchOfferEnabled),
+});
 
 const publicFiles = listFiles(path.join(root, "public"));
 const publicMapFiles = publicFiles.filter((file) => file.endsWith(".map"));
@@ -36,6 +49,7 @@ const pricingConsistency = checkPricingConsistency(product, pricing);
 const businessPlaceholders = Array.isArray(business.launchBlockers) ? business.launchBlockers : [];
 const canonicalUsesVercel = /https:\/\/[^"]*vercel\.app/i.test(growth.canonicalOrigin || "") ||
   /https:\/\/[^<]*vercel\.app/i.test(sitemap);
+const domainValidation = await inspectCommercialDomain(growth.canonicalOrigin || "");
 const restoreDrillText = readText("docs/operations/restore-drill-record.md", "");
 const restoreDrillNotExecuted = /not yet executed/i.test(restoreDrillText);
 
@@ -138,8 +152,15 @@ const readiness = {
     previewLeakChecks,
     routePresence,
     pricingConsistency,
+    paymentEvidence: {
+      valid: paymentEvidenceValidation.ok,
+      errors: paymentEvidenceValidation.errors,
+      deploymentId: paymentEvidence?.vercelDeploymentId || null,
+      generatedAt: paymentEvidence?.generatedAt || null,
+    },
     businessLaunchBlockers: businessPlaceholders,
     canonicalOrigin: growth.canonicalOrigin,
+    domainValidation,
     robotsAdminBlocked: /Disallow:\s*\/admin/i.test(robots),
     sitemapUrlCount: (sitemap.match(/<loc>/g) || []).length,
   },
@@ -184,11 +205,14 @@ function businessBlockers() {
 }
 
 function paymentValidationBlockers() {
+  if (paymentEvidenceValidation.ok) return [];
   return [{
     id: "P1-PAY-001",
     severity: "P1",
-    title: "Full Stripe test-mode checkout, webhook entitlement, instructor pack, and refund reconciliation were not executed against a real test Stripe account and Neon database in this audit pass.",
-    evidence: "Automated tests cover mocked webhook/payment policy behavior, but no safe test-mode Stripe keys/price IDs/webhook forwarding target were supplied for an end-to-end purchase run in this pass.",
+    title: "Stripe test-mode checkout, webhook, entitlement, instructor, refund, dispute, and reconciliation evidence is incomplete or invalid.",
+    evidence: paymentEvidenceValidation.errors.length
+      ? paymentEvidenceValidation.errors.join(" ")
+      : "No valid deployment-bound payment evidence was found.",
     affectedFilesRoutes: [
       "server/api/create-checkout-session.js",
       "server/api/stripe-webhook.js",
@@ -197,8 +221,8 @@ function paymentValidationBlockers() {
       "/api/create-checkout-session",
       "/api/stripe-webhook",
     ],
-    reproduction: "Configure a Neon preview database and Stripe test-mode prices/webhook secret, then run a real test card Checkout for learner and instructor plans; confirm webhook creates purchase, entitlement, and instructor codes.",
-    requiredFix: "Complete and record test-mode purchases for Full Study Pass, launch offer if enabled, instructor_10, instructor_25, duplicate webhook replay, refund/dispute recording, and entitlement effects.",
+    reproduction: "Set PAYMENT_EVIDENCE_DEPLOYMENT_ID to the audited preview deployment, then run npm run audit:final and inspect the validation errors for reports/final/payment-test-evidence.json.",
+    requiredFix: "Run the complete deployed Preview Stripe sandbox matrix and generate schema-valid, fresh, redacted evidence for the exact audited commit and deployment with zero unresolved reconciliation findings.",
     owner: "Payments / operations",
     retestRequirement: "Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted.",
   }];
@@ -246,26 +270,29 @@ function operationsBlockers() {
 }
 
 function domainBlockers() {
-  if (!canonicalUsesVercel) return [];
+  if (!canonicalUsesVercel && domainValidation.valid) return [];
   return [{
     id: "P1-DOMAIN-001",
     severity: "P1",
-    title: "Production canonical origin is still the Vercel app URL instead of a configured custom commercial domain.",
-    evidence: `public/growth-config.json canonicalOrigin is ${growth.canonicalOrigin}; sitemap/canonical metadata currently use that origin.`,
+    title: "The custom commercial domain is not publicly ready.",
+    evidence: canonicalUsesVercel
+      ? `public/growth-config.json canonicalOrigin is ${growth.canonicalOrigin}; sitemap/canonical metadata currently use that origin.`
+      : `Canonical metadata uses ${growth.canonicalOrigin}, but live domain validation failed: ${domainValidation.reason}`,
     affectedFilesRoutes: [
       "public/growth-config.json",
       "public/sitemap.xml",
       "shared/growth-config.js",
       "all public SEO pages",
     ],
-    reproduction: "Run `npm run build` without PUBLIC_CANONICAL_ORIGIN, then inspect public/growth-config.json and public/sitemap.xml.",
-    requiredFix: "Connect the custom domain, set PUBLIC_CANONICAL_ORIGIN to the final HTTPS origin, rebuild, and submit the final sitemap.",
+    reproduction: "Run `npm run audit:final`, inspect evidence.domainValidation in reports/final/production-readiness.json, and test apex/www DNS plus HTTPS.",
+    requiredFix: "Connect the custom domain, wait for public DNS and HTTPS certificate issuance, confirm the www permanent redirect, rebuild if needed, and submit the final sitemap.",
     owner: "Growth / operations",
     retestRequirement: "Run npm run check:seo, npm run qa, and inspect Search Console URL Inspection for priority pages.",
   }];
 }
 
 function buildJourneyMatrix() {
+  const paidEvidence = paymentEvidenceValidation.ok;
   return {
     freeLearner: [
       row("landing page", "pass", "Homepage exists, is indexable, and is covered by SEO/app-flow checks."),
@@ -279,8 +306,8 @@ function buildJourneyMatrix() {
       row("support", "blocked", "Support page exists but public support mailbox is NOT_CONFIGURED until P1-BIZ-001 is fixed."),
     ],
     paidLearner: [
-      row("checkout test-mode flow", "blocked", "Requires real Stripe test-mode env and Neon preview DB; not executed in this pass."),
-      row("webhook entitlement", "partial", "Mock webhook test passes; real test-mode webhook entitlement must be exercised before launch."),
+      row("checkout test-mode flow", paidEvidence ? "pass" : "blocked", paidEvidence ? "Deployment-bound Stripe test evidence validates learner checkout." : "Valid deployment-bound Stripe test evidence is required."),
+      row("webhook entitlement", paidEvidence ? "pass" : "partial", paidEvidence ? "Stripe delivery and Neon entitlement assertions are recorded in payment evidence." : "Mock webhook test passes; real test-mode webhook entitlement evidence is incomplete."),
       row("login link", "pass", "Auth tests cover unknown/known/malformed/throttled/expired/used token behavior."),
       row("access restoration", "partial", "Restore UI/API covered; production email provider and support identity remain unconfigured."),
       row("premium study", "pass", "Content-security tests verify active paid users can access premium questions and logged-out/expired users cannot."),
@@ -289,16 +316,16 @@ function buildJourneyMatrix() {
       row("second device", "manual_required", "Passwordless account model supports it, but real cross-browser email-link restore needs staging test."),
       row("session logout", "pass", "Account/auth tests cover session revocation paths."),
       row("expired access", "pass", "Content-security tests cover expired users blocked from premium content."),
-      row("renewal", "manual_required", "Entitlement extension logic exists; repeat-purchase behavior needs real Stripe/DB staging test."),
+      row("renewal", paidEvidence ? "pass" : "manual_required", paidEvidence ? "Repeat-purchase extension is validated in payment evidence." : "Entitlement extension logic exists; repeat-purchase behavior needs real Stripe/DB staging test."),
       row("data export", "pass", "Account export route exists and admin/account tests cover access control."),
       row("deletion request", "pass", "Delete-account request route/page exists; operational fulfillment remains support/legal workflow."),
     ],
     instructor: [
-      row("pack purchase", "blocked", "Instructor Stripe pack purchase was not executed in real Stripe test mode."),
-      row("code generation", "partial", "generateInstructorCodesForPurchase creates strong codes; needs real pack purchase test."),
+      row("pack purchase", paidEvidence ? "pass" : "blocked", paidEvidence ? "Both instructor packs are validated in deployment-bound Stripe test evidence." : "Instructor Stripe pack purchase requires valid test evidence."),
+      row("code generation", paidEvidence ? "pass" : "partial", paidEvidence ? "Exact 10-code and 25-code inventory assertions are recorded." : "generateInstructorCodesForPurchase creates strong codes; needs real pack purchase test."),
       row("CSV export", "pass", "Admin export/instructor routes exist and admin authz test covers them."),
-      row("learner redemption", "partial", "Server redemption logic exists with generic errors; real DB redemption test still needed."),
-      row("duplicate redemption", "partial", "Database row lock prevents concurrent double use; concurrency staging test still required."),
+      row("learner redemption", paidEvidence ? "pass" : "partial", paidEvidence ? "Single-use redemption and repeat rejection are recorded in payment evidence." : "Server redemption logic exists with generic errors; real DB redemption test still needed."),
+      row("duplicate redemption", paidEvidence ? "pass" : "partial", paidEvidence ? "Duplicate redemption rejection is recorded against the Preview database." : "Database row lock prevents concurrent double use; concurrency staging test still required."),
       row("code expiration", "partial", "isRedeemable checks expires_at; staging fixture test recommended."),
       row("code revocation", "pass", "Admin payment action supports confirmed revocation and audit logging."),
       row("instructor reporting", "pass", "Admin instructors/referrals/revenue routes exist with role enforcement."),
@@ -363,6 +390,14 @@ function buildQualityMatrix() {
 
 function buildPaymentMatrix() {
   const activePlan = pricing.plans.find((plan) => plan.active);
+  const evidenceTests = paymentEvidence?.tests || {};
+  const planEvidenceKey = {
+    launch_offer: "launchOfferCheckout",
+    full_study_pass: "fullStudyPassCheckout",
+    instructor_10: "instructor10Checkout",
+    instructor_25: "instructor25Checkout",
+  };
+  const evidenceStatus = (key) => paymentEvidenceValidation.ok && evidenceTests[key]?.status === "PASS" ? "pass" : "blocked";
   return {
     activePlan,
     plans: pricing.plans.map((plan) => ({
@@ -374,8 +409,8 @@ function buildPaymentMatrix() {
       entitlementDays: plan.entitlementDays,
       enabled: plan.enabled,
       checkout: plan.checkout,
-      tested: "mock_or_static_only",
-      realStripeTestModeStatus: "not_executed",
+      tested: evidenceStatus(planEvidenceKey[plan.key]),
+      realStripeTestModeStatus: evidenceStatus(planEvidenceKey[plan.key]),
     })),
     checks: [
       row("server-authoritative price", "pass", "resolveCheckoutPlan reads Stripe price IDs from env; create-checkout-session sends line_items[0][price]."),
@@ -384,8 +419,14 @@ function buildPaymentMatrix() {
       row("event idempotency", "pass", "beginStripeEventProcessing and webhook mock test cover duplicate events."),
       row("return URL entitlement grant", "pass", "Entitlement is not granted solely by browser return URL; webhook/session verification handles access."),
       row("refund/dispute representation", "pass", "Stripe webhook and admin payment endpoints record refund/dispute state and entitlement effects."),
-      row("real learner checkout", "blocked", "Needs Stripe test-mode run."),
-      row("real instructor checkout", "blocked", "Needs Stripe test-mode run."),
+      row("real learner checkout", evidenceStatus("fullStudyPassCheckout"), paymentEvidenceValidation.ok ? "Validated against the exact Preview deployment and commit." : "Valid deployment-bound Stripe test evidence is required."),
+      row("real instructor checkout", evidenceStatus("instructor10Checkout") === "pass" && evidenceStatus("instructor25Checkout") === "pass" ? "pass" : "blocked", paymentEvidenceValidation.ok ? "Both instructor pack checkouts and code inventories are validated." : "Valid deployment-bound Stripe test evidence is required."),
+      row("webhook entitlement", evidenceStatus("webhookEntitlement"), paymentEvidenceValidation.ok ? "Validated from Stripe delivery and Neon state assertions." : "Evidence is missing or invalid."),
+      row("duplicate webhook", evidenceStatus("duplicateWebhook"), paymentEvidenceValidation.ok ? "Idempotency is validated on the deployed Preview." : "Evidence is missing or invalid."),
+      row("repeat purchase extension", evidenceStatus("repeatPurchaseExtension"), paymentEvidenceValidation.ok ? "Entitlement extension is validated in Neon." : "Evidence is missing or invalid."),
+      row("partial/full refunds", evidenceStatus("partialRefund") === "pass" && evidenceStatus("fullRefund") === "pass" ? "pass" : "blocked", paymentEvidenceValidation.ok ? "Partial record-only and full-revocation policies are validated." : "Evidence is missing or invalid."),
+      row("dispute revoke/restore", evidenceStatus("disputeOpen") === "pass" && evidenceStatus("disputeWonClosed") === "pass" ? "pass" : "blocked", paymentEvidenceValidation.ok ? "Matching-dispute revocation and restoration are validated." : "Evidence is missing or invalid."),
+      row("reconciliation", evidenceStatus("reconciliation"), paymentEvidenceValidation.ok ? "Zero unresolved findings are recorded." : "Evidence is missing or invalid."),
     ],
   };
 }
@@ -473,7 +514,7 @@ function commercialLaunchAudit() {
     `- Policy version recording: implemented through checkout metadata; final legal config blocked by ${businessPlaceholders.length} placeholder(s).`,
     `- Operator details present: ${businessPlaceholders.length ? "blocked" : "pass"}`,
     `- Support mailbox configured: ${business.supportEmail && !business.supportEmail.includes("NOT_CONFIGURED") ? "pass" : "blocked"}`,
-    `- Custom domain canonical: ${canonicalUsesVercel ? "blocked" : "pass"}`,
+    `- Custom domain canonical and HTTPS: ${canonicalUsesVercel || !domainValidation.valid ? `blocked (${domainValidation.reason})` : "pass"}`,
     "",
     "## Release Checklist",
     checklistMarkdown(checklists),

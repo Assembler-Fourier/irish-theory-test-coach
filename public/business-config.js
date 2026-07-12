@@ -1,19 +1,19 @@
 window.BUSINESS_CONFIG = {
   "configVersion": 1,
   "publicProductName": "Irish Theory Test Coach",
-  "legalTradingName": "NOT_CONFIGURED: legal trading name",
-  "operatorType": "NOT_CONFIGURED: operator type",
-  "registeredAddress": "NOT_CONFIGURED: registered address",
+  "legalTradingName": "Uzair Waseem",
+  "operatorType": "Sole trader",
+  "registeredAddress": "15 Aderrig Avenue, Adamstown, Lucan, Co. Dublin, K78 H9Y9",
   "businessRegistrationNumber": "NOT_CONFIGURED: business registration number, if applicable",
   "vatNumber": "NOT_CONFIGURED: VAT number, if applicable",
-  "supportEmail": "NOT_CONFIGURED_support@example.invalid",
-  "privacyEmail": "NOT_CONFIGURED_support@example.invalid",
-  "refundEmail": "NOT_CONFIGURED_support@example.invalid",
-  "securityEmail": "NOT_CONFIGURED_support@example.invalid",
-  "governingJurisdiction": "NOT_CONFIGURED: governing jurisdiction",
-  "privacyLawfulBasis": "NOT_CONFIGURED: lawful basis for processing",
-  "complaintRoute": "NOT_CONFIGURED: data-protection complaint route",
-  "internationalTransferBasis": "NOT_CONFIGURED: international transfer basis",
+  "supportEmail": "uzairwaseem29@gmail.com",
+  "privacyEmail": "uzairwaseem29@gmail.com",
+  "refundEmail": "uzairwaseem29@gmail.com",
+  "securityEmail": "uzairwaseem29@gmail.com",
+  "governingJurisdiction": "Ireland",
+  "privacyLawfulBasis": "Performance of a contract for purchases, account access and delivery of the service; compliance with legal obligations for payment and accounting records; legitimate interests for security, fraud prevention and essential service analytics; consent where specifically requested.",
+  "complaintRoute": "Contact uzairwaseem29@gmail.com first. If the matter is not resolved, you may raise a concern with the Irish Data Protection Commission through its online complaint form.",
+  "internationalTransferBasis": "Where personal data is transferred outside the EEA, the transfer relies on an applicable adequacy decision or appropriate safeguards such as the European Commission Standard Contractual Clauses, as applicable to the processor.",
   "storageLocations": [
     "Vercel deployment regions",
     "Neon Postgres hosting region",
@@ -83,16 +83,5 @@ window.BUSINESS_CONFIG = {
     "privacy": "Privacy requests are triaged by email and handled according to the configured legal workflow.",
     "security": "Urgent security reports should include affected URLs, timestamps, and safe reproduction details."
   },
-  "launchBlockers": [
-    "Configure legalTradingName.",
-    "Configure operatorType.",
-    "Configure registeredAddress.",
-    "Configure supportEmail.",
-    "Configure privacyEmail.",
-    "Configure refundEmail.",
-    "Configure governingJurisdiction.",
-    "Configure privacyLawfulBasis.",
-    "Configure internationalTransferBasis.",
-    "Configure complaintRoute."
-  ]
+  "launchBlockers": []
 };

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "PENDING_REAL_SANDBOX_RUN",
+  "commit": "PENDING_DEPLOYED_COMMIT",
+  "branch": "codex/commercial-v1",
+  "vercelDeploymentId": "PENDING_PREVIEW_DEPLOYMENT",
+  "previewOrigin": "https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app",
+  "environment": "preview",
+  "stripeMode": "test",
+  "tests": {}
+}

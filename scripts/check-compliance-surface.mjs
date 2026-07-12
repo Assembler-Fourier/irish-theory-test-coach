@@ -108,11 +108,25 @@ const policy = checkoutPolicyMetadata(business);
 assert.equal(policy.policy_version_terms, business.policyVersions.terms);
 assert.equal(policy.accepted_policy_versions.privacy, business.policyVersions.privacy);
 
+const incompleteProductionEnv = {
+  ...process.env,
+  LEGAL_TRADING_NAME: "",
+  OPERATOR_TYPE: "",
+  REGISTERED_ADDRESS: "",
+  SUPPORT_EMAIL: "",
+  PRIVACY_EMAIL: "",
+  REFUND_EMAIL: "",
+  GOVERNING_JURISDICTION: "",
+  PRIVACY_LAWFUL_BASIS: "",
+  PRIVACY_COMPLAINT_ROUTE: "",
+  INTERNATIONAL_TRANSFER_BASIS: "",
+  COMMERCIAL_LAUNCH_REQUIRED: "true",
+};
 assert.throws(
-  () => assertBusinessReadyForProduction(buildBusinessConfig({ ...process.env, COMMERCIAL_LAUNCH_REQUIRED: "true" }), {
-    ...process.env,
-    COMMERCIAL_LAUNCH_REQUIRED: "true",
-  }),
+  () => assertBusinessReadyForProduction(
+    buildBusinessConfig(incompleteProductionEnv),
+    incompleteProductionEnv,
+  ),
   /Commercial launch blockers remain/
 );
 

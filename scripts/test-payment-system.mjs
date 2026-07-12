@@ -5,12 +5,14 @@ import {
   detectStripeSecretMode,
   validatePaymentEnvironment,
 } from "../lib/payment-environment.js";
+import { appendPaymentIntentTrace } from "../server/api/create-checkout-session.js";
 
 testModeDetection();
 testLiveSecretRejectsTestPrices();
 testTestSecretRejectsLivePrices();
 testProductionRequiresWebhookAndLiveMode();
 testLocalRejectsProductionSiteUrl();
+testCheckoutPaymentIntentTrace();
 
 console.log("Payment environment policy tests passed.");
 
@@ -69,4 +71,20 @@ function testLocalRejectsProductionSiteUrl() {
   });
   assert.equal(result.ok, false);
   assert.ok(result.invalid.includes("PUBLIC_SITE_URL"));
+}
+
+function testCheckoutPaymentIntentTrace() {
+  const params = appendPaymentIntentTrace(
+    new URLSearchParams(),
+    "5e3974c7-266d-4cf8-91a6-543266bde6f7",
+    "full_study_pass",
+  );
+  assert.equal(
+    params.get("payment_intent_data[metadata][checkout_attempt_id]"),
+    "5e3974c7-266d-4cf8-91a6-543266bde6f7",
+  );
+  assert.equal(
+    params.get("payment_intent_data[metadata][plan_key]"),
+    "full_study_pass",
+  );
 }

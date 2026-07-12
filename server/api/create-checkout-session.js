@@ -126,6 +126,7 @@ export default async function handler(req, res) {
   params.set("cancel_url", `${env.publicSiteUrl}/app?checkout=cancelled`);
   params.set("customer_creation", "always");
   params.set("metadata[checkout_attempt_id]", attempt.id);
+  appendPaymentIntentTrace(params, attempt.id, plan.key);
   params.set("metadata[product]", "irish-theory-test-coach");
   params.set("metadata[plan_key]", plan.key);
   params.set("metadata[plan_label]", plan.label);
@@ -203,6 +204,12 @@ export default async function handler(req, res) {
     },
     referralCode: referral?.code || "",
   });
+}
+
+export function appendPaymentIntentTrace(params, attemptId, planKey) {
+  params.set("payment_intent_data[metadata][checkout_attempt_id]", String(attemptId || ""));
+  params.set("payment_intent_data[metadata][plan_key]", cleanPlanKey(planKey));
+  return params;
 }
 
 function cleanPlanKey(value) {

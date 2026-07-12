@@ -130,6 +130,14 @@ create table if not exists payment_disputes (
   reason text,
   status text not null,
   entitlement_effect text not null default 'none',
+  last_event_type text,
+  stripe_event_created_at timestamptz,
+  revoked_entitlement_id uuid,
+  revoked_entitlement_active boolean,
+  revoked_entitlement_source text,
+  revoked_entitlement_expires_at timestamptz,
+  revocation_applied_at timestamptz,
+  restoration_applied_at timestamptz,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -143,6 +151,8 @@ create table if not exists entitlements (
   source text not null default 'stripe',
   expires_at timestamptz,
   revoked_at timestamptz,
+  revoked_reason text,
+  revoked_by_dispute_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (email, product)
@@ -150,7 +160,19 @@ create table if not exists entitlements (
 
 alter table entitlements
   add column if not exists expires_at timestamptz,
-  add column if not exists revoked_at timestamptz;
+  add column if not exists revoked_at timestamptz,
+  add column if not exists revoked_reason text,
+  add column if not exists revoked_by_dispute_id text;
+
+alter table payment_disputes
+  add column if not exists last_event_type text,
+  add column if not exists stripe_event_created_at timestamptz,
+  add column if not exists revoked_entitlement_id uuid,
+  add column if not exists revoked_entitlement_active boolean,
+  add column if not exists revoked_entitlement_source text,
+  add column if not exists revoked_entitlement_expires_at timestamptz,
+  add column if not exists revocation_applied_at timestamptz,
+  add column if not exists restoration_applied_at timestamptz;
 
 create table if not exists instructor_accounts (
   id uuid primary key default gen_random_uuid(),
@@ -942,6 +964,9 @@ create index if not exists payment_refunds_purchase_idx on payment_refunds (purc
 create index if not exists payment_refunds_status_idx on payment_refunds (status, created_at desc);
 create index if not exists payment_disputes_purchase_idx on payment_disputes (purchase_id);
 create index if not exists payment_disputes_status_idx on payment_disputes (status, created_at desc);
+create index if not exists payment_disputes_open_revocation_idx
+  on payment_disputes (purchase_id, revocation_applied_at)
+  where revocation_applied_at is not null and restoration_applied_at is null;
 create index if not exists referral_codes_active_idx on referral_codes (active, expires_at);
 create index if not exists referral_redemptions_code_created_idx on referral_redemptions (code, created_at desc);
 create index if not exists referral_redemptions_session_idx

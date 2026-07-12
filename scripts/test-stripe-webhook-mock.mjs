@@ -1,6 +1,15 @@
 import assert from "node:assert/strict";
-import { handleStripeEvent } from "../server/api/stripe-webhook.js";
+import webhookEntrypoint from "../api/stripe-webhook.js";
+import {
+  handleStripeEvent,
+  normalizeStripeDisputeId,
+} from "../server/api/stripe-webhook.js";
 import { getCheckoutSessionEmail } from "../lib/stripe-entitlements.js";
+
+assert.equal(typeof webhookEntrypoint.fetch, "function", "Stripe must use the Web Standard raw-body entrypoint.");
+assert.equal(normalizeStripeDisputeId("du_current_sandbox"), "du_current_sandbox");
+assert.equal(normalizeStripeDisputeId("dp_legacy_sandbox"), "dp_legacy_sandbox");
+assert.equal(normalizeStripeDisputeId("evt_not_a_dispute"), "");
 
 const sampleEvent = {
   id: "evt_mock_checkout_completed",

@@ -1,6 +1,6 @@
 # SEO Content Map
 
-Canonical origin: https://irish-theory-test-coach.vercel.app
+Canonical origin: https://irishtheorycoach.ie
 
 | URL | Page Type | Primary Intent | CTA |
 | --- | --- | --- | --- |

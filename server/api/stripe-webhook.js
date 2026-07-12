@@ -7,6 +7,10 @@ import {
 import { withDb } from "../../lib/db.js";
 import { emitOperationalEvent } from "../../lib/monitoring.js";
 import {
+  applyDisputeEntitlementAction,
+  disputeEntitlementAction,
+} from "../../lib/dispute-entitlements.js";
+import {
   beginStripeEventProcessing,
   findPurchaseByStripeObject,
   markCheckoutAttemptFromSession,
@@ -154,7 +158,10 @@ async function processStripeEventObject(client, event, env, options = {}) {
     case "charge.dispute.funds_withdrawn":
     case "charge.dispute.funds_reinstated":
       if (client) {
-        await recordDisputeEvent(client, event?.data?.object);
+        await recordDisputeEvent(client, event?.data?.object, {
+          eventType: event.type,
+          eventCreated: event.created,
+        });
       }
       return { handled: true, recorded: true };
 
@@ -296,15 +303,16 @@ async function recordChargeRefundEvent(client, charge) {
   }
 }
 
-async function recordDisputeEvent(client, dispute) {
-  const disputeId = cleanStripeId(stripeObjectId(dispute), "dp_");
+async function recordDisputeEvent(client, dispute, eventContext = {}) {
+  const disputeId = normalizeStripeDisputeId(stripeObjectId(dispute));
   if (!disputeId) return;
   const chargeId = cleanStripeId(stripeObjectId(dispute?.charge), "ch_");
   const paymentIntentId = cleanStripeId(stripeObjectId(dispute?.payment_intent), "pi_");
   const purchase = await findPurchaseByStripeObject(client, paymentIntentId || chargeId);
   const email = purchase?.email || "";
   const status = cleanText(dispute?.status, 40) || "needs_response";
-  const entitlementEffect = disputeEntitlementEffect(status);
+  const entitlementEffect = disputeEntitlementAction(status, eventContext.eventType);
+  const eventCreatedAt = stripeEventCreatedAt(eventContext.eventCreated);
 
   await client.query(
     `
@@ -319,9 +327,11 @@ async function recordDisputeEvent(client, dispute) {
         reason,
         status,
         entitlement_effect,
+        last_event_type,
+        stripe_event_created_at,
         metadata
       )
-      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::jsonb)
+      values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13::jsonb)
       on conflict (stripe_dispute_id) do update
       set purchase_id = coalesce(excluded.purchase_id, payment_disputes.purchase_id),
           email = coalesce(nullif(excluded.email, ''), payment_disputes.email),
@@ -332,8 +342,12 @@ async function recordDisputeEvent(client, dispute) {
           reason = excluded.reason,
           status = excluded.status,
           entitlement_effect = excluded.entitlement_effect,
+          last_event_type = excluded.last_event_type,
+          stripe_event_created_at = excluded.stripe_event_created_at,
           metadata = excluded.metadata,
           updated_at = now()
+      where payment_disputes.stripe_event_created_at is null
+         or excluded.stripe_event_created_at >= payment_disputes.stripe_event_created_at
     `,
     [
       purchase?.id || null,
@@ -346,9 +360,23 @@ async function recordDisputeEvent(client, dispute) {
       cleanText(dispute?.reason, 120),
       status,
       entitlementEffect,
-      JSON.stringify({ source: "stripe_webhook" }),
+      cleanText(eventContext.eventType, 80),
+      eventCreatedAt,
+      JSON.stringify({ source: "stripe_webhook", eventType: cleanText(eventContext.eventType, 80) }),
     ]
   );
+
+  const storedResult = await client.query(
+    `
+      select *
+      from payment_disputes
+      where stripe_dispute_id = $1
+      for update
+    `,
+    [disputeId]
+  );
+  const storedDispute = storedResult.rows[0];
+  if (!storedDispute) return;
 
   if (purchase?.id) {
     await client.query(
@@ -361,12 +389,21 @@ async function recordDisputeEvent(client, dispute) {
             updated_at = now()
         where id = $1
       `,
-      [purchase.id, safeAmount(dispute?.amount), `dispute_${status}`, entitlementEffect, chargeId || null]
+      [
+        purchase.id,
+        Number(storedDispute.amount || 0),
+        `dispute_${storedDispute.status}`,
+        storedDispute.entitlement_effect,
+        storedDispute.stripe_charge_id || chargeId || null,
+      ]
     );
   }
-  if (email && entitlementEffect === "revoke") {
-    await revokeEntitlementForReason(client, email, "stripe_dispute");
-  }
+  await applyDisputeEntitlementAction(client, storedDispute);
+}
+
+export function normalizeStripeDisputeId(value) {
+  const text = cleanStripeId(value);
+  return /^(?:du_|dp_)[A-Za-z0-9_-]+$/.test(text) ? text : "";
 }
 
 async function refreshPurchaseRefundState(client, purchaseId, latestEntitlementEffect) {
@@ -469,14 +506,16 @@ function refundEntitlementEffect({ amount, status, purchase }) {
   return "none";
 }
 
-function disputeEntitlementEffect(status) {
-  if (["won", "warning_closed"].includes(status)) return "none";
-  return "revoke";
-}
-
 function safeAmount(value) {
   const number = Number(value);
   return Number.isFinite(number) ? Math.max(0, Math.round(number)) : 0;
+}
+
+function stripeEventCreatedAt(value) {
+  const seconds = Number(value);
+  return Number.isFinite(seconds) && seconds > 0
+    ? new Date(seconds * 1000).toISOString()
+    : new Date().toISOString();
 }
 
 function cleanStripeId(value, prefix = "") {

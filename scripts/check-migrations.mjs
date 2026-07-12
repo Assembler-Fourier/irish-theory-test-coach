@@ -51,11 +51,11 @@ for (const file of files) {
   if (/create\s+table\s+(?!if\s+not\s+exists)/i.test(expanded)) {
     errors.push(`${file} creates a table without IF NOT EXISTS.`);
   }
-  crypto.createHash("sha256").update(expanded).digest("hex");
+  crypto.createHash("sha256").update(raw.replace(/\r\n?/g, "\n")).digest("hex");
 }
 
 const migrateScript = readText(path.join(root, "scripts", "db-migrate.mjs"));
-for (const phrase of ["schema_migrations", "begin", "commit", "rollback", "checksum", "pg_advisory_lock"]) {
+for (const phrase of ["schema_migrations", "begin", "commit", "rollback", "checksum", "legacyChecksums", "normalizeLineEndings", "pg_advisory_lock"]) {
   if (!migrateScript.includes(phrase)) errors.push(`db-migrate.mjs missing ${phrase}.`);
 }
 

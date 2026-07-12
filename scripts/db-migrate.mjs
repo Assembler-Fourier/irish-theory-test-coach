@@ -7,6 +7,15 @@ import { requireDatabaseUrl, root } from "./db-utils.mjs";
 const { Client } = pg;
 const migrationsDir = path.join(root, "database", "migrations");
 const dryRun = process.argv.includes("--dry-run");
+const legacyChecksums = new Map([
+  ["0001", new Set([
+    // The original baseline checksum covered the included schema and changed
+    // whenever schema.sql changed. Accept only the observed historical hashes.
+    "2175d48d6406d2ddf67954c945ac92a35a8ca5cfbe3156d6589e03efcdb69317",
+    "609f726a5c2a3999cf24ae3268849ee529978ff277142ffbe7ed64ec7fa9d2c5",
+    "312d13beac5f5f1dec6a515df811a03d67d3093a3e96844aca692421b6f7f992",
+  ])],
+]);
 
 const migrations = loadMigrations();
 if (dryRun) {
@@ -31,7 +40,8 @@ try {
     for (const migration of migrations) {
       const existing = applied.get(migration.version);
       if (existing) {
-        if (existing.checksum !== migration.checksum) {
+        const acceptedLegacy = migration.legacyChecksums.has(existing.checksum);
+        if (existing.checksum !== migration.checksum && !acceptedLegacy) {
           throw new Error(`Migration ${migration.version} checksum changed after being applied.`);
         }
         console.log(`Skipping ${migration.version} ${migration.name}; already applied.`);
@@ -56,13 +66,15 @@ function loadMigrations() {
     const version = file.slice(0, 4);
     const name = file.replace(/^\d{4}_/, "").replace(/\.sql$/i, "");
     const filePath = path.join(migrationsDir, file);
-    const sql = expandIncludes(fs.readFileSync(filePath, "utf8"), filePath);
+    const source = normalizeLineEndings(fs.readFileSync(filePath, "utf8"));
+    const sql = expandIncludes(source, filePath);
     return {
       version,
       name,
       file,
       sql,
-      checksum: crypto.createHash("sha256").update(sql).digest("hex"),
+      checksum: crypto.createHash("sha256").update(source).digest("hex"),
+      legacyChecksums: legacyChecksums.get(version) || new Set(),
     };
   });
 }
@@ -73,8 +85,12 @@ function expandIncludes(sql, filePath) {
     if (!resolved.startsWith(root)) {
       throw new Error(`Migration include escapes repository root: ${includePath}`);
     }
-    return fs.readFileSync(resolved, "utf8");
+    return normalizeLineEndings(fs.readFileSync(resolved, "utf8"));
   });
+}
+
+function normalizeLineEndings(value) {
+  return String(value).replace(/\r\n?/g, "\n");
 }
 
 async function ensureMigrationTable(client) {

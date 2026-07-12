@@ -1,6 +1,6 @@
 # Search Console Setup
 
-Canonical origin configured for this build: https://irish-theory-test-coach.vercel.app
+Canonical origin configured for this build: https://irishtheorycoach.ie
 
 ## Launch Steps
 
@@ -8,15 +8,15 @@ Canonical origin configured for this build: https://irish-theory-test-coach.verc
 2. Set `PUBLIC_CANONICAL_ORIGIN` or `PUBLIC_SITE_URL` to the final HTTPS origin.
 3. Rebuild and verify no production canonical metadata points to the Vercel preview domain.
 4. Verify a domain property in Google Search Console.
-5. Submit `https://irish-theory-test-coach.vercel.app/sitemap.xml`.
+5. Submit `https://irishtheorycoach.ie/sitemap.xml`.
 6. Inspect priority URLs:
-   - `https://irish-theory-test-coach.vercel.app/`
-   - `https://irish-theory-test-coach.vercel.app/app`
-   - `https://irish-theory-test-coach.vercel.app/pricing`
-   - `https://irish-theory-test-coach.vercel.app/mock-exam`
-   - `https://irish-theory-test-coach.vercel.app/road-signs`
-   - `https://irish-theory-test-coach.vercel.app/learn`
-   - `https://irish-theory-test-coach.vercel.app/category-b-theory-test-ireland.html`
+   - `https://irishtheorycoach.ie/`
+   - `https://irishtheorycoach.ie/app`
+   - `https://irishtheorycoach.ie/pricing`
+   - `https://irishtheorycoach.ie/mock-exam`
+   - `https://irishtheorycoach.ie/road-signs`
+   - `https://irishtheorycoach.ie/learn`
+   - `https://irishtheorycoach.ie/category-b-theory-test-ireland.html`
 7. In URL Inspection, check rendered HTML, canonical URL, mobile usability, and screenshot.
 8. Request indexing for priority pages after the production deployment is stable.
 9. Review indexing, impressions, clicks, CTR, and average position weekly.

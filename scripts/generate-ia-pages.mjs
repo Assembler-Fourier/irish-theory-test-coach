@@ -63,6 +63,7 @@ writePage("mock-exam.html", renderRoutePage({
 }));
 writePage("account.html", renderAccountPage());
 writePage("support.html", renderSupportPage());
+rewriteLegacyProjectOrigins();
 updateSitemap();
 
 console.log("Generated IA pages: /, /app, /pricing, /learn, /road-signs, /mock-exam, /account, /support.");
@@ -595,6 +596,16 @@ function reviewPreviewSvg() {
 
 function writePage(fileName, html) {
   fs.writeFileSync(path.join(publicDir, fileName), cleanHtml(html), "utf8");
+}
+
+function rewriteLegacyProjectOrigins() {
+  const legacyProjectOrigin = /https:\/\/irish-theory-test-coach(?:-[a-z0-9]+)*\.vercel\.app/gi;
+  for (const fileName of fs.readdirSync(publicDir).filter((file) => file.endsWith(".html"))) {
+    const filePath = path.join(publicDir, fileName);
+    const source = fs.readFileSync(filePath, "utf8");
+    const updated = source.replace(legacyProjectOrigin, siteUrl);
+    if (updated !== source) fs.writeFileSync(filePath, updated, "utf8");
+  }
 }
 
 function cleanHtml(html) {

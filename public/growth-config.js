@@ -1,6 +1,6 @@
 window.GROWTH_CONFIG = {
   "schemaVersion": 2,
-  "canonicalOrigin": "https://irish-theory-test-coach.vercel.app",
+  "canonicalOrigin": "https://irishtheorycoach.ie",
   "funnelEvents": [
     {
       "eventName": "landing_view",
@@ -117,42 +117,42 @@ window.GROWTH_CONFIG = {
       "file": "og-home.svg",
       "title": "Irish Theory Test Coach",
       "subtitle": "Independent Category B practice",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-home.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-home.svg"
     },
     {
       "key": "pricing",
       "file": "og-pricing.svg",
       "title": "Transparent Pricing",
       "subtitle": "Free preview and Full Study Pass",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-pricing.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-pricing.svg"
     },
     {
       "key": "mock-exam",
       "file": "og-mock-exam.svg",
       "title": "Mock Exam Practice",
       "subtitle": "40-question timed study flow",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-mock-exam.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-mock-exam.svg"
     },
     {
       "key": "road-signs",
       "file": "og-road-signs.svg",
       "title": "Road Signs Practice",
       "subtitle": "Recognition-first visual drills",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-road-signs.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-road-signs.svg"
     },
     {
       "key": "learn",
       "file": "og-learn.svg",
       "title": "Learning Hub",
       "subtitle": "Study routes, road signs, mocks, support",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-learn.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-learn.svg"
     },
     {
       "key": "instructors",
       "file": "og-instructors.svg",
       "title": "For Driving Instructors",
       "subtitle": "Student code packs and referrals",
-      "url": "https://irish-theory-test-coach.vercel.app/marketing/og-instructors.svg"
+      "url": "https://irishtheorycoach.ie/marketing/og-instructors.svg"
     }
   ]
 };
