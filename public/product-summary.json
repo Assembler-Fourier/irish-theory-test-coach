@@ -16,10 +16,10 @@
   "mockDurationSeconds": 2700,
   "passMark": 35,
   "accessDurationDays": 90,
-  "activePrice": "EUR 4.99",
-  "activePlanKey": "full_study_pass",
-  "activePlanLabel": "Full Study Pass",
-  "launchOfferEnabled": false,
+  "activePrice": "EUR 2.99",
+  "activePlanKey": "launch_offer",
+  "activePlanLabel": "Launch offer",
+  "launchOfferEnabled": true,
   "featureFlags": {
     "stripeCheckout": true,
     "magicLinkRestore": true,
@@ -29,6 +29,6 @@
     "pwa": true,
     "aiExplanations": true,
     "referralCodes": true,
-    "launchOffer": false
+    "launchOffer": true
   }
 }

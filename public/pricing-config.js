@@ -1,8 +1,8 @@
 window.PRICING_CONFIG = {
   "productKey": "irish-theory-test-coach",
-  "launchOfferEnabled": false,
+  "launchOfferEnabled": true,
   "launchOfferEndsAt": "",
-  "activeLearnerPlanKey": "full_study_pass",
+  "activeLearnerPlanKey": "launch_offer",
   "plans": [
     {
       "key": "launch_offer",
@@ -15,8 +15,8 @@ window.PRICING_CONFIG = {
       "kind": "learner",
       "codeCount": null,
       "description": "Early launch access for learners during the beta/launch period.",
-      "enabled": false,
-      "active": false
+      "enabled": true,
+      "active": true
     },
     {
       "key": "full_study_pass",
@@ -30,7 +30,7 @@ window.PRICING_CONFIG = {
       "codeCount": null,
       "description": "One-time learner access for 90 days.",
       "enabled": true,
-      "active": true
+      "active": false
     },
     {
       "key": "instructor_10",

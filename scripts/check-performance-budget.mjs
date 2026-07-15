@@ -39,9 +39,10 @@ for (const file of fs.readdirSync(publicDir).filter((name) => name.endsWith(".ht
   }
 }
 
-const cssPath = path.join(publicDir, "styles.css");
-if (fs.existsSync(cssPath) && fs.statSync(cssPath).size > budgets.cssBytes) {
-  errors.push(`styles.css exceeds CSS budget (${fs.statSync(cssPath).size} bytes).`);
+const cssFiles = fs.readdirSync(publicDir).filter((name) => name.endsWith(".css"));
+const cssBytes = cssFiles.reduce((total, file) => total + fs.statSync(path.join(publicDir, file)).size, 0);
+if (cssBytes > budgets.cssBytes) {
+  errors.push(`Public CSS exceeds budget (${cssBytes} bytes across ${cssFiles.length} files).`);
 }
 
 const appJsBudgetFiles = ["app.js", "analytics-client.js", "api-client.js", "session-store.js", "question-renderer.js", "access-controller.js", "progress-controller.js"];

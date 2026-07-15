@@ -20,6 +20,7 @@
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://irishtheorycoach.ie/"},{"@type":"ListItem","position":2,"name":"Cancellation Form","item":"https://irishtheorycoach.ie/cancellation.html"}]}</script>
   </head>
   <body>
@@ -27,7 +28,7 @@
       <header class="site-header">
         <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
           <span class="brand-symbol" aria-hidden="true">TC</span>
-          <span class="brand-copy"><strong>Theory Coach</strong><small>Independent Irish learner practice</small></span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
           <a href="/">Home</a>
@@ -36,12 +37,26 @@
           <a href="/learn">Learn</a>
           <a href="/road-signs">Road signs</a>
           <a href="/mock-exam">Mock exam</a>
-          <a class="active" href="/support">Support</a>
+          <a class="active" aria-current="page" href="/support">Support</a>
         </nav>
         <div class="nav-actions">
           <a class="button-secondary" href="/account">Restore access</a>
           <a class="button-primary" href="/app">Start free preview</a>
         </div>
+        <details class="nav-menu">
+          <summary aria-label="Open navigation" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+          <nav aria-label="Mobile navigation">
+            <a href="/">Home</a>
+          <a href="/app">App</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a class="active" aria-current="page" href="/support">Support</a>
+            <a href="/account">Restore access</a>
+            <a class="nav-menu-cta" href="/app">Start free preview</a>
+          </nav>
+        </details>
       </header>
       <main class="legal-page">
         <nav class="legal-local-nav" aria-label="Legal and trust navigation"><a href="/legal.html">Legal centre</a><a href="/privacy.html">Privacy</a><a href="/data-rights.html">Data rights</a><a href="/cookies.html">Cookies</a><a href="/terms.html">Terms</a><a href="/refunds.html">Refunds</a><a href="/security.html">Security</a></nav>
@@ -49,14 +64,14 @@
         <p class="policy-meta">Effective date: 2026-07-15. Policy version: <code>2026-07-15-v1</code>.</p>
 
         <section><h2>How to cancel</h2><p>To notify Uzair Waseem that you wish to cancel an eligible consumer contract, complete this form and use the email button, print it, or send another clear statement to <a href="mailto:uzairwaseem29@gmail.com">uzairwaseem29@gmail.com</a>. Using this exact form is optional.</p></section>
-        <section class="model-cancellation-form" aria-labelledby="modelCancellationHeading"><h2 id="modelCancellationHeading">Model cancellation notice</h2><form id="cancellationForm" novalidate><p>To: Uzair Waseem, 15 Aderrig Avenue, Adamstown, Lucan, Co. Dublin, K78 H9Y9, uzairwaseem29@gmail.com</p><p>I give notice that I wish to cancel my contract for the following digital service:</p><label class="field"><span>Plan or service</span><input id="cancelPlan" name="plan" type="text" required maxlength="120" placeholder="For example, Full Study Pass"></label><label class="field"><span>Order or Stripe receipt reference (optional)</span><input id="cancelReference" name="reference" type="text" maxlength="120" autocomplete="off"></label><label class="field"><span>Order date</span><input id="cancelOrderDate" name="orderDate" type="date" required></label><label class="field"><span>Name</span><input id="cancelName" name="name" type="text" required maxlength="120" autocomplete="name"></label><label class="field"><span>Email used for purchase</span><input id="cancelEmail" name="email" type="email" required maxlength="254" autocomplete="email"></label><label class="field"><span>Date of this notice</span><input id="cancelNoticeDate" name="noticeDate" type="date" required></label><div class="cancellation-actions"><button class="button-primary" type="submit">Prepare cancellation email</button><button id="printCancellation" class="button-secondary" type="button">Print form</button></div><p id="cancellationStatus" class="account-message" role="status" aria-live="polite">The email button opens your email app. Nothing is submitted to this website.</p></form></section>
+        <section class="model-cancellation-form" aria-labelledby="modelCancellationHeading"><h2 id="modelCancellationHeading">Model cancellation notice</h2><form id="cancellationForm" novalidate><p>To: Uzair Waseem, 15 Aderrig Avenue, Adamstown, Lucan, County Dublin, K78 H9Y9, Ireland, uzairwaseem29@gmail.com</p><p>I give notice that I wish to cancel my contract for the following digital service:</p><label class="field"><span>Plan or service</span><input id="cancelPlan" name="plan" type="text" required maxlength="120" placeholder="For example, Full Study Pass"></label><label class="field"><span>Order or Stripe receipt reference (optional)</span><input id="cancelReference" name="reference" type="text" maxlength="120" autocomplete="off"></label><label class="field"><span>Order date</span><input id="cancelOrderDate" name="orderDate" type="date" required></label><label class="field"><span>Name</span><input id="cancelName" name="name" type="text" required maxlength="120" autocomplete="name"></label><label class="field"><span>Email used for purchase</span><input id="cancelEmail" name="email" type="email" required maxlength="254" autocomplete="email"></label><label class="field"><span>Date of this notice</span><input id="cancelNoticeDate" name="noticeDate" type="date" required></label><div class="cancellation-actions"><button class="button-primary" type="submit">Prepare cancellation email</button><button id="printCancellation" class="button-secondary" type="button">Print form</button></div><p id="cancellationStatus" class="account-message" role="status" aria-live="polite">The email button opens your email app. Nothing is submitted to this website.</p></form></section>
         <section><h2>What happens next</h2><p>Support will acknowledge the request, verify the purchase where necessary, assess the applicable statutory or goodwill route, and explain the refund and entitlement effect. Keep a copy of your sent notice.</p></section>
       </main>
       <footer class="site-footer">
         <div class="footer-brand">
           <a class="brand-mark" href="/">
             <span class="brand-symbol" aria-hidden="true">TC</span>
-            <span class="brand-copy"><strong>Theory Coach</strong><small>Irish Category B practice</small></span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
           </a>
           <p>Focused practice, transparent pricing, and review tools for Irish learner drivers.</p>
         </div>

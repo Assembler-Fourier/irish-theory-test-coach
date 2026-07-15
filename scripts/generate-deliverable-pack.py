@@ -214,7 +214,7 @@ def build_audit_docx(facts: dict[str, Any]) -> None:
         "Executive Snapshot",
         [
             ("Live app", "https://irishtheorycoach.ie"),
-            ("Production deployment", "https://irish-theory-test-coach-k4z00up0v-job-work.vercel.app"),
+            ("Production deployment", "https://irishtheorycoach.ie"),
             ("GitHub PR", facts.get("github_pr", {}).get("url", "Not found")),
             ("Branch", facts["current_branch"]),
             ("Commit", facts["current_commit"]),
@@ -410,7 +410,7 @@ def build_audit_pdf(facts: dict[str, Any]) -> None:
     story.append(Spacer(1, 0.15 * inch))
     story.append(pdf_kv_table([
         ("Live app", "https://irishtheorycoach.ie"),
-        ("Deployment", "https://irish-theory-test-coach-k4z00up0v-job-work.vercel.app"),
+        ("Deployment", "https://irishtheorycoach.ie"),
         ("Repository", facts.get("github_repo", {}).get("url", "Not found")),
         ("PR", facts.get("github_pr", {}).get("url", "Not found")),
         ("Branch / commit", f"{facts['current_branch']} / {facts['current_commit']}"),

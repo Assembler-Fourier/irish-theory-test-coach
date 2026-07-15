@@ -26,7 +26,7 @@
     "import:owner-questions": "node scripts/import-owner-questions.mjs",
     "check:pwa": "node scripts/check-pwa.mjs",
     "check:compliance": "node scripts/check-compliance-surface.mjs",
-    "check:seo": "node scripts/check-seo.mjs && node scripts/check-technical-seo.mjs && node scripts/check-structured-data.mjs && node scripts/check-internal-links.mjs",
+    "check:seo": "node scripts/check-seo.mjs && node scripts/check-technical-seo.mjs && node scripts/check-structured-data.mjs && node scripts/check-internal-links.mjs && node scripts/check-seo-content-quality.mjs",
     "check:technical-seo": "node scripts/check-technical-seo.mjs",
     "check:structured-data": "node scripts/check-structured-data.mjs",
     "check:links": "node scripts/check-internal-links.mjs",

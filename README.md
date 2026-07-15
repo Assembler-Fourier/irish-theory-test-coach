@@ -8,12 +8,11 @@ This repository is public as a portfolio case study. It shows how I approach pro
 
 ## Try It
 
-- **Live product preview:** [Open Irish Theory Test Coach](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app)
-- **Learner workspace:** [Start the 15-question preview](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/app)
-- **Pricing:** [View learner and instructor plans](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/pricing)
-- **Learning hub:** [Browse the study guides](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/learn)
-
-The custom `.ie` domain is still completing registry activation. The Vercel Preview is the current review environment and intentionally uses Stripe sandbox payments.
+- **Live product:** [Open Irish Theory Test Coach](https://irishtheorycoach.ie)
+- **Learner workspace:** [Start the 15-question preview](https://irishtheorycoach.ie/app)
+- **Pricing:** [View learner and instructor plans](https://irishtheorycoach.ie/pricing)
+- **Learning hub:** [Browse the study guides](https://irishtheorycoach.ie/learn)
+- **Operations UI:** [Open the protected admin workspace](https://irishtheorycoach.ie/admin)
 
 ![Current Irish Theory Test Coach learner workspace](docs/images/portfolio-desktop.png)
 
@@ -112,12 +111,12 @@ The current commercial Preview was tested against the exact deployed Git commit.
 | --- | --- |
 | Published dataset | 1,277 questions validated |
 | Public content exposure | 15 preview questions, no answer key |
-| Stripe sandbox matrix | 18 of 18 scenarios passed |
-| Payment reconciliation | 0 unresolved findings |
-| Accessibility | 7 states, 0 critical axe violations |
-| Visual regression | 15 deterministic mobile, tablet, and desktop screenshots |
-| Post-deploy smoke test | 11 of 11 routes and behaviors passed |
-| Dependency audit | 0 known vulnerabilities at the latest audit |
+| Payment implementation | Environment policy, evidence validation, dispute transitions, and webhook mocks passed |
+| Admin authorization | 20 protected endpoint checks passed |
+| Accessibility | 10 axe states, 0 critical violations |
+| Visual regression | 18 deterministic mobile, tablet, and desktop screenshots |
+| SEO | 44 sitemap URLs and 21 keyword targets validated |
+| Security | Public-content boundary, headers, roles, request limits, and secret scan passed |
 
 Run the complete local quality gate with:
 
@@ -163,7 +162,7 @@ Operational documentation includes:
 
 ## Current Status
 
-The full commercial build is deployed to Vercel Preview. Production promotion is deliberately held until the custom `.ie` domain leaves registry hold, HTTPS is issued, final credentials are rotated, and legal review is completed. Remaining content work is tracked openly in the generated QA reports rather than hidden behind a launch-ready claim.
+The commercial branch is deployed at [irishtheorycoach.ie](https://irishtheorycoach.ie) with a separate marketing site, focused learner workspace, protected operations dashboard, legal centre, PWA, and static learning hub. The release process keeps legal review and editorial content risks visible; passing structural QA is never presented as factual verification or a guaranteed learning outcome.
 
 ## About Me
 

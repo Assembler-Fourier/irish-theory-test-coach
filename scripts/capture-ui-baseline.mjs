@@ -6,11 +6,20 @@ import { readFile, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  getPrivateQuestionBank,
+  revealAnswer,
+  toInitialQuestionPayload,
+} from "../lib/question-bank.js";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicDir = path.join(repoRoot, "public");
 const outputDir = path.join(repoRoot, "reports", "ui", "latest");
 const questionDataPath = path.join(publicDir, "data", "preview-questions.json");
+const previewPackage = JSON.parse(await readFile(questionDataPath, "utf8"));
+const privateQuestionBank = getPrivateQuestionBank();
+const previewQuestionIds = new Set((previewPackage.questions || []).map((question) => Number(question.id)));
+const visualQuestions = privateQuestionBank.filter((question) => previewQuestionIds.has(Number(question.id)));
 
 const desktopViewport = { width: 1440, height: 1000 };
 const desktopMediumViewport = { width: 1280, height: 900 };
@@ -63,6 +72,15 @@ const screenshotStates = [
     ready: ".feedback:not(.hidden)",
     setup: async (page) => {
       await page.click(".answer-option");
+    },
+  },
+  {
+    name: "answer-feedback-wrong",
+    viewport: desktopViewport,
+    path: "/app",
+    ready: ".feedback:not(.hidden)",
+    setup: async (page) => {
+      await page.click(".answer-option:nth-child(2)");
     },
   },
   {
@@ -165,6 +183,14 @@ const screenshotStates = [
       await clickMode(page, "highYield");
     },
   },
+  {
+    name: "mobile-privacy-choices",
+    viewport: mobileViewport,
+    path: "/",
+    ready: "#privacyConsentPanel:not([hidden])",
+    showConsent: true,
+    noScroll: true,
+  },
 ];
 
 if (!existsSync(questionDataPath)) {
@@ -211,6 +237,15 @@ async function captureState(browserInstance, baseUrl, state, filePath) {
     viewport: state.viewport,
     deviceScaleFactor: 1,
   });
+  if (!state.showConsent) {
+    await context.addInitScript(() => {
+      window.localStorage.setItem("ittc-privacy-preferences-v1", JSON.stringify({
+        analytics: "denied",
+        version: "2026-07-15-v1",
+        updatedAt: "2026-07-15T00:00:00.000Z",
+      }));
+    });
+  }
   const page = await context.newPage();
 
   try {
@@ -219,12 +254,7 @@ async function captureState(browserInstance, baseUrl, state, filePath) {
     });
 
     await page.goto(`${baseUrl}${state.path}`, { waitUntil: "domcontentloaded" });
-    await page.evaluate(() => {
-      window.localStorage.clear();
-      window.sessionStorage.clear();
-      window.scrollTo(0, 0);
-    });
-    await page.reload({ waitUntil: "domcontentloaded" });
+    await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForSelector(".shell", { timeout: 12000 });
     if (state.setup) await state.setup(page);
     await page.waitForSelector(state.ready, { timeout: 12000 });
@@ -344,6 +374,39 @@ async function startStaticServer() {
         return;
       }
 
+      if (req.method === "POST" && requestUrl.pathname === "/api/v1/study-sessions") {
+        sendJson(res, 200, {
+          ok: true,
+          session: {
+            id: "visual-session",
+            publicId: "visual-session",
+            mode: "revise",
+            accessType: "preview",
+            questionCount: visualQuestions.length,
+            startedAt: new Date(0).toISOString(),
+            durationSeconds: 0,
+            expiresAt: new Date(8640000000000000).toISOString(),
+            questions: visualQuestions.map((question) => toInitialQuestionPayload(question, { preview: true })),
+          },
+        });
+        return;
+      }
+
+      if (req.method === "POST" && requestUrl.pathname === "/api/v1/study-sessions/visual-session/answers") {
+        const body = await readJsonRequest(req);
+        const question = visualQuestions.find((item) => Number(item.id) === Number(body.questionId));
+        if (!question || !Number.isInteger(Number(body.selectedIndex))) {
+          sendJson(res, 400, { error: "Invalid visual answer fixture" });
+          return;
+        }
+        sendJson(res, 200, {
+          ok: true,
+          result: revealAnswer(question, Number(body.selectedIndex)),
+          answerStateToken: "visual-answer-state",
+        });
+        return;
+      }
+
       const filePath = await resolvePublicPath(req.url || "/");
       if (!filePath) {
         res.writeHead(403);
@@ -366,6 +429,17 @@ async function startStaticServer() {
     baseUrl: `http://127.0.0.1:${address.port}`,
     close: () => new Promise((resolve) => server.close(resolve)),
   };
+}
+
+async function readJsonRequest(req) {
+  const chunks = [];
+  for await (const chunk of req) chunks.push(chunk);
+  return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+}
+
+function sendJson(res, status, payload) {
+  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
+  res.end(JSON.stringify(payload));
 }
 
 async function resolvePublicPath(requestUrl) {

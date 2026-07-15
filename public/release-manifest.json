@@ -15,6 +15,6 @@
     "pwa": true,
     "aiExplanations": true,
     "referralCodes": true,
-    "launchOffer": false
+    "launchOffer": true
   }
 }

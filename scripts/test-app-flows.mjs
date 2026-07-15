@@ -41,7 +41,9 @@ try {
 }
 
 async function checkMarketingHomeContract({ html }) {
-  assert.match(html, /A clearer way to practise for the Irish theory test/, "Homepage should be a commercial landing page.");
+  assert.match(html, /<body class="marketing-page">/, "Homepage should use the commercial marketing surface.");
+  assert.match(html, /Irish theory test practice, organised around what you miss./, "Homepage should present the current learner value proposition.");
+  assert.match(html, /class="marketing-hero"/, "Homepage should include the commercial hero.");
   assert.doesNotMatch(html, /id="questionMount"/, "Homepage must not show the learner dashboard question mount.");
   assert.doesNotMatch(html, /src="\.\/app\.js/, "Homepage must not load the learner app bundle.");
   assert.match(html, /href="\/app"/, "Homepage should link to the learner app route.");

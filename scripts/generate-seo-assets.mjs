@@ -7,6 +7,7 @@ import {
 } from "../shared/product-summary.js";
 import {
   finalCta as sharedFinalCta,
+  siteHeader as sharedSiteHeader,
   siteFooter as sharedSiteFooter,
 } from "../shared/static-components.js";
 import { canonicalSiteOrigin } from "../shared/growth-config.js";
@@ -64,6 +65,98 @@ const assetPages = [
   assetPage("free-road-signs-quiz.html", "Free Road Signs Quiz Ireland", "A free road-signs quiz asset for learners who want a quick image-focused practice round.", "Free road signs quiz", "Use this free page to warm up road-sign recognition before unlocking the full road-sign drill.", "Start free preview"),
   assetPage("irish-theory-test-study-checklist.html", "Irish Theory Test Study Checklist", "A printable Irish theory test study checklist covering rules, signs, mocks, weak areas, and launch-week review.", "Irish theory test study checklist", "Print or save this checklist before your next study week.", "Open the study plan"),
 ];
+
+const guideProfiles = {
+  "irish-theory-test-practice.html": [
+    ["Start with a diagnostic, not a random marathon", "Use the free preview as a short diagnostic. Record the categories behind each uncertain or wrong answer, not just the final score. A balanced first session should touch rules, safe driving, signs, vehicle control, risk, and technical matters. That gives you a useful map for tomorrow instead of the false confidence that comes from repeating one familiar topic."],
+    ["Build a practical weekly rhythm", "Keep most sessions short enough to review properly. A useful rhythm is one focused drill, a road-sign round, then a cleanup of missed or flagged questions. Add a timed mock only after you have reviewed the errors from the previous one. The purpose of a mock is to expose pacing and category gaps; taking several without review usually repeats the same mistakes."],
+    ["Read for the decision word", "Theory questions often change meaning through words such as must, should, safest, first, or most appropriate. Before looking at the options, identify the decision the question is asking you to make. Remove answers that ignore the stated conditions, vulnerable road users, visibility, stopping distance, or a legal requirement. This method is more transferable than memorising one sentence."],
+    ["Use estimated priority carefully", "Estimated-priority labels can help order revision when time is limited. They combine transparent signals such as safety importance, legal consequences, visual content, category coverage, and learner miss data when available. They are not a claim about official test frequency. Keep broad category coverage and use the label as a study queue, not as permission to skip the rest of the syllabus."],
+  ],
+  "driver-theory-test-ireland.html": [
+    ["What Category B preparation needs to cover", "Car learners need more than road-sign recall. Preparation should include observation, safe positioning, speed choice, stopping distance, vulnerable road users, vehicle checks, legal responsibilities, and the meaning of signs and markings. Rotate these areas across the week so a strong topic does not hide a weak one. The learner app records category performance to make that rotation easier."],
+    ["Separate knowledge gaps from reading errors", "When an answer is wrong, decide whether the rule was unknown or the wording was misread. Knowledge gaps need a short explanation and another example. Reading errors need a slower routine: identify the hazard, note any weather or traffic condition, and find the word that determines the safest action. Treating both errors the same makes practice less efficient."],
+    ["Move from untimed work to timed practice", "Begin untimed while you build reasoning. Once you can explain why the correct option fits, introduce timed sets and then a full 40-question mock. Keep enough time after each mock to review every wrong or uncertain answer. Timing practice should make decisions steadier, not encourage guessing faster."],
+    ["Know what this product does and does not do", "Irish Theory Test Coach supplies independent practice, progress review, road-sign drills, and timed mock sessions. It does not book an appointment, manage an official result, guarantee an outcome, or claim access to a live question order. Use official channels for booking and current legal source material, and use this product to practise applying what you study."],
+  ],
+  "category-b-theory-test-ireland.html": [
+    ["Category B means broad car-driver knowledge", "A Category B study plan should connect legal rules with real decisions: when to slow, where to position, what a sign requires, how weather changes risk, and which vehicle defect matters. Create a category baseline early. If one area falls well below the others, make it the first drill in the next two sessions rather than avoiding it."],
+    ["Use mixed and focused sessions for different jobs", "Focused drills are best for learning a weak rule or sign family. Mixed sessions are better for testing whether you can recognise the topic without being told. Alternate both. A learner who only practises a named category can become dependent on the heading; a mixed mock checks whether the clue inside the question is enough."],
+    ["Treat visual questions as decisions", "For a sign, marking, dashboard symbol, or road scene, first name what you can see. Then state the instruction, warning, or risk before reading the options. This prevents an answer choice from steering your interpretation of the image. Repeat visual material after a delay so recognition becomes reliable rather than familiar only in one session."],
+    ["Use scores as evidence, not identity", "One weak mock is a measurement, not a verdict. Look at the distribution of misses: category, image versus text, legal wording, and late-test pacing. Review those patterns and take the next mock after targeted work. This creates a feedback cycle that a single pass-or-fail number cannot provide."],
+  ],
+  "mock-theory-test-ireland.html": [
+    ["A mock should reproduce concentration, not marketing pressure", "Use a quiet 40-question session with a visible 45-minute timer, clear progress, and no purchase prompt covering the answers. Complete the set in one sitting when possible. If you pause for a genuine reason, note it so the result is not mistaken for a normal timed attempt."],
+    ["Review confidence as well as correctness", "Mark questions you guessed or answered with low confidence even when they were correct. A lucky answer can conceal the same gap that produces a wrong answer next time. During review, separate confident correct answers, uncertain correct answers, knowledge misses, and reading mistakes. Each group needs a different response."],
+    ["Use the 35-out-of-40 target responsibly", "The configured practice pass mark is 35 out of 40. Do not stop review simply because one mock reaches that number. Look for repeatability and category balance, and make sure road-sign and safety decisions are understood rather than remembered from a recent set. This site does not promise that a practice score predicts an official outcome."],
+    ["What to do after submitting", "Review every missed and flagged item before starting another mock. Write one short reason for each error, then complete a small drill on the weakest category. If timing collapsed near the end, practise a shorter timed set with steady pacing. The next mock should test a change you made, not simply provide another number."],
+  ],
+  "irish-road-signs-test.html": [
+    ["Learn the visual grammar of signs", "Start with shape and colour before memorising individual names. Regulatory, warning, information, and road-marking families use visual cues that narrow the meaning quickly. Say the family aloud, then identify the specific instruction or hazard. This method is more robust than recognising a screenshot without understanding what action follows."],
+    ["Connect each sign to driver behaviour", "A sign question is rarely useful as a label alone. Ask what should change: speed, position, priority, stopping, lane choice, or attention. For warning signs, identify the hazard and the preparation it requires. For regulatory signs, identify what is required or prohibited. For markings, consider the lane and surrounding road context."],
+    ["Practise confusing pairs together", "Place similar signs or markings side by side and describe the decisive difference. Compare shape, border, symbol, arrows, lane context, and whether the message warns, instructs, or informs. Then space the repetitions across several days. Immediate repetition can feel fluent while producing weak recall later."],
+    ["Use image quality as part of study quality", "A useful visual must be legible, relevant, and accompanied by an accurate alternative description. Decorative or generic generated images should not replace the sign or road feature a learner needs to inspect. Report a broken, unclear, or mismatched visual through the question correction route so it can enter editorial review."],
+  ],
+  "rules-of-the-road-practice.html": [
+    ["Slow down legal wording", "Rules questions can turn on a single qualifier. Identify who has the duty, the road condition, and whether the question asks what is required, permitted, recommended, or safest. Do not choose a familiar phrase until it fits every part of the scenario. When a rule may have changed, cross-check current official source material rather than treating an old explanation as legal certainty."],
+    ["Translate a rule into a driving decision", "After reading an explanation, create a simple scenario in which the rule matters. Decide what you would observe, when you would act, and which road user could be affected. This moves the rule from verbal recall into judgement. The practice app supports this by keeping category and explanation context beside each answered question."],
+    ["Keep exceptions visible", "Many difficult items involve an exception, priority conflict, unusual road condition, or vulnerable road user. Add a short note to missed questions describing the exception rather than copying the whole answer. Revisit that note after a delay and test whether you can explain why the tempting option fails."],
+    ["Use independent practice alongside current sources", "This product is not RSA, Prometric, or an official rules publisher. Its role is to help you practise reasoning, track misses, and organise revision. Use current official materials for authoritative legal wording and use the report route when practice content appears ambiguous, contradictory, or outdated."],
+  ],
+  "theory-test-study-plan.html": [
+    ["Day one: establish a baseline", "Complete a short mixed set without looking up answers. Record weak categories, road-sign hesitation, and any questions where two options felt plausible. Review the explanations slowly. Your baseline is useful only when it captures uncertainty as well as mistakes, so flag guessed answers even when they happen to be correct."],
+    ["Middle of the week: target and space", "Use focused drills for the weakest category and road-sign family, then revisit them after a gap instead of repeating the same set immediately. Clear missed and flagged questions before adding more volume. A daily target of 25 can create rhythm, but quality review matters more than filling a counter."],
+    ["End of the week: test the change", "Take one timed mock after the targeted work. Compare its error pattern with the baseline: fewer repeats, steadier pacing, and stronger explanations matter more than one isolated score. If the same category remains weak, return to the underlying rule or visual family before scheduling another mock."],
+    ["Keep the plan realistic", "Choose session times you can repeat and stop before concentration collapses. Mix text and image work, keep one recovery day, and leave time to review official materials. No schedule can guarantee a result. A good plan simply makes gaps visible, gives each session a purpose, and provides evidence for what to study next."],
+  ],
+  "failed-theory-test-ireland.html": [
+    ["Start with the information you actually have", "A failed attempt is difficult, but the useful next step is specific. Write down any category, sign family, wording pattern, or timing problem you remember without trying to reconstruct live questions. Do not rely on online claims about what appears every time. Build the recovery plan around your own weak signals and current study material."],
+    ["Separate content, confidence, and pacing", "Review whether misses came from unknown rules, uncertain signs, rushed reading, or late-test fatigue. Unknown content needs explanation and spaced practice. Low confidence needs comparison between similar options. Rushing needs a deliberate reading routine. Pacing problems need timed sets that are shorter than a full mock before you try forty again."],
+    ["Use a seven-day recovery loop", "Spend the first sessions on the two weakest areas, then clear missed and flagged questions. Add a dedicated road-sign round even if signs did not feel like the main problem. Near the end of the week, take one timed mock and review it fully. Adjust the schedule from evidence rather than immediately repeating full tests."],
+    ["Book and verify through official channels", "Irish Theory Test Coach cannot book, move, or manage an appointment and is not affiliated with the official testing providers. Use official channels for booking details, identification requirements, fees, and current rules. Use this independent tool for practice, review, and rebuilding a calmer study routine."],
+  ],
+  "theory-test-questions-and-answers-ireland.html": [
+    ["Do not memorise an answer without its condition", "A useful answer includes the reason and the scenario. Ask which detail makes the correct option fit: weather, visibility, priority, stopping distance, vehicle condition, or a legal duty. If the wording changes, that reason should still guide you. Memorising option B from one screen cannot provide that transfer."],
+    ["Use wrong options as learning material", "After submitting, explain why each tempting option fails. Some are unsafe, some answer a different question, and some are only partly true. Comparing them improves discrimination between close choices. Keep this short and practical; the goal is to recognise the decisive clue next time, not write an essay after every item."],
+    ["Protect the answer reveal", "The learner session sends prompts and options before submission, then returns correctness and explanation after the answer is recorded. This supports honest practice and keeps premium answer data behind server-side access checks. Browser state is not treated as proof of payment or as authority for a mock score."],
+    ["Report ambiguity instead of learning it", "If two options appear equally valid, the correct answer is absent, the explanation contradicts the stem, or an image does not match, use the report action. Reports include the content version and enter a review queue. Structural validation alone does not mark a question factually verified, so editorial decisions remain auditable."],
+  ],
+  "hardest-theory-test-questions-ireland.html": [
+    ["Hard can mean several different things", "A question may be hard because the rule is unfamiliar, the wording is precise, several options sound safe, or the scenario combines multiple risks. Label the reason for difficulty. That tells you whether to learn a rule, compare options, inspect an image, or practise reading under time."],
+    ["Most missed is not official frequency", "Learner miss rate can identify material that deserves another round, but it describes performance inside this product and sample. It does not reveal official exam frequency or prove that a question will appear. Small samples should be treated as directional, and broad category coverage should remain part of every plan."],
+    ["Practise contrast, not just repetition", "Place a hard question beside a related easier one and explain what changes the answer. Compare conditions, duty words, signs, and risk level. This contrast helps you recognise the boundary of a rule. Repeating the exact same stem may improve familiarity without improving judgement."],
+    ["Promote a question only after review", "Estimated-priority, archived-hardest, visual, safety, legal, and learner-miss signals can raise a study score. They do not make content factually verified. Conflicting answers, near duplicates, and learner reports stay in editorial queues, while the session selector suppresses duplicate variants in one practice round."],
+  ],
+  "theory-test-ireland-40-questions.html": [
+    ["Understand the configured mock format", "The coach uses 40-question timed practice with 45 minutes and a configured practice pass mark of 35. The server selects and orders the questions, records submitted answers, and calculates the result. This is an independent mock format for preparation and does not represent access to any live official test."],
+    ["Plan a steady first pass", "Read each stem for the decision word, answer what you know, and flag genuine uncertainty without repeatedly changing confident choices. Keep an eye on time at sensible intervals rather than after every item. Accessible timer warnings should inform you without blocking the current answer."],
+    ["Treat 35 out of 40 as a review threshold", "Reaching the configured mark once is useful but not a guarantee. Check whether the five or fewer misses cluster in one category, whether several correct answers were guesses, and whether performance stays similar on another day. Review the reasoning before using the next mock as evidence of improvement."],
+    ["After the score, return to the weakest signal", "Open missed and flagged review, repeat any weak road-sign family, and complete a short category drill. Record whether the issue was knowledge, reading, confidence, or pacing. A second mock is most valuable after that intervention; otherwise it mostly measures the same unresolved gaps again."],
+  ],
+};
+
+const guideActionSections = {
+  "irish-theory-test-practice.html": ["A useful first-session checklist", "Choose a quiet 20-minute window. Complete the preview without searching for answers, flag every guess, review each explanation, and write down the two weakest categories. Finish by scheduling the next small drill rather than immediately repeating the same questions. Keep official materials nearby for later cross-checking, but protect the diagnostic value of the first attempt by answering from your current understanding."],
+  "driver-theory-test-ireland.html": ["Before moving into a full mock", "Check that you have practised at least one rules set, one risk or safe-driving set, one vehicle-control or technical set, and one road-sign round. Confirm that you can explain recent misses without looking at the answer. Then start the mock with notifications off and enough time to review it afterwards. If one of those conditions is missing, a focused session is likely more useful than another score."],
+  "category-b-theory-test-ireland.html": ["A balanced Category B session", "Use one mixed block to reveal gaps, one focused block on the weakest category, and one short visual round. Keep flagged guesses separate from confident errors so both receive review. End by stating the safest-action principle behind three questions in your own words. This small balance prevents signs, technical matters, or legal wording from disappearing behind whichever topic feels easiest."],
+  "mock-theory-test-ireland.html": ["Set up the mock before pressing start", "Allow an uninterrupted 45-minute window, silence notifications, and use a screen size where answers and timer remain readable. Do not open notes during the session. Flag uncertain answers, submit once, and reserve another 20 minutes for review. Record the weakest category and whether timing changed your choices. The setup makes the result comparable with future practice without pretending it predicts an official outcome."],
+  "irish-road-signs-test.html": ["A five-step sign routine", "Name the sign family, describe its shape and colour, identify the symbol or marking, state the instruction or hazard, and choose the driver response. If any step is uncertain, flag the item and compare it with a similar sign after review. Repeat the pair on another day. This routine converts a visual guess into a chain of cues that is easier to recall in a new context. Include road markings and temporary traffic-management cues so the practice is not limited to sign plates."],
+  "rules-of-the-road-practice.html": ["A rule-review note that stays useful", "For each difficult item, record the duty word, the condition, the affected road user, and one reason the tempting answer fails. Keep the note short enough to test from memory later. When the issue concerns current law or an exact legal requirement, verify it against current official material and report any conflict in the practice content rather than silently learning an uncertain rule."],
+  "theory-test-study-plan.html": ["A realistic seven-day structure", "Use two short mixed sessions, two focused weak-area sessions, two road-sign reviews, and one timed mock with full review. Adjust the order around work, study, and rest, but keep spacing between repeated topics. If concentration is poor, shorten the session rather than racing to a daily number. The plan succeeds when tomorrow's action is clear and missed questions receive another attempt. Leave one flexible slot for the category revealed by the week's mock."],
+  "failed-theory-test-ireland.html": ["What not to do after a failed attempt", "Do not buy several tools in panic, chase claims about guaranteed questions, or repeat full mocks without reviewing the errors. Avoid trying to reconstruct or share live-test content. Instead, confirm official booking information, make a calm category baseline, choose two weaknesses, and use one week of focused practice before measuring again. Ask for support when account access or a content correction is blocking the work."],
+  "theory-test-questions-and-answers-ireland.html": ["A high-quality answer review", "Confirm that the selected answer is present among the options, the explanation addresses the exact stem, and the stated reason does not depend on hidden information. Check that the alternatives are distinct and grammatically parallel. For image questions, confirm the visual and alternative description match the prompt. Report duplicate options, contradictory explanations, unclear wording, or unsafe HTML so the stable question ID and version history can support correction."],
+  "hardest-theory-test-questions-ireland.html": ["Build a hard-question set responsibly", "Mix legal wording, safety-critical decisions, signs or images, and categories with a personal miss history. Suppress duplicate variants within the same session so repetition does not inflate the sense of progress. After answering, classify the difficulty and write one contrast with an easier related item. Retire a question from your personal hard set only when you can explain it correctly after a delay, not immediately after seeing the answer. Recheck any factual uncertainty before promoting it into a priority drill. Keep the reasoning visible."],
+  "theory-test-ireland-40-questions.html": ["A mock result worth comparing", "Record the date, score, completion time, missed categories, flagged guesses, and content version. Note any interruption or technical problem. Use the same review method for the next attempt and compare patterns rather than only totals. Two similar results under normal conditions tell you more than a high score taken immediately after memorising one set. Keep progress after access expiry so renewal does not erase that history. Review at least one visual and one rules item after every mock."],
+};
+
+for (const item of keywordPages) {
+  if (guideProfiles[item.slug]) {
+    item.sections = [
+      ...guideProfiles[item.slug],
+      guideActionSections[item.slug],
+    ];
+  }
+}
 
 const allPages = [...keywordPages, ...legacyPages, ...categoryPages, ...assetPages];
 
@@ -189,6 +282,7 @@ function renderPage(item) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(item.title)}</title>
     <meta name="description" content="${escapeHtml(item.description)}">
+    <meta name="author" content="Irish Theory Test Coach">
     <link rel="canonical" href="${canonical}">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Irish Theory Test Coach">
@@ -201,20 +295,12 @@ function renderPage(item) {
     <meta name="twitter:description" content="${escapeHtml(item.description)}">
     <meta name="twitter:image" content="${ogImage}">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
 ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(data)}</script>`).join("\n")}
   </head>
   <body>
     <div class="shell seo-shell">
-      <header class="seo-topbar">
-        <a class="brand-mark" href="/">Irish Theory Test Coach</a>
-        <nav class="site-nav" aria-label="Primary navigation">
-          <a href="/app">App</a>
-          <a href="/learn">Learn</a>
-          <a href="/road-signs">Road signs</a>
-          <a href="/mock-exam">Mock exam</a>
-          <a href="/pricing">Pricing</a>
-        </nav>
-      </header>
+      ${sharedSiteHeader({ active: navKeyForItem(item), root: "" })}
       <main class="seo-main">
         <nav class="breadcrumbs" aria-label="Breadcrumb">
           <a href="/">Home</a>
@@ -240,6 +326,13 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
         <article class="seo-card-band">
           ${item.sections.map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`).join("\n          ")}
         </article>
+        <aside class="content-method-note" aria-label="How this guide was prepared">
+          <div>
+            <p class="eyebrow">How this guide was prepared</p>
+            <h2>Product information is checked against the current build.</h2>
+          </div>
+          <p>Irish Theory Test Coach publishes independent learning guidance. Updated <time datetime="2026-07-15">15 July 2026</time>. Counts and plan details come from the current product configuration; factual review of individual questions remains a separate editorial state. Read the <a href="/content-methodology.html">content methodology</a> and use the correction route when something needs review.</p>
+        </aside>
         ${item.type === "pricing" ? pricingCards() : samplePractice()}
         <section class="seo-card-band related-articles">
           <h2>Related practice guides</h2>
@@ -249,7 +342,7 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
         </section>
         <section class="seo-card-band faq-section">
           <h2>FAQ</h2>
-          ${item.faqs.map(([q, a]) => `<details open><summary>${escapeHtml(q)}</summary><p>${escapeHtml(a)}</p></details>`).join("\n          ")}
+          ${item.faqs.map(([q, a], index) => `<details${index === 0 ? " open" : ""}><summary>${escapeHtml(q)}</summary><p>${escapeHtml(a)}</p></details>`).join("\n          ")}
         </section>
         ${sharedFinalCta({ root: "", body: `${disclaimer} No outcome promises or live-test prediction claims.` })}
       </main>
@@ -324,6 +417,14 @@ function footer() {
   return sharedSiteFooter({ root: "", disclaimer });
 }
 
+function navKeyForItem(item) {
+  if (item.slug === "pricing.html") return "pricing";
+  if (item.slug === "learn.html") return "learn";
+  if (/sign|road-marking/i.test(item.slug)) return "road-signs";
+  if (/mock|40-questions/i.test(item.slug)) return "mock-exam";
+  return "learn";
+}
+
 function breadcrumbJsonLd(item) {
   return {
     "@context": "https://schema.org",
@@ -371,17 +472,39 @@ function websiteJsonLd() {
 }
 
 function writeSitemap(pages) {
+  const pageEntries = pages.map((item) => {
+    const pathname = item.slug === "learn.html"
+      ? "/learn"
+      : item.slug === "pricing.html"
+        ? "/pricing"
+        : `/${item.slug}`;
+    return [pathname, item.type === "asset" ? "monthly" : "weekly", item.type === "pricing" ? "0.9" : "0.8"];
+  });
   const entries = [
     ["/", "weekly", "1.0"],
-    ...pages.map((item) => [`/${item.slug}`, item.type === "asset" ? "monthly" : "weekly", item.type === "pricing" ? "0.9" : "0.8"]),
+    ["/app", "weekly", "0.9"],
+    ["/road-signs", "weekly", "0.8"],
+    ["/mock-exam", "weekly", "0.8"],
+    ["/support", "monthly", "0.5"],
+    ...pageEntries,
     ["/privacy.html", "yearly", "0.3"],
     ["/terms.html", "yearly", "0.3"],
     ["/refunds.html", "yearly", "0.3"],
     ["/contact.html", "yearly", "0.3"],
+    ["/legal.html", "monthly", "0.5"],
+    ["/data-rights.html", "monthly", "0.4"],
+    ["/cookies.html", "monthly", "0.4"],
+    ["/cancellation.html", "monthly", "0.3"],
+    ["/security.html", "monthly", "0.5"],
+    ["/accessibility.html", "monthly", "0.4"],
+    ["/content-methodology.html", "monthly", "0.5"],
   ];
+  const uniqueEntries = entries.filter(([pathname], index) => (
+    entries.findIndex(([candidate]) => candidate === pathname) === index
+  ));
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${entries.map(([urlPath, changefreq, priority]) => `  <url>
+${uniqueEntries.map(([urlPath, changefreq, priority]) => `  <url>
     <loc>${siteUrl}${urlPath}</loc>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
@@ -456,12 +579,21 @@ function keywordMapDoc() {
     ["category b theory test ireland", "category-b-theory-test-ireland.html"],
     ["car theory test ireland", "category-b-theory-test-ireland.html"],
     ["mock theory test ireland", "mock-theory-test-ireland.html"],
+    ["car theory test mock exam", "mock-theory-test-ireland.html"],
+    ["driver theory mock test ireland", "mock-theory-test-ireland.html"],
     ["irish road signs test", "irish-road-signs-test.html"],
     ["road signs ireland quiz", "free-road-signs-quiz.html"],
+    ["road signs practice ireland", "irish-road-signs-test.html"],
     ["rules of the road practice test", "rules-of-the-road-practice.html"],
     ["theory test study plan ireland", "theory-test-study-plan.html"],
     ["failed theory test ireland", "failed-theory-test-ireland.html"],
+    ["irish theory test questions and answers", "theory-test-questions-and-answers-ireland.html"],
+    ["theory test questions ireland", "theory-test-questions-and-answers-ireland.html"],
     ["hardest theory test questions ireland", "hardest-theory-test-questions-ireland.html"],
+    ["most missed theory test questions ireland", "hardest-theory-test-questions-ireland.html"],
+    ["theory test ireland 40 questions", "theory-test-ireland-40-questions.html"],
+    ["theory test pass mark ireland", "theory-test-ireland-40-questions.html"],
+    ["35 out of 40 theory test ireland", "theory-test-ireland-40-questions.html"],
   ];
   return (`# SEO Keyword Map
 

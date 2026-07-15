@@ -22,7 +22,8 @@
     <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/app-icon.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
-    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Irish Theory Test Coach","applicationCategory":"EducationalApplication","operatingSystem":"Web","url":"https://irishtheorycoach.ie/pricing","description":"Independent Irish Category B theory-test practice app with road signs, mock exams, estimated priority drills, and progress tracking.","offers":{"@type":"Offer","price": "4.99","priceCurrency":"EUR"}}</script>
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Irish Theory Test Coach","applicationCategory":"EducationalApplication","operatingSystem":"Web","url":"https://irishtheorycoach.ie/pricing","description":"Independent Irish Category B theory-test practice app with road signs, mock exams, estimated priority drills, and progress tracking.","offers":{"@type":"Offer","price": "2.99","priceCurrency":"EUR"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://irishtheorycoach.ie/"},{"@type":"ListItem","position":2,"name":"Pricing","item":"https://irishtheorycoach.ie/pricing"}]}</script>
   </head>
   <body class="marketing-page">
@@ -30,12 +31,12 @@
       <header class="site-header">
         <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
           <span class="brand-symbol" aria-hidden="true">TC</span>
-          <span class="brand-copy"><strong>Theory Coach</strong><small>Independent Irish learner practice</small></span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
           <a href="/">Home</a>
           <a href="/app">App</a>
-          <a class="active" href="/pricing">Pricing</a>
+          <a class="active" aria-current="page" href="/pricing">Pricing</a>
           <a href="/learn">Learn</a>
           <a href="/road-signs">Road signs</a>
           <a href="/mock-exam">Mock exam</a>
@@ -45,12 +46,26 @@
           <a class="button-secondary" href="/account">Restore access</a>
           <a class="button-primary" href="/app">Start free preview</a>
         </div>
+        <details class="nav-menu">
+          <summary aria-label="Open navigation" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+          <nav aria-label="Mobile navigation">
+            <a href="/">Home</a>
+          <a href="/app">App</a>
+          <a class="active" aria-current="page" href="/pricing">Pricing</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a href="/support">Support</a>
+            <a href="/account">Restore access</a>
+            <a class="nav-menu-cta" href="/app">Start free preview</a>
+          </nav>
+        </details>
       </header>
       <main class="marketing-main compact-main">
         <section class="page-hero">
           <p class="eyebrow">Pricing</p>
           <h1>Clear learner pricing with no fake urgency.</h1>
-          <p>Start free, then unlock the full coach for EUR 4.99 when the complete study path is useful. One-time access lasts 90 days; repeat purchases extend access.</p>
+          <p>Start free, then unlock the full coach for EUR 2.99 when the complete study path is useful. One-time access lasts 90 days; repeat purchases extend access.</p>
           <div class="cta-row">
             <a class="button-primary" href="/app">Start free preview</a>
             <a class="button-secondary" href="/pricing">Compare pricing</a>
@@ -136,7 +151,7 @@
         <div class="footer-brand">
           <a class="brand-mark" href="/">
             <span class="brand-symbol" aria-hidden="true">TC</span>
-            <span class="brand-copy"><strong>Theory Coach</strong><small>Irish Category B practice</small></span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
           </a>
           <p>Focused practice, transparent pricing, and review tools for Irish learner drivers.</p>
         </div>

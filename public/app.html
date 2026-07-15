@@ -21,6 +21,7 @@
     <meta name="twitter:description" content="Focused Irish Category B practice workspace with road signs, mock exams, and feedback.">
     <meta name="twitter:image" content="https://irishtheorycoach.ie/marketing/og-preview.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -32,7 +33,7 @@
         "description": "Focused Irish Category B theory test practice app with preview questions, road signs, mock exams, estimated high-yield drills, and progress tracking.",
         "offers": {
           "@type": "Offer",
-          "price": "4.99",
+          "price": "2.99",
           "priceCurrency": "EUR"
         },
         "publisher": {
@@ -71,7 +72,7 @@
         <nav class="app-nav" aria-label="Primary navigation">
           <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
             <span class="brand-symbol" aria-hidden="true">TC</span>
-            <span class="brand-copy"><strong>Theory Coach</strong><small>Irish Category B practice</small></span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
           </a>
           <div class="site-nav" aria-label="Study pages">
             <a class="active" href="/app">App</a>
@@ -84,6 +85,16 @@
             <a class="nav-restore-link" data-restore-trigger data-restore-source="top_nav" href="#restoreEmail">Restore</a>
             <a class="button-primary nav-unlock" href="#unlock">Get full access</a>
           </div>
+          <details class="app-menu nav-menu">
+            <summary aria-label="Open learner menu" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+            <nav aria-label="Learner menu">
+              <a aria-current="page" href="/app">Practice</a>
+              <a href="/account">Account</a>
+              <a href="/pricing">Pricing</a>
+              <a href="/support">Support</a>
+              <a data-restore-trigger data-restore-source="mobile_menu" href="#restoreEmail">Restore access</a>
+            </nav>
+          </details>
         </nav>
 
         <section class="learner-masthead" aria-labelledby="heroTitle">
@@ -216,7 +227,7 @@
             <p id="unlockStatus">Preview 15 questions, then unlock the complete study flow.</p>
             <p class="trust-microcopy">One-time payment, <span data-product-value="accessDuration">90-day access</span>. Review <a href="./terms.html">terms</a>, <a href="./privacy.html">privacy</a>, <a href="./refunds.html">refunds</a>, <a href="./cancellation.html">cancellation</a>, and <a href="./support">support</a> before checkout.</p>
             <p id="syncStatusText" class="sync-status-text">Progress saves locally until you sign in.</p>
-            <button id="checkoutBtn" class="primary" data-product-value="unlockCta" type="button">Unlock for EUR 4.99</button>
+            <button id="checkoutBtn" class="primary" data-product-value="unlockCta" type="button">Unlock for EUR 2.99</button>
             <a id="restoreAccessLink" class="restore-access-link compact-restore-link" data-restore-trigger data-restore-source="coach_rail" href="#restoreEmail">Already paid? Restore access</a>
             <form class="referral-form compact-referral-form" data-source="sidebar" novalidate>
               <label class="field"><span>Have a code?</span><input name="referralCode" type="text" autocomplete="off" placeholder="Instructor or referral code"></label>
@@ -226,7 +237,7 @@
             <form id="restoreForm" class="restore-form hidden" data-restore-state="idle" data-restore-open="false" role="dialog" aria-modal="false" aria-labelledby="restoreTitle" novalidate>
               <div class="restore-card-heading">
                 <div><span class="section-label">Secure access</span><strong id="restoreTitle">Already paid?</strong></div>
-                <button id="restoreCloseBtn" class="restore-close-btn" type="button" aria-label="Close restore access">Close</button>
+                <button id="restoreCloseBtn" class="restore-close-btn" type="button" aria-label="Close restore access" title="Close">&times;</button>
               </div>
               <p>Enter the email used at checkout and we will send a secure one-time link.</p>
               <label class="field restore-field"><span>Email used at checkout</span><input id="restoreEmail" type="email" autocomplete="email" inputmode="email" placeholder="you@example.com" aria-describedby="restoreStatus" required></label>
@@ -286,7 +297,7 @@
               <h2>Unlock the full study path.</h2>
               <p>Stop guessing what to revise. Drill high-yield questions, clear weak areas, practise road signs, and take timed 40-question mocks.</p>
             </div>
-            <div class="paywall-price" aria-label="One-time unlock price"><span>One-time</span><strong data-price-label data-product-value="activePrice">EUR 4.99</strong><small data-product-value="accessDuration">90-day access</small></div>
+            <div class="paywall-price" aria-label="One-time unlock price"><span>One-time</span><strong data-price-label data-product-value="activePrice">EUR 2.99</strong><small data-product-value="accessDuration">90-day access</small></div>
           </div>
           <div class="paywall-value-line"><strong>Know what to do next</strong><span>Answer</span><span>Understand</span><span>Review</span><span>Mock</span></div>
           <div class="paywall-comparison" aria-label="Free preview compared with full coach">
