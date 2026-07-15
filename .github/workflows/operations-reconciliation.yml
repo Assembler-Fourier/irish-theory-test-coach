@@ -1,8 +1,6 @@
-name: Operations reconciliation
+name: Production operations reconciliation
 
 on:
-  schedule:
-    - cron: "17 3 * * *"
   workflow_dispatch:
 
 permissions:
@@ -12,24 +10,47 @@ jobs:
   reconcile:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    environment:
+      name: production
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      RATE_LIMIT_SALT: ${{ secrets.RATE_LIMIT_SALT }}
+      MONITORING_ENABLED: ${{ vars.MONITORING_ENABLED }}
+      MONITORING_WEBHOOK_URL: ${{ secrets.MONITORING_WEBHOOK_URL }}
+      MONITORING_ENVIRONMENT: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version-file: .nvmrc
           cache: npm
 
+      - name: Verify required production configuration
+        shell: bash
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error title=Reconciliation not configured::DATABASE_URL is missing from the production environment. The reconciliation did not run."
+            {
+              echo "### Reconciliation blocked"
+              echo "The production environment does not provide DATABASE_URL. No database check was attempted."
+              echo "Configure the environment secret, verify it against a non-production branch first, then dispatch this workflow again."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
       - name: Install with lockfile
         run: npm ci
 
-      - name: Run payment/access reconciliation
-        run: npm run ops:reconcile -- --allow-findings --json
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          RATE_LIMIT_SALT: ${{ secrets.RATE_LIMIT_SALT }}
-          MONITORING_ENABLED: ${{ vars.MONITORING_ENABLED }}
-          MONITORING_WEBHOOK_URL: ${{ secrets.MONITORING_WEBHOOK_URL }}
-          MONITORING_ENVIRONMENT: production
+      - name: Run payment and access reconciliation
+        run: npm run ops:reconcile -- --allow-findings --json | tee reconciliation-result.json
+
+      - name: Upload reconciliation evidence
+        if: always() && hashFiles('reconciliation-result.json') != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: operations-reconciliation-${{ github.run_id }}
+          path: reconciliation-result.json
+          retention-days: 14
