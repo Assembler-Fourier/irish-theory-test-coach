@@ -81,11 +81,16 @@ function renderHomePage() {
         <section class="marketing-hero" aria-labelledby="homeTitle">
           <div class="marketing-hero-copy">
             <p class="eyebrow">Independent Irish Category B practice</p>
-            <h1 id="homeTitle">A clearer way to practise for the Irish theory test.</h1>
-            <p class="hero-subheading">Study rules, road signs, weak areas, and timed mocks in one focused coach. Built for learners who want structure, not clutter.</p>
+            <h1 id="homeTitle">Irish theory test practice, organised around what you miss.</h1>
+            <p class="hero-subheading">Move from a free 15-question preview to focused rules, road signs, weak-area review, and timed mocks. One calm study path, without official-status or pass-guarantee claims.</p>
+            <div class="hero-value-note" aria-label="Current learner offer">
+              <span>Full learner path</span>
+              <strong>${summary.activePrice}</strong>
+              <small>one-time / ${summary.accessDurationDays} days</small>
+            </div>
             <div class="cta-row">
               <a class="button-primary" href="/app">Start free preview</a>
-              <a class="button-secondary" href="/pricing">Compare pricing</a>
+              <a class="button-secondary" href="/pricing">See plans and access</a>
             </div>
             <p class="hero-disclaimer">${disclaimer}</p>
           </div>
@@ -96,24 +101,24 @@ function renderHomePage() {
         </section>
 
         <section class="metric-strip" aria-label="Product summary">
-          <div><strong>${formatInteger(summary.totalPublishedQuestions)}</strong><span>practice questions</span></div>
-          <div><strong>${formatInteger(summary.estimatedPriorityQuestionCount)}</strong><span>estimated-priority drills</span></div>
+          <div><strong>${formatInteger(summary.totalPublishedQuestions)}</strong><span>published practice questions</span></div>
+          <div><strong>${formatInteger(summary.estimatedPriorityQuestionCount)}</strong><span>estimated-priority questions</span></div>
           <div><strong>${formatInteger(summary.signOrImageQuestionCount)}</strong><span>sign and image questions</span></div>
-          <div><strong>${formatMockShort(summary)}</strong><span>questions / minutes per mock</span></div>
+          <div><strong>${formatMockShort(summary)}</strong><span>mock questions / minutes</span></div>
         </section>
 
         <section class="marketing-section" aria-labelledby="positioningHeading">
           <div class="section-intro">
-            <p class="eyebrow">Product positioning</p>
-            <h2 id="positioningHeading">A practice product, not an official testing service.</h2>
-            <p>Irish Theory Test Coach helps learners practise and review. It does not book tests, claim RSA or Prometric affiliation, promise a pass, or claim to know what appears in any live test.</p>
+            <p class="eyebrow">A clearer next step</p>
+            <h2 id="positioningHeading">Your next study session should not be a guess.</h2>
+            <p>Irish Theory Test Coach turns answers, missed questions, flags, signs, and mock results into a practical review loop. It is an independent learning product, not a testing or booking service.</p>
           </div>
           <div class="feature-grid">
             ${featureCards([
-              { kicker: "Practice", title: "Free preview first", body: `${summary.previewLimit} preview questions let learners test the workflow before paying.` },
-              { kicker: "Coaching", title: "Weak areas become the plan", body: "Missed and flagged questions feed the next review session instead of disappearing after a score." },
-              { kicker: "Mocks", title: "Timed 40-question practice", body: "Mock mode focuses on timing, submission, and review without marketing panels in the way." },
-              { kicker: "Trust", title: "Content review workflow", body: "Duplicate, conflict, lint, and learner reports are routed into an editorial queue for review." },
+              { kicker: "Preview", title: "Try the real study flow", body: `${summary.previewLimit} questions show the answer and feedback experience before you choose a plan.` },
+              { kicker: "Focus", title: "Weak areas stay visible", body: "Missed and flagged questions become the next review round instead of disappearing behind one score." },
+              { kicker: "Timing", title: "Mocks stay distraction-free", body: `${summary.mockSize}-question, ${summary.mockDurationMinutes}-minute practice keeps the timer, answer, and review controls in view.` },
+              { kicker: "Quality", title: "Corrections have a route", body: "Content lint, conflicts, version history, and learner reports feed a visible editorial workflow." },
             ])}
           </div>
         </section>
@@ -121,7 +126,7 @@ function renderHomePage() {
         <section class="marketing-section split-section" aria-labelledby="howItWorksHeading">
           <div>
             <p class="eyebrow">How it works</p>
-            <h2 id="howItWorksHeading">A simple study loop learners can repeat.</h2>
+            <h2 id="howItWorksHeading">One repeatable loop from first answer to mock review.</h2>
             <ol class="step-list">
               <li><strong>Start with preview.</strong><span>Try the question flow and feedback without paying.</span></li>
               <li><strong>Drill weak areas.</strong><span>Use estimated priority, missed answers, and flags to decide what comes next.</span></li>
@@ -138,18 +143,18 @@ function renderHomePage() {
         <section class="marketing-section three-column-section">
           <article>
             <p class="eyebrow">Weak-area coaching</p>
-            <h2>Practise what you miss.</h2>
-            <p>Answer history, missed questions, and flags keep the next session practical. Explanations focus on why the answer fits the supplied rule or sign context.</p>
+            <h2>Review the reason, not a letter.</h2>
+            <p>Answer history, missed questions, and flags shape the next session. Feedback explains why the supplied answer fits the rule or sign context.</p>
           </article>
           <article>
             <p class="eyebrow">Mock exam practice</p>
-            <h2>Use timed mocks when ready.</h2>
-            <p>Mock mode uses the server-generated session flow so learners practise timing without relying on editable browser state for scoring.</p>
+            <h2>Use timed mocks with intent.</h2>
+            <p>Mock mode keeps question selection and scoring server-side, then sends missed areas back into review instead of chasing score after score.</p>
           </article>
           <article>
             <p class="eyebrow">Road signs</p>
-            <h2>Train fast recognition.</h2>
-            <p>Image-backed drills help learners slow down, name the sign or marking, and connect it to the safest action.</p>
+            <h2>Build recognition before recall.</h2>
+            <p>Image-backed drills help you name the sign or marking, notice its shape and colour, and connect it to the required or safest action.</p>
           </article>
         </section>
 
@@ -419,6 +424,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
     <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/app-icon.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
     ${jsonLd.map((item) => `<script type="application/ld+json">${JSON.stringify(item)}</script>`).join("\n    ")}
   </head>
   <body class="${bodyClass}">
@@ -471,7 +477,7 @@ function supportVisibility() {
 }
 
 function faqMarkup(items) {
-  return items.map(([question, answer]) => `<details open><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("\n          ");
+  return items.map(([question, answer], index) => `<details${index === 0 ? " open" : ""}><summary>${escapeHtml(question)}</summary><p>${escapeHtml(answer)}</p></details>`).join("\n          ");
 }
 
 function linkCard([title, href, body]) {

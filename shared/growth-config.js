@@ -1,4 +1,5 @@
 export const ANALYTICS_SCHEMA_VERSION = 2;
+export const DEFAULT_CANONICAL_ORIGIN = "https://irishtheorycoach.ie";
 
 export const FUNNEL_EVENTS = [
   {
@@ -185,12 +186,11 @@ export function buildGrowthConfig(env = process.env) {
 }
 
 export function canonicalSiteOrigin(env = process.env) {
-  const productionOrigin = "https://irishtheorycoach.ie";
-  const raw = env.PUBLIC_CANONICAL_ORIGIN || env.PUBLIC_SITE_URL || productionOrigin;
+  const raw = env.PUBLIC_CANONICAL_ORIGIN || env.PUBLIC_SITE_URL || DEFAULT_CANONICAL_ORIGIN;
   try {
     return new URL(raw).origin.replace(/\/+$/, "");
   } catch {
-    return productionOrigin;
+    return DEFAULT_CANONICAL_ORIGIN;
   }
 }
 

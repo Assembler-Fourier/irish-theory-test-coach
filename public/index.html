@@ -22,6 +22,7 @@
     <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="./icons/app-icon.svg">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Irish Theory Test Coach","applicationCategory":"EducationalApplication","operatingSystem":"Web","url":"https://irishtheorycoach.ie/","description":"Independent Irish Category B theory-test practice app with road signs, mock exams, estimated priority drills, and progress tracking.","offers":{"@type":"Offer","price": "4.99","priceCurrency":"EUR"}}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Irish Theory Test Coach","url":"https://irishtheorycoach.ie","description":"Independent Irish theory test practice guides and learner app."}</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://irishtheorycoach.ie/"}]}</script>
@@ -32,10 +33,10 @@
       <header class="site-header">
         <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
           <span class="brand-symbol" aria-hidden="true">TC</span>
-          <span class="brand-copy"><strong>Theory Coach</strong><small>Independent Irish learner practice</small></span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
-          <a class="active" href="/">Home</a>
+          <a class="active" aria-current="page" href="/">Home</a>
           <a href="/app">App</a>
           <a href="/pricing">Pricing</a>
           <a href="/learn">Learn</a>
@@ -47,16 +48,35 @@
           <a class="button-secondary" href="/account">Restore access</a>
           <a class="button-primary" href="/app">Start free preview</a>
         </div>
+        <details class="nav-menu">
+          <summary aria-label="Open navigation" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+          <nav aria-label="Mobile navigation">
+            <a class="active" aria-current="page" href="/">Home</a>
+          <a href="/app">App</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a href="/support">Support</a>
+            <a href="/account">Restore access</a>
+            <a class="nav-menu-cta" href="/app">Start free preview</a>
+          </nav>
+        </details>
       </header>
       <main class="marketing-main">
         <section class="marketing-hero" aria-labelledby="homeTitle">
           <div class="marketing-hero-copy">
             <p class="eyebrow">Independent Irish Category B practice</p>
-            <h1 id="homeTitle">A clearer way to practise for the Irish theory test.</h1>
-            <p class="hero-subheading">Study rules, road signs, weak areas, and timed mocks in one focused coach. Built for learners who want structure, not clutter.</p>
+            <h1 id="homeTitle">Irish theory test practice, organised around what you miss.</h1>
+            <p class="hero-subheading">Move from a free 15-question preview to focused rules, road signs, weak-area review, and timed mocks. One calm study path, without official-status or pass-guarantee claims.</p>
+            <div class="hero-value-note" aria-label="Current learner offer">
+              <span>Full learner path</span>
+              <strong>EUR 4.99</strong>
+              <small>one-time / 90 days</small>
+            </div>
             <div class="cta-row">
               <a class="button-primary" href="/app">Start free preview</a>
-              <a class="button-secondary" href="/pricing">Compare pricing</a>
+              <a class="button-secondary" href="/pricing">See plans and access</a>
             </div>
             <p class="hero-disclaimer">Independent practice tool. Not affiliated with RSA or Prometric.</p>
           </div>
@@ -67,38 +87,38 @@
         </section>
 
         <section class="metric-strip" aria-label="Product summary">
-          <div><strong>1,277</strong><span>practice questions</span></div>
-          <div><strong>159</strong><span>estimated-priority drills</span></div>
+          <div><strong>1,277</strong><span>published practice questions</span></div>
+          <div><strong>159</strong><span>estimated-priority questions</span></div>
           <div><strong>671</strong><span>sign and image questions</span></div>
-          <div><strong>40 / 45</strong><span>questions / minutes per mock</span></div>
+          <div><strong>40 / 45</strong><span>mock questions / minutes</span></div>
         </section>
 
         <section class="marketing-section" aria-labelledby="positioningHeading">
           <div class="section-intro">
-            <p class="eyebrow">Product positioning</p>
-            <h2 id="positioningHeading">A practice product, not an official testing service.</h2>
-            <p>Irish Theory Test Coach helps learners practise and review. It does not book tests, claim RSA or Prometric affiliation, promise a pass, or claim to know what appears in any live test.</p>
+            <p class="eyebrow">A clearer next step</p>
+            <h2 id="positioningHeading">Your next study session should not be a guess.</h2>
+            <p>Irish Theory Test Coach turns answers, missed questions, flags, signs, and mock results into a practical review loop. It is an independent learning product, not a testing or booking service.</p>
           </div>
           <div class="feature-grid">
             <article class="feature-card">
-          <span>Practice</span>
-          <h3>Free preview first</h3>
-          <p>15 preview questions let learners test the workflow before paying.</p>
+          <span>Preview</span>
+          <h3>Try the real study flow</h3>
+          <p>15 questions show the answer and feedback experience before you choose a plan.</p>
         </article>
         <article class="feature-card">
-          <span>Coaching</span>
-          <h3>Weak areas become the plan</h3>
-          <p>Missed and flagged questions feed the next review session instead of disappearing after a score.</p>
+          <span>Focus</span>
+          <h3>Weak areas stay visible</h3>
+          <p>Missed and flagged questions become the next review round instead of disappearing behind one score.</p>
         </article>
         <article class="feature-card">
-          <span>Mocks</span>
-          <h3>Timed 40-question practice</h3>
-          <p>Mock mode focuses on timing, submission, and review without marketing panels in the way.</p>
+          <span>Timing</span>
+          <h3>Mocks stay distraction-free</h3>
+          <p>40-question, 45-minute practice keeps the timer, answer, and review controls in view.</p>
         </article>
         <article class="feature-card">
-          <span>Trust</span>
-          <h3>Content review workflow</h3>
-          <p>Duplicate, conflict, lint, and learner reports are routed into an editorial queue for review.</p>
+          <span>Quality</span>
+          <h3>Corrections have a route</h3>
+          <p>Content lint, conflicts, version history, and learner reports feed a visible editorial workflow.</p>
         </article>
           </div>
         </section>
@@ -106,7 +126,7 @@
         <section class="marketing-section split-section" aria-labelledby="howItWorksHeading">
           <div>
             <p class="eyebrow">How it works</p>
-            <h2 id="howItWorksHeading">A simple study loop learners can repeat.</h2>
+            <h2 id="howItWorksHeading">One repeatable loop from first answer to mock review.</h2>
             <ol class="step-list">
               <li><strong>Start with preview.</strong><span>Try the question flow and feedback without paying.</span></li>
               <li><strong>Drill weak areas.</strong><span>Use estimated priority, missed answers, and flags to decide what comes next.</span></li>
@@ -123,18 +143,18 @@
         <section class="marketing-section three-column-section">
           <article>
             <p class="eyebrow">Weak-area coaching</p>
-            <h2>Practise what you miss.</h2>
-            <p>Answer history, missed questions, and flags keep the next session practical. Explanations focus on why the answer fits the supplied rule or sign context.</p>
+            <h2>Review the reason, not a letter.</h2>
+            <p>Answer history, missed questions, and flags shape the next session. Feedback explains why the supplied answer fits the rule or sign context.</p>
           </article>
           <article>
             <p class="eyebrow">Mock exam practice</p>
-            <h2>Use timed mocks when ready.</h2>
-            <p>Mock mode uses the server-generated session flow so learners practise timing without relying on editable browser state for scoring.</p>
+            <h2>Use timed mocks with intent.</h2>
+            <p>Mock mode keeps question selection and scoring server-side, then sends missed areas back into review instead of chasing score after score.</p>
           </article>
           <article>
             <p class="eyebrow">Road signs</p>
-            <h2>Train fast recognition.</h2>
-            <p>Image-backed drills help learners slow down, name the sign or marking, and connect it to the safest action.</p>
+            <h2>Build recognition before recall.</h2>
+            <p>Image-backed drills help you name the sign or marking, notice its shape and colour, and connect it to the required or safest action.</p>
           </article>
         </section>
 
@@ -204,9 +224,9 @@
         <section class="marketing-section faq-section">
           <h2>FAQ</h2>
           <details open><summary>Is this official?</summary><p>No. Independent practice tool. Not affiliated with RSA or Prometric.</p></details>
-          <details open><summary>Can it guarantee a pass?</summary><p>No. It is a practice and review tool, not a guarantee of any test outcome.</p></details>
-          <details open><summary>What is free?</summary><p>The free preview includes 15 questions and sample feedback.</p></details>
-          <details open><summary>How do refunds and support work?</summary><p>Support and refund information is visible from the footer, pricing page, and support hub.</p></details>
+          <details><summary>Can it guarantee a pass?</summary><p>No. It is a practice and review tool, not a guarantee of any test outcome.</p></details>
+          <details><summary>What is free?</summary><p>The free preview includes 15 questions and sample feedback.</p></details>
+          <details><summary>How do refunds and support work?</summary><p>Support and refund information is visible from the footer, pricing page, and support hub.</p></details>
         </section>
 
         <section class="site-cta-strip">
@@ -225,7 +245,7 @@
         <div class="footer-brand">
           <a class="brand-mark" href="/">
             <span class="brand-symbol" aria-hidden="true">TC</span>
-            <span class="brand-copy"><strong>Theory Coach</strong><small>Irish Category B practice</small></span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
           </a>
           <p>Focused practice, transparent pricing, and review tools for Irish learner drivers.</p>
         </div>

@@ -94,6 +94,7 @@ function checkEventEndpoint() {
 }
 
 function checkCanonicalSource() {
+  assert.equal(canonicalSiteOrigin({}), "https://irishtheorycoach.ie");
   assert.equal(canonicalSiteOrigin({ PUBLIC_CANONICAL_ORIGIN: "https://example.com/path" }), "https://example.com");
   const sources = [
     "scripts/generate-seo-assets.mjs",

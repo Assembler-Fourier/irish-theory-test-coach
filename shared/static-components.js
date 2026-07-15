@@ -19,18 +19,28 @@ export function siteHeader(options = {}) {
     ["Support", `${root}/support`, "support"],
   ];
 
+  const navigation = links.map(([label, href, key]) => `<a${active === key ? ' class="active" aria-current="page"' : ""} href="${href}">${label}</a>`).join("\n          ");
+
   return `<header class="site-header">
         <a class="brand-mark" href="${root}/" aria-label="Irish Theory Test Coach home">
           <span class="brand-symbol" aria-hidden="true">TC</span>
-          <span class="brand-copy"><strong>Theory Coach</strong><small>Independent Irish learner practice</small></span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
         </a>
         <nav class="site-nav" aria-label="Primary navigation">
-          ${links.map(([label, href, key]) => `<a${active === key ? ' class="active"' : ""} href="${href}">${label}</a>`).join("\n          ")}
+          ${navigation}
         </nav>
         <div class="nav-actions">
           <a class="button-secondary" href="${root}/account">Restore access</a>
           <a class="button-primary" href="${root}/app">Start free preview</a>
         </div>
+        <details class="nav-menu">
+          <summary aria-label="Open navigation" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+          <nav aria-label="Mobile navigation">
+            ${navigation}
+            <a href="${root}/account">Restore access</a>
+            <a class="nav-menu-cta" href="${root}/app">Start free preview</a>
+          </nav>
+        </details>
       </header>`;
 }
 
@@ -41,7 +51,7 @@ export function siteFooter(options = {}) {
         <div class="footer-brand">
           <a class="brand-mark" href="${root}/">
             <span class="brand-symbol" aria-hidden="true">TC</span>
-            <span class="brand-copy"><strong>Theory Coach</strong><small>Irish Category B practice</small></span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
           </a>
           <p>Focused practice, transparent pricing, and review tools for Irish learner drivers.</p>
         </div>

@@ -6,17 +6,23 @@
     <title>Admin - Irish Theory Test Coach</title>
     <meta name="robots" content="noindex,nofollow">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
   </head>
-  <body>
+  <body class="admin-page">
     <div class="shell admin-shell">
       <header class="topbar admin-topbar">
-        <div>
+        <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
+          <span class="brand-symbol" aria-hidden="true">TC</span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Operations workspace</small></span>
+        </a>
+        <div class="admin-title-block">
           <p class="eyebrow">Protected workspace</p>
-          <h1>Admin</h1>
+          <h1>Operations</h1>
         </div>
         <nav class="admin-nav" aria-label="Admin navigation">
-          <a href="./">App</a>
-          <a href="./contact.html">Support</a>
+          <a href="/app">Learner app</a>
+          <a href="/account">Account</a>
+          <a href="/support">Support</a>
         </nav>
       </header>
 
@@ -29,12 +35,22 @@
             <p id="adminProtectedCopy">You need an admin session to view this workspace.</p>
           </div>
           <div class="admin-protected-actions">
-            <a class="button-primary" href="./#restoreEmail">Sign in or restore access</a>
+            <a class="button-primary" href="/account">Sign in or restore access</a>
             <a class="button-secondary" href="./contact.html">Contact support</a>
           </div>
         </section>
 
-        <section class="admin-section" aria-labelledby="dashboardHeading">
+        <nav class="admin-section-nav" aria-label="Admin workspace sections">
+          <a href="#admin-overview">Overview</a>
+          <a href="#admin-users">Users</a>
+          <a href="#admin-payments">Payments</a>
+          <a href="#admin-instructors">Instructors</a>
+          <a href="#admin-analytics">Analytics</a>
+          <a href="#admin-content">Content</a>
+          <a href="#admin-support">Support</a>
+        </nav>
+
+        <section id="admin-overview" class="admin-section admin-overview-section" aria-labelledby="dashboardHeading">
           <div class="panel-heading">
             <div>
               <h2 id="dashboardHeading">Overview</h2>
@@ -75,7 +91,7 @@
           <div id="operationalWarningsMount" class="admin-list"></div>
         </section>
 
-        <section class="admin-grid">
+        <section id="admin-users" class="admin-grid">
           <section class="admin-section" aria-labelledby="usersHeading">
             <div class="panel-heading">
               <h2 id="usersHeading">Users</h2>
@@ -127,7 +143,7 @@
           <div id="userDetailMount" class="admin-list"></div>
         </section>
 
-        <section class="admin-section" aria-labelledby="purchasesHeading">
+        <section id="admin-payments" class="admin-section" aria-labelledby="purchasesHeading">
           <div class="panel-heading">
             <h2 id="purchasesHeading">Purchases</h2>
             <div class="admin-export-actions">
@@ -169,7 +185,7 @@
           </div>
         </section>
 
-        <section class="admin-section" aria-labelledby="instructorOpsHeading">
+        <section id="admin-instructors" class="admin-section" aria-labelledby="instructorOpsHeading">
           <div class="panel-heading">
             <div>
               <h2 id="instructorOpsHeading">Instructor operations</h2>
@@ -279,7 +295,7 @@
           <div id="referralsMount" class="admin-list"></div>
         </section>
 
-        <section class="admin-section" aria-labelledby="analyticsHeading">
+        <section id="admin-analytics" class="admin-section" aria-labelledby="analyticsHeading">
           <div class="panel-heading">
             <div>
               <h2 id="analyticsHeading">Analytics</h2>
@@ -326,7 +342,7 @@
           </div>
         </section>
 
-        <section class="admin-section" aria-labelledby="questionsHeading">
+        <section id="admin-content" class="admin-section" aria-labelledby="questionsHeading">
           <div class="panel-heading">
             <h2 id="questionsHeading">Questions</h2>
           </div>
@@ -512,7 +528,7 @@
           </section>
         </section>
 
-        <section class="admin-section" aria-labelledby="supportHeading">
+        <section id="admin-support" class="admin-section" aria-labelledby="supportHeading">
           <div class="panel-heading">
             <div>
               <h2 id="supportHeading">Support cases</h2>

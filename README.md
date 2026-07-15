@@ -12,6 +12,7 @@ This repository is public as an engineering case study. It shows how I approach 
 - **Learner workspace:** [Start the 15-question preview](https://irishtheorycoach.ie/app)
 - **Pricing surface:** [View the current plan presentation](https://irishtheorycoach.ie/pricing)
 - **Learning hub:** [Browse the study guides](https://irishtheorycoach.ie/learn)
+- **Operations UI:** [Open the protected admin workspace](https://irishtheorycoach.ie/admin)
 
 The custom `.ie` domain is active. The product should still be treated as a public pre-launch preview: this remediation did not execute a real Stripe test-mode purchase, webhook, refund, dispute, or instructor-code journey against the deployed database.
 
@@ -114,11 +115,12 @@ The current commercial Preview was tested against the exact deployed Git commit.
 | --- | --- |
 | Published dataset | 1,277 questions validated |
 | Public content exposure | 15 preview questions, no answer key |
-| Payment logic | 18 automated mock/static scenarios recorded; real Stripe test-mode journey not verified here |
-| Payment reconciliation | 0 unresolved findings |
-| Accessibility | 7 states, 0 critical axe violations |
-| Visual regression | 15 deterministic mobile, tablet, and desktop screenshots |
-| Recorded deployment smoke evidence | 11 routes and behaviours in the previous evidence set; rerun after this branch is deployed |
+| Payment implementation | Environment policy, evidence validation, dispute transitions and webhook mocks passed; a real provider-backed journey is not verified here |
+| Admin authorization | 20 protected endpoint checks passed |
+| Accessibility | 10 axe states, 0 critical violations |
+| Visual regression | 18 deterministic mobile, tablet, and desktop screenshots |
+| SEO | 44 sitemap URLs and 21 keyword targets validated |
+| Security | Public-content boundary, headers, roles, request limits, and secret scan passed |
 | Dependency audit | Run again for every release; do not rely on this README as a live vulnerability result |
 
 Run the complete local quality gate with:
@@ -165,7 +167,7 @@ Operational documentation includes:
 
 ## Current Status
 
-The custom domain is active and the free preview is publicly reviewable. The repository is still **pre-launch for paid commerce**. Real provider-backed payment journeys, final legal review, a non-residential business service address, production monitoring, backup evidence, and operator-run release checks remain gates. Generated QA reports describe code and recorded test evidence; they are not a substitute for current production verification.
+The current public preview at [irishtheorycoach.ie](https://irishtheorycoach.ie) includes a separate marketing site, focused learner workspace, protected operations dashboard, legal centre, PWA and static learning hub. It remains **pre-launch for paid commerce**. Real provider-backed payment journeys, final legal review, a non-residential business service address, production monitoring, backup evidence and operator-run release checks remain gates. Generated QA reports describe code and recorded test evidence; they are not a substitute for current production verification or a guaranteed learning outcome.
 
 ## About Me
 

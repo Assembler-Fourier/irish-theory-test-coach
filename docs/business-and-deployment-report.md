@@ -101,8 +101,8 @@ Neon is now connected locally and the schema migration has been applied. Before 
 ## Live deployment status
 
 - Vercel project: `job-work/irish-theory-test-coach`
-- Production URL: https://irish-theory-test-coach.vercel.app
-- Latest deployment URL: https://irish-theory-test-coach-iqs2ms8q9-job-work.vercel.app
+- Production URL: https://irishtheorycoach.ie
+- Vercel project deployment: resolved through the production domain above
 - Stripe product: `prod_Ur6QkZQmuRJuka`
 - Stripe price: legacy `STRIPE_PRICE_ID` configured; replace with the new plan-specific price IDs before relaunch.
 - Price amounts: EUR 2.99 launch offer, EUR 4.99 Full Study Pass, EUR 29 instructor 10-code pack, EUR 69 instructor 25-code pack.

@@ -60,6 +60,26 @@
 - CTA: Start free preview, then view pricing.
 - Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
 
+## car theory test mock exam
+
+- Primary keyword: car theory test mock exam
+- Secondary keywords: car theory test mock exam, driver theory mock test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /mock-theory-test-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## driver theory mock test ireland
+
+- Primary keyword: driver theory mock test ireland
+- Secondary keywords: car theory test mock exam, driver theory mock test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /mock-theory-test-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
 ## irish road signs test
 
 - Primary keyword: irish road signs test
@@ -76,6 +96,16 @@
 - Secondary keywords: irish theory test practice, theory test ireland practice
 - Search intent: learner wants practical Irish theory test study help.
 - Target URL: /free-road-signs-quiz.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## road signs practice ireland
+
+- Primary keyword: road signs practice ireland
+- Secondary keywords: road signs ireland quiz, road signs practice ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /irish-road-signs-test.html
 - Page type: guide / landing page
 - CTA: Start free preview, then view pricing.
 - Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
@@ -110,12 +140,72 @@
 - CTA: Start free preview, then view pricing.
 - Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
 
+## irish theory test questions and answers
+
+- Primary keyword: irish theory test questions and answers
+- Secondary keywords: theory test questions ireland, irish theory test practice
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /theory-test-questions-and-answers-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## theory test questions ireland
+
+- Primary keyword: theory test questions ireland
+- Secondary keywords: theory test questions ireland, irish theory test practice
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /theory-test-questions-and-answers-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
 ## hardest theory test questions ireland
 
 - Primary keyword: hardest theory test questions ireland
 - Secondary keywords: most missed theory test questions ireland, 35 out of 40 theory test ireland
 - Search intent: learner wants practical Irish theory test study help.
 - Target URL: /hardest-theory-test-questions-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## most missed theory test questions ireland
+
+- Primary keyword: most missed theory test questions ireland
+- Secondary keywords: most missed theory test questions ireland, 35 out of 40 theory test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /hardest-theory-test-questions-ireland.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## theory test ireland 40 questions
+
+- Primary keyword: theory test ireland 40 questions
+- Secondary keywords: theory test pass mark ireland, 35 out of 40 theory test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /theory-test-ireland-40-questions.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## theory test pass mark ireland
+
+- Primary keyword: theory test pass mark ireland
+- Secondary keywords: theory test pass mark ireland, 35 out of 40 theory test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /theory-test-ireland-40-questions.html
+- Page type: guide / landing page
+- CTA: Start free preview, then view pricing.
+- Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html
+
+## 35 out of 40 theory test ireland
+
+- Primary keyword: 35 out of 40 theory test ireland
+- Secondary keywords: theory test pass mark ireland, 35 out of 40 theory test ireland
+- Search intent: learner wants practical Irish theory test study help.
+- Target URL: /theory-test-ireland-40-questions.html
 - Page type: guide / landing page
 - CTA: Start free preview, then view pricing.
 - Internal links: /learn.html, /pricing.html, /mock-theory-test-ireland.html, /irish-road-signs-test.html, /theory-test-study-plan.html

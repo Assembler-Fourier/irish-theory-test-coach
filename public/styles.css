@@ -1659,6 +1659,8 @@ textarea::placeholder {
 }
 
 .table-scroll {
+  width: 100%;
+  min-width: 0;
   max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--color-border);
@@ -3350,6 +3352,7 @@ button.is-loading::after,
 }
 
 .legal-page {
+  min-width: 0;
   max-width: 900px;
   margin: var(--space-8) auto;
   padding: var(--space-10);
@@ -3364,6 +3367,7 @@ button.is-loading::after,
 }
 
 .legal-page section {
+  min-width: 0;
   border-top: 1px solid var(--color-line);
   padding: var(--space-6) 0;
 }
@@ -3383,6 +3387,10 @@ button.is-loading::after,
 .legal-page a {
   color: var(--color-primary);
   font-weight: 750;
+  overflow-wrap: anywhere;
+}
+
+.legal-page code {
   overflow-wrap: anywhere;
 }
 

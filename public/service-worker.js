@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-15-legal-v1";
+const CACHE_VERSION = "ittc-pwa-2026-07-15-commercial-v2";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -10,6 +10,7 @@ const SHELL_ASSETS = [
   "./app.html",
   "./offline.html",
   "./styles.css?v=20260710-rebuild",
+  "./product-ui.css?v=20260715-commercial-v2",
   "./app.js?v=20260710-rebuild",
   "./account.js?v=20260710-rebuild",
   "./api-client.js",

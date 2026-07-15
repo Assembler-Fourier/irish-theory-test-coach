@@ -318,6 +318,7 @@ function legalShell({ file, title, description, h1, policy, sections, scripts = 
     <link rel="manifest" href="./manifest.webmanifest">
     <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
     <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
     <script type="application/ld+json">${breadcrumbJson}</script>
   </head>
   <body>

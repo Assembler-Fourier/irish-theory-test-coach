@@ -660,17 +660,17 @@
     const funnel = stats.analytics?.funnel || [];
     const eventValue = (eventName) => Number(funnel.find((item) => item.eventName === eventName)?.events || 0);
     const metrics = [
-      ["Users", totals.users || 0, "Learner accounts"],
+      ["Gross revenue", formatMoney(revenue.grossRevenue, "eur"), "Selected period", true],
+      ["Net recorded", formatMoney(revenue.estimatedNetRevenue, "eur"), "After estimated fees and refunds", true],
+      ["Purchases", totals.purchases || 0, "Stripe records", true],
+      ["Active access", totals.active_entitlements || 0, "Current learner unlocks", true],
+      ["Users", totals.users || 0, "Learner accounts", true],
+      ["Refunds", formatMoney(revenue.refundAmount, "eur"), `${formatNumber(revenue.refundCount || 0)} refund records`, true],
+      ["Checkout starts", eventValue("checkout_started"), "Selected period", true],
+      ["Completed purchases", eventValue("checkout_completed"), "Selected period", true],
       ["Admins", totals.admins || 0, "Server-authorized"],
-      ["Purchases", totals.purchases || 0, "Stripe records"],
-      ["Active access", totals.active_entitlements || 0, "Current unlocks"],
       ["Expired access", totals.expired_entitlements || 0, "Access ended"],
-      ["Gross revenue", formatMoney(revenue.grossRevenue, "eur"), "Selected period"],
-      ["Refunds", formatMoney(revenue.refundAmount, "eur"), `${formatNumber(revenue.refundCount || 0)} refund records`],
-      ["Net recorded", formatMoney(revenue.estimatedNetRevenue, "eur"), "Gross minus estimated fees/refunds"],
       ["Preview starts", eventValue("preview_started"), "Selected period"],
-      ["Checkout starts", eventValue("checkout_started"), "Selected period"],
-      ["Completed purchases", eventValue("checkout_completed"), "Selected period"],
       ["Restore success", eventValue("access_restored"), "Selected period"],
       ["Mock starts", eventValue("first_mock_started") || eventValue("mock_started"), "Selected period"],
       ["Mock completions", eventValue("first_mock_completed") || eventValue("mock_completed"), "Selected period"],
@@ -679,22 +679,37 @@
       ["Analytics events", stats.analytics?.last30DaysEventCount || 0, "Selected period"],
       ["Source notes", totals.source_documents || 0, "Admin notes"],
       ["Draft queue", totals.generated_question_drafts || 0, "AI drafts"],
-      ["Questions", questions.total || 0, "Public bank"],
+      ["Questions", questions.total || 0, "Published bank"],
       ["Needs review", questions.byReviewStatus?.needs_official_cross_check || 0, "Content QA"],
       ["Generated drafts", questions.generatedDrafts || 0, "Question pipeline"],
     ];
 
     els.metricGrid.innerHTML = "";
-    metrics.forEach(([label, value, caption], index) => {
+    const appendMetric = (mount, [label, value, caption, primary]) => {
       const card = document.createElement("div");
       card.className = "metric-card";
-      if (index < 4) card.classList.add("metric-card-primary");
+      if (primary) card.classList.add("metric-card-primary");
       card.innerHTML = "<span></span><strong></strong><em></em>";
       card.querySelector("span").textContent = label;
       card.querySelector("strong").textContent = typeof value === "string" ? value : formatNumber(value);
       card.querySelector("em").textContent = caption;
-      els.metricGrid.append(card);
-    });
+      mount.append(card);
+    };
+
+    metrics.filter((metric) => metric[3]).forEach((metric) => appendMetric(els.metricGrid, metric));
+
+    const secondary = metrics.filter((metric) => !metric[3]);
+    if (secondary.length) {
+      const details = document.createElement("details");
+      details.className = "admin-metric-details";
+      const summary = document.createElement("summary");
+      summary.textContent = `More operational metrics (${secondary.length})`;
+      const grid = document.createElement("div");
+      grid.className = "metric-grid metric-grid-secondary";
+      secondary.forEach((metric) => appendMetric(grid, metric));
+      details.append(summary, grid);
+      els.metricGrid.append(details);
+    }
   }
 
   function renderAdminSkeletons() {
