@@ -78,13 +78,16 @@ function checkAnswerFlowContract({ appHtml, appJs }) {
   assert.match(appJs, /eventName: "question_answered"/, "Answer analytics event is missing.");
 }
 
-function checkPremiumPaywallContract({ appHtml, appJs }) {
+function checkPremiumPaywallContract({ appHtml, appJs, productSummary }) {
   assert.match(appHtml, /id="paywallTemplate"/, "Paywall template is missing.");
   assert.match(appHtml, /id="modeHighYield"/, "High-yield premium mode button is missing.");
   assert.match(appHtml, /id="modeHardest"/, "Hardest premium mode button is missing.");
   assert.match(appHtml, /id="modeSigns"/, "Road-sign premium mode button is missing.");
   assert.match(appHtml, /id="modeExam"/, "Mock-test premium mode button is missing.");
-  assert.match(appHtml, /Unlock for EUR 4\.99/, "Paywall price copy is missing.");
+  assert.ok(
+    appHtml.includes(`Unlock for ${productSummary.activePrice}`),
+    "Paywall price copy must match the generated active plan."
+  );
   assert.match(appHtml, /pricing-config\.js/, "Frontend pricing config is missing.");
   assert.match(appHtml, /Have a code\?/, "Referral code form is missing.");
   assert.match(appJs, /function requiresAccess\(mode\)/, "Premium access guard is missing.");

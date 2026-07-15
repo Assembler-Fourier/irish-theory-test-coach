@@ -1,8 +1,8 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import pg from "pg";
 import { fileURLToPath } from "node:url";
+import { createDbPool } from "../lib/db.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const outputPath = path.join(root, "reports", "final", "payment-test-evidence.json");
@@ -17,7 +17,7 @@ if (!process.env.DATABASE_URL || !/^dpl_[A-Za-z0-9]+$/.test(deploymentId)) {
   process.exit(1);
 }
 
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const pool = createDbPool(process.env.DATABASE_URL);
 const generatedAt = new Date().toISOString();
 
 try {

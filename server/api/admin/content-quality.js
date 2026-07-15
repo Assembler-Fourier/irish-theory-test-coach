@@ -12,7 +12,6 @@ import { withDb, withTransaction } from "../../../lib/db.js";
 import { analyzeContentQuality } from "../../../lib/content-quality.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -54,8 +53,7 @@ export default async function handler(req, res) {
     const payload = await loadQualityDashboard(env.databaseUrl);
     return res.status(200).json({ ok: true, ...payload });
   } catch (error) {
-    console.error("Admin content quality failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin content quality failed");
   }
 }
 

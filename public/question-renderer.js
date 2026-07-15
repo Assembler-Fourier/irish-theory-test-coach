@@ -8,6 +8,7 @@ export function normalizeClientQuestion(question) {
     originalCategory: clean(question.originalCategory || question.original_category),
     canonicalQuestionId: Number(question.canonicalQuestionId || question.canonical_question_id || question.id),
     variantGroupId: clean(question.variantGroupId || question.variant_group_id),
+    sessionGroupId: clean(question.sessionGroupId || question.session_group_id),
     duplicateReviewStatus: clean(question.duplicateReviewStatus || question.duplicate_review_status),
     question: clean(question.question || question.prompt),
     explanation: clean(question.explanation),
@@ -23,6 +24,7 @@ export function normalizeClientQuestion(question) {
       : Array.isArray(question.local_image_paths)
         ? question.local_image_paths
         : [],
+    imageAlt: clean(question.imageAlt || question.image_alt),
     coachVisuals: Array.isArray(question.coachVisuals) ? question.coachVisuals : [],
     priorityScore: score,
     priorityLabel: clean(question.priorityLabel || question.priority_label) || labelForScore(score),

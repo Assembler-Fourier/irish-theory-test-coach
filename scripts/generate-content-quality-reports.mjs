@@ -36,6 +36,21 @@ writeCsv("duplicate-groups.csv", analysis.duplicateGroups.flatMap((group) =>
     conflicting_correct_answers: group.conflictingCorrectAnswers,
   }))
 ));
+writeCsv("scenario-variant-groups.csv", analysis.scenarioVariantGroups.flatMap((group) =>
+  group.questionIds.map((questionId) => ({
+    variant_group_id: group.variantGroupId,
+    question_id: questionId,
+    detection_reason: group.duplicateReason,
+    review_status: "legitimate_visual_scenario_collection",
+  }))
+));
+writeCsv("runtime-duplicate-groups.csv", analysis.runtimeDuplicateGroups.flatMap((group) =>
+  group.questionIds.map((questionId) => ({
+    session_group_id: group.sessionGroupId,
+    canonical_question_id: group.canonicalQuestionId,
+    question_id: questionId,
+  }))
+));
 writeCsv("answer-variant-groups.csv", analysis.answerVariantGroups.flatMap((group) =>
   group.correctAnswers.map((answer) => ({
     variant_group_id: group.variantGroupId,
@@ -79,6 +94,8 @@ console.log([
   `Content quality reports generated in ${path.relative(root, reportsDir)}`,
   `- questions: ${analysis.summary.totalQuestions}`,
   `- duplicate groups: ${analysis.summary.duplicateGroups}`,
+  `- visual scenario collections: ${analysis.summary.scenarioVariantGroups}`,
+  `- runtime duplicate groups: ${analysis.summary.runtimeDuplicateGroups}`,
   `- answer-set variant groups: ${analysis.summary.answerVariantGroups}`,
   `- conflicts: ${analysis.summary.conflictingAnswerGroups}`,
   `- lint findings: ${analysis.summary.lintFindings}`,
@@ -112,6 +129,8 @@ Generated: ${analysis.generatedAt}
 - Total questions analysed: ${summary.totalQuestions}
 - Canonical categories: ${summary.canonicalCategories}
 - Duplicate groups: ${summary.duplicateGroups}
+- Visual scenario collections excluded from duplicate suppression: ${summary.scenarioVariantGroups}
+- Runtime duplicate groups suppressed within one session: ${summary.runtimeDuplicateGroups}
 - Answer-set variant groups: ${summary.answerVariantGroups}
 - Conflicting-answer groups: ${summary.conflictingAnswerGroups}
 - Lint findings: ${summary.lintFindings}
@@ -121,6 +140,7 @@ Generated: ${analysis.generatedAt}
 
 - Content rights are confirmed by the project owner.
 - No question is removed or quarantined by this report.
+- Distinct image-backed sign/scenario questions are separated from actual runtime duplicate groups.
 - Repeated stems with different answer sets remain in editorial review without being mislabeled as direct contradictions.
 - A blocking conflict requires the same normalised stem and answer set to contain different correct-answer keys.
 - No heuristic silently changes an answer.
@@ -137,7 +157,7 @@ ${countBy(analysis.duplicateGroups, "duplicateReason").slice(0, 12).map((item) =
 ## Next Editorial Actions
 
 1. Review \`conflicting-answer-groups.csv\` first; these are direct structural contradictions.
-2. Review \`answer-variant-groups.csv\` and mark legitimate answer-set or image scenarios.
+2. Review \`answer-variant-groups.csv\`; visual scenario collections are listed separately and remain available.
 3. Review exact/normalised duplicates and decide whether variants are legitimate.
 4. Use \`category-mapping.csv\` to approve category aliases and identify unmapped categories.
 5. Work through \`editorial-backlog.csv\` by priority.

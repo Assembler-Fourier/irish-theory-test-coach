@@ -8,7 +8,6 @@ import { normalizeEmail, readJsonBody } from "../../../lib/auth.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -41,8 +40,7 @@ export default async function handler(req, res) {
     const supportCase = await mutateSupportCase(env.databaseUrl, admin, body);
     return res.status(200).json({ ok: true, case: supportCase });
   } catch (error) {
-    console.error("Admin support failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin support failed");
   }
 }
 

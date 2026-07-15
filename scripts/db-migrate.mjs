@@ -1,10 +1,9 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import pg from "pg";
+import { createDbClient } from "../lib/db.js";
 import { requireDatabaseUrl, root } from "./db-utils.mjs";
 
-const { Client } = pg;
 const migrationsDir = path.join(root, "database", "migrations");
 const dryRun = process.argv.includes("--dry-run");
 const legacyChecksums = new Map([
@@ -26,10 +25,7 @@ if (dryRun) {
   process.exit(0);
 }
 
-const client = new Client({
-  connectionString: requireDatabaseUrl(),
-  ssl: { rejectUnauthorized: false },
-});
+const client = createDbClient(requireDatabaseUrl());
 
 try {
   await client.connect();

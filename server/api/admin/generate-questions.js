@@ -99,8 +99,7 @@ export default async function handler(req, res) {
     error.statusCode = 400;
     throw error;
   } catch (error) {
-    console.error("Admin question generation failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin question generation failed");
   }
 }
 

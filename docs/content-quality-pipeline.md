@@ -10,6 +10,7 @@ Irish Theory Test Coach uses a deterministic content-quality pipeline to help ed
 - Same question and answers with options in a different order.
 - Same image plus repeated question stem.
 - Near-duplicate stems using token similarity.
+- Repeated generic visual stems kept as separate scenarios when their image fingerprints differ.
 - Repeated stems with different answer-set variants.
 - Direct structural conflicts where the same normalised stem and answer set contain different saved correct-answer keys.
 - Structural lint findings such as duplicate options, missing answers, weak explanations, malformed image paths, missing image alt text, unsafe HTML, spelling issues, and inconsistent Irish/British English.
@@ -38,12 +39,26 @@ Generated files are written under `reports/content/`:
 - `content-quality-summary.json`
 - `content-quality-summary.md`
 - `duplicate-groups.csv`
+- `runtime-duplicate-groups.csv`
+- `scenario-variant-groups.csv`
 - `answer-variant-groups.csv`
 - `conflicting-answer-groups.csv`
 - `category-mapping.csv`
 - `editorial-backlog.csv`
 
-The reports do not remove questions or change saved answers. Answer-set variants remain available for editorial classification, while only direct same-stem/same-answer-set contradictions enter the blocking conflict queue.
+The reports do not remove questions or change saved answers. Editorial similarity groups are deliberately broader than runtime suppression groups. Runtime sessions suppress only deterministic duplicates that share the same visual context or have equivalent no-image stems, answer options, and saved answers. Answer-set variants remain available for editorial classification, while only direct same-stem/same-answer-set contradictions enter the blocking conflict queue.
+
+## Deterministic Repair And Runtime Index
+
+Run the safe structural repair before enrichment when source data changes:
+
+```powershell
+npm run content:repair
+```
+
+This command canonicalises known categories, repairs deterministic encoding and spelling defects, adds neutral image descriptions and content hashes, re-enriches the bank, and regenerates `data/question-quality-index.json`. It does not choose or change factual answers and does not mark content factually verified.
+
+The private runtime index stores canonical, variant, and session-group IDs. Production verifies its dataset hash and algorithm version before serving questions. A missing or stale index fails securely. The index is private server data and the content-security suite verifies that it is not copied into `public/data/`.
 
 ## Admin Workflow
 
@@ -61,4 +76,4 @@ Every mutation requires server-side admin authorization and writes an `admin_aud
 
 ## Learner Feedback
 
-The quiz feedback panel includes “Report a problem with this question”. Reports are stored in `question_problem_reports` with the question ID, reason category, optional comment, app version, content version, anonymous/account identifier when available, and review state.
+The quiz feedback panel includes "Report a problem with this question". Reports are stored in `question_problem_reports` with the question ID, reason category, optional comment, app version, content version, anonymous/account identifier when available, and review state.

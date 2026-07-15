@@ -1,567 +1,357 @@
 variant_group_id,canonical_question_id,question_id,correct_index,correct_answer,review_status,image_scenario_variant
-vg_bc099fba13a3,8,8,2,Excessive heavy braking.,answer_variant_review,false
-vg_bc099fba13a3,8,825,0,Using harsh acceleration.,answer_variant_review,false
-vg_bc099fba13a3,8,1248,1,Excessively heavy braking.,answer_variant_review,false
-vg_bc099fba13a3,8,1249,2,Excessive speed.,answer_variant_review,false
-vg_c7a54d1bbd37,15,15,0,Fire brigade.,answer_variant_review,false
-vg_c7a54d1bbd37,15,16,0,Ambulance.,answer_variant_review,false
-vg_c7a54d1bbd37,15,17,3,Garda.,answer_variant_review,false
-vg_c7a54d1bbd37,15,670,1,Ambulance.,answer_variant_review,false
-vg_a9f050c35cf9,23,23,1,Tram lane on left.,answer_variant_review,true
-vg_a9f050c35cf9,23,24,1,Overhead electric cables.,answer_variant_review,true
-vg_a9f050c35cf9,23,29,0,Maximum permitted weight is 3 tonnes.,answer_variant_review,true
-vg_a9f050c35cf9,23,30,2,Parking of vehicles exceeding the weight shown is not allowed.,answer_variant_review,true
-vg_a9f050c35cf9,23,31,0,No overtaking.,answer_variant_review,true
-vg_a9f050c35cf9,23,32,3,"Only buses, cyclists and taxis are allowed to use the lane ahead during the hours indicated.",answer_variant_review,true
-vg_a9f050c35cf9,23,33,2,With-flow bus and cycle lane ahead on left.,answer_variant_review,true
-vg_a9f050c35cf9,23,34,3,Bus and cycle lane ahead on right.,answer_variant_review,true
-vg_a9f050c35cf9,23,35,3,With-flow bus lane on the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,36,2,Contra-flow bus lane on the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,37,0,Contra-flow bus lane.,answer_variant_review,true
-vg_a9f050c35cf9,23,38,1,Tram lane on right.,answer_variant_review,true
-vg_a9f050c35cf9,23,39,0,Y-junction where main road bears to the left.,answer_variant_review,true
-vg_a9f050c35cf9,23,40,2,Y-junction ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,41,1,Crossroads with major road ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,42,1,T-junction ahead with a road of major importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,43,3,Crossroads with dual carriageway ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,44,2,T-junction with dual carriageway ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,45,2,Traffic merging from the left.,answer_variant_review,true
-vg_a9f050c35cf9,23,46,0,Traffic merging/diverging ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,47,0,Dangerous corner ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,48,0,Sharp change of direction to the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,49,0,Road narrows on the left.,answer_variant_review,true
-vg_a9f050c35cf9,23,50,2,Road divides ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,51,0,Steep descent ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,52,0,Low bridge up ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,55,2,Series of bumps or hollows ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,56,0,Slippery road ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,57,1,Traffic signals ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,65,3,Two-way traffic.,answer_variant_review,true
-vg_a9f050c35cf9,23,77,0,Stop your vehicle.,answer_variant_review,true
-vg_a9f050c35cf9,23,86,2,Junction ahead with roads of lesser importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,87,0,Staggered crossroads ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,89,2,Overhead electric cables.,answer_variant_review,true
-vg_a9f050c35cf9,23,91,3,Level crossing ahead guarded by gates or barriers.,answer_variant_review,true
-vg_a9f050c35cf9,23,92,0,The driver must stop when red lights show.,answer_variant_review,true
-vg_a9f050c35cf9,23,93,0,"Sharp rise in the road ahead - for example, a humpback bridge.",answer_variant_review,true
-vg_a9f050c35cf9,23,94,3,Accompanied horses and ponies ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,95,2,Pedestrian crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,96,1,Three hundred meters to the next exit.,answer_variant_review,true
-vg_a9f050c35cf9,23,97,3,200 metres to the next exit.,answer_variant_review,true
-vg_a9f050c35cf9,23,100,1,Entry to motorway.,answer_variant_review,true
-vg_a9f050c35cf9,23,101,2,Y-junction ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,102,0,Roundabout ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,103,0,Mini-roundabout ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,104,0,Automatic level crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,105,1,"Unprotected quay, canal or river ahead.",answer_variant_review,true
-vg_a9f050c35cf9,23,106,0,Deer or wild animals ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,107,0,Roadworks ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,108,0,With-flow bus and cycle lane on left.,answer_variant_review,true
-vg_a9f050c35cf9,23,109,1,Crossroads ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,110,1,Dangerous bend ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,111,2,Series of dangerous corners ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,112,2,Series of dangerous bends ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,113,0,Road narrows on both sides.,answer_variant_review,true
-vg_a9f050c35cf9,23,116,2,School children crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,117,2,School children crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,133,1,Yield to traffic on the major road.,answer_variant_review,true
-vg_a9f050c35cf9,23,135,1,"Yield to traffic coming from the right, or already on the roundabout.",answer_variant_review,true
-vg_a9f050c35cf9,23,136,0,Turn right only.,answer_variant_review,true
-vg_a9f050c35cf9,23,137,1,You must turn right ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,138,1,Tramway crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,139,3,Keep right.,answer_variant_review,true
-vg_a9f050c35cf9,23,140,3,Yield to traffic on the major road.,answer_variant_review,true
-vg_a9f050c35cf9,23,141,0,No entry ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,142,0,No right turn.,answer_variant_review,true
-vg_a9f050c35cf9,23,143,1,Turn right only.,answer_variant_review,true
-vg_a9f050c35cf9,23,144,2,U-turn not permitted.,answer_variant_review,true
-vg_a9f050c35cf9,23,145,3,Maximum speed is is 30 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,146,1,Maximum speed is 50 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,147,2,U-turn not permitted.,answer_variant_review,true
-vg_a9f050c35cf9,23,148,0,Maximum speed is 80 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,149,1,Maximum speed is 100 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,150,2,Maximum speed is 120 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,151,1,Parking permitted during the times shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,152,1,Clearway - no stopping or parking during the times shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,153,3,Disc parking operates during the time shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,154,1,Designated rank for taxis.,answer_variant_review,true
-vg_a9f050c35cf9,23,155,2,Start of cycle track.,answer_variant_review,true
-vg_a9f050c35cf9,23,156,3,Accompanied horses and ponies ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,157,1,Pedestrian crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,158,3,200 metres to the next exit.,answer_variant_review,true
-vg_a9f050c35cf9,23,159,2,Start of central reserve or obstruction.,answer_variant_review,true
-vg_a9f050c35cf9,23,161,2,With-flow bus and cycle lane ahead on left.,answer_variant_review,true
-vg_a9f050c35cf9,23,162,2,With-flow bus and cycle lane on left.,answer_variant_review,true
-vg_a9f050c35cf9,23,163,1,Bus and cycle lane ahead on right.,answer_variant_review,true
-vg_a9f050c35cf9,23,164,2,With-flow bus lane on the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,165,1,Contra-flow bus lane on the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,166,0,Contra-flow bus lane.,answer_variant_review,true
-vg_a9f050c35cf9,23,167,1,Tram lane on right.,answer_variant_review,true
-vg_a9f050c35cf9,23,174,2,Crossroads with dual carriageway ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,175,3,T-junction with dual carriageway ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,179,3,Mini-roundabout ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,180,2,Dangerous corner ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,181,2,Dangerous bend ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,182,0,Series of dangerous corners ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,183,3,Series of dangerous bends ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,184,3,Sharp change of direction to the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,185,0,Road narrows on the left.,answer_variant_review,true
-vg_a9f050c35cf9,23,186,2,Road narrows on both sides.,answer_variant_review,true
-vg_a9f050c35cf9,23,187,3,Road divides ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,188,3,Two-way traffic ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,189,3,Steep descent ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,190,0,Steep ascent ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,191,1,Low bridge up ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,192,2,Level crossing ahead protected by lights and barriers.,answer_variant_review,true
-vg_a9f050c35cf9,23,193,3,Automatic level crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,194,2,Sharp depression or dip ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,195,2,Series of bumps or hollows ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,196,1,Slippery road ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,197,3,"Unprotected quay, canal or river ahead.",answer_variant_review,true
-vg_a9f050c35cf9,23,199,2,School ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,203,3,Possibility of cattle or farm animals ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,204,2,Possibility of sheep ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,205,2,Deer or wild animals ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,206,2,Crosswinds ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,207,3,Tunnel ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,209,1,Possibility of low flying aircraft.,answer_variant_review,true
-vg_a9f050c35cf9,23,210,1,A driver must drive on the left-hand side.,answer_variant_review,true
-vg_a9f050c35cf9,23,211,2,Tramway crossing ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,212,3,Entry to motorway.,answer_variant_review,true
-vg_a9f050c35cf9,23,213,2,Motorway ends 500 metres ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,214,3,End of motorway.,answer_variant_review,true
-vg_a9f050c35cf9,23,215,2,Roadworks ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,216,0,Slippery road.,answer_variant_review,true
-vg_a9f050c35cf9,23,217,0,Road narrows from left.,answer_variant_review,true
-vg_a9f050c35cf9,23,218,1,Road narrows from right.,answer_variant_review,true
-vg_a9f050c35cf9,23,219,2,Road narrows on both sides.,answer_variant_review,true
-vg_a9f050c35cf9,23,220,3,Flagman ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,221,1,Temporary traffic signals ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,222,3,Two-way traffic.,answer_variant_review,true
-vg_a9f050c35cf9,23,223,1,Nearside lane of two closed.,answer_variant_review,true
-vg_a9f050c35cf9,23,224,0,Nearside lane of three closed.,answer_variant_review,true
-vg_a9f050c35cf9,23,226,0,Proceed with caution.,answer_variant_review,true
-vg_a9f050c35cf9,23,227,2,Stop before or at the sign.,answer_variant_review,true
-vg_a9f050c35cf9,23,229,2,Traffic should cross back to the left-hand lane ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,230,0,Traffic should cross out to the right-hand lane ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,231,1,End of central reserve or obstruction.,answer_variant_review,true
-vg_a9f050c35cf9,23,244,1,Parking permitted during the times shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,245,2,Clearway - no stopping or parking during the times shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,246,2,Staggered crossroads ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,247,0,Dual carriageway ends.,answer_variant_review,true
-vg_a9f050c35cf9,23,829,1,Crossroads ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,897,2,"Tram track, cyclists beware.",answer_variant_review,true
-vg_a9f050c35cf9,23,898,0,Two hundred meters to the next exit.,answer_variant_review,true
-vg_a9f050c35cf9,23,899,0,One hundred meters to the next exit.,answer_variant_review,true
-vg_a9f050c35cf9,23,900,3,Uneven surface ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,901,2,Keep Left.,answer_variant_review,true
-vg_a9f050c35cf9,23,902,0,Loose chippings on road.,answer_variant_review,true
-vg_a9f050c35cf9,23,903,1,Offside lane closed ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,904,3,Traffic queses likely ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,905,2,Uneven surface.,answer_variant_review,true
-vg_a9f050c35cf9,23,906,3,Obstruction between lanes ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,907,0,Pedestrians cross to the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,908,0,Traffic must cross over to left-hand lane.,answer_variant_review,true
-vg_a9f050c35cf9,23,909,3,Traffic must cross over to the right-hand lane.,answer_variant_review,true
-vg_a9f050c35cf9,23,910,2,Pass either side.,answer_variant_review,true
-vg_a9f050c35cf9,23,914,2,No entry.,answer_variant_review,true
-vg_a9f050c35cf9,23,926,3,No left turn.,answer_variant_review,true
-vg_a9f050c35cf9,23,933,0,Maximum speed is 30 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,946,3,Maximum speed is 60 km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,953,0,Maximum speed is 80km/h.,answer_variant_review,true
-vg_a9f050c35cf9,23,977,1,Parking prohibited.,answer_variant_review,true
-vg_a9f050c35cf9,23,989,0,Disc parking operates during the times shown.,answer_variant_review,true
-vg_a9f050c35cf9,23,997,0,Appointed rank for taxis.,answer_variant_review,true
-vg_a9f050c35cf9,23,1011,2,Shared cycle/pedestrian track.,answer_variant_review,true
-vg_a9f050c35cf9,23,1016,0,Stop for school warden.,answer_variant_review,true
-vg_a9f050c35cf9,23,1034,0,Vehicles weight restriction is 10 tonnes.,answer_variant_review,true
-vg_a9f050c35cf9,23,1041,0,No entry to goods vehicles with five axles or more.,answer_variant_review,true
-vg_a9f050c35cf9,23,1049,0,Maximum permitted height of vehicle is figure indicated.,answer_variant_review,true
-vg_a9f050c35cf9,23,1073,0,With-flow' bus lane ahead on your left.,answer_variant_review,true
-vg_a9f050c35cf9,23,1103,2,'Contra-flow' bus lane ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1131,2,Main roads bears to the left.,answer_variant_review,true
-vg_a9f050c35cf9,23,1148,1,Yield to traffic coming from the right.,answer_variant_review,true
-vg_a9f050c35cf9,23,1149,0,T-junction ahead with roads of equal importance.,answer_variant_review,true
-vg_a9f050c35cf9,23,1166,0,Major road ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1191,0,T-junction with dual-carriage way ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1220,0,Straight ahead only.,answer_variant_review,true
-vg_a9f050c35cf9,23,1239,3,Sharp change of direction ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1273,3,Turn Left Only.,answer_variant_review,true
-vg_a9f050c35cf9,23,1274,1,Sharp descent ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1279,0,Sharp ascent ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1282,3,Restricted headroom up ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1292,0,Level crossing ahead unguarded by gates or barriers.,answer_variant_review,true
-vg_a9f050c35cf9,23,1296,3,Level crossing ahead with lights and barriers.,answer_variant_review,true
-vg_a9f050c35cf9,23,1310,3,"Sharp rise in the road ahead - for example, a hump-back bridge.",answer_variant_review,true
-vg_a9f050c35cf9,23,1319,3,Slippery stretch of road ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1321,1,Turn left ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1322,1,Possibility of deer or wild animals up ahead.,answer_variant_review,true
-vg_a9f050c35cf9,23,1323,2,Crosswinds.,answer_variant_review,true
-vg_a9f050c35cf9,23,1324,1,Danger of falling rocks ahead.,answer_variant_review,true
-vg_49170ced747f,28,28,2,Pedestrianised street ahead - traffic not allowed except during times shown.,answer_variant_review,true
-vg_49170ced747f,28,202,1,Beware of children crossing.,answer_variant_review,true
-vg_49170ced747f,28,228,3,End of detour.,answer_variant_review,true
-vg_49170ced747f,28,970,0,Parking permitted at times shown.,answer_variant_review,true
-vg_49170ced747f,28,1004,3,Start of cycle track.,answer_variant_review,true
-vg_49170ced747f,28,1020,2,Pedestrianised street ahead - traffic not allowed except during times shown.,answer_variant_review,true
-vg_49170ced747f,28,1062,0,"Only buses, cyclists and taxis are allowed to use the lane during the hours indicated.",answer_variant_review,true
-vg_8c534e03d47e,53,53,2,At all times when the vehicle is on a public road.,answer_variant_review,false
-vg_8c534e03d47e,53,200,0,At all times when the vehicle is on a public road.,answer_variant_review,false
-vg_8c534e03d47e,53,1169,0,At all times.,answer_variant_review,false
-vg_6fae5c144abf,58,58,3,They should not drive until their insurance company confirms that they are insured.,answer_variant_review,false
-vg_6fae5c144abf,58,1174,0,They should not drive until cover is confirmed by their insurance company.,answer_variant_review,false
-vg_67bc9b61d30d,73,73,3,Only when the passenger also holds a Category W driving licence and the vehicle is designed to carry a passenger.,answer_variant_review,false
-vg_67bc9b61d30d,73,1281,2,Only when the passenger also holds a Category W driving licence and the vehicle is designed to take a passenger.,answer_variant_review,false
-vg_1e8c1b54278b,76,76,1,When it would be unsafe to do so.,answer_variant_review,false
-vg_1e8c1b54278b,76,168,1,"When by doing so, your vehicle blocks the junction.",answer_variant_review,false
-vg_0b66157e84b7,84,84,1,Parking is never permitted on the brow of a hill.,answer_variant_review,false
-vg_0b66157e84b7,84,935,3,Parking on the brow of a hill is never allowed.,answer_variant_review,false
-vg_74f1a1456e19,114,114,3,The Garda is beckoning on traffic approaching from either side.,answer_variant_review,true
-vg_74f1a1456e19,114,115,1,Traffic approaching from the front may proceed.,answer_variant_review,true
-vg_74f1a1456e19,114,918,0,Stop if approaching from the front.,answer_variant_review,true
-vg_74f1a1456e19,114,919,0,Stop if approaching from behind.,answer_variant_review,true
-vg_74f1a1456e19,114,920,3,Stop if approaching from either the front or behind.,answer_variant_review,true
-vg_7c760859242d,118,118,3,No parking in this area.,answer_variant_review,true
-vg_7c760859242d,118,120,1,A driver must not cross the broken white line unless it is safe to do so.,answer_variant_review,true
-vg_7c760859242d,118,123,3,Parking prohibited at all times.,answer_variant_review,true
-vg_7c760859242d,118,124,0,Drivers must keep left of the continuous white line.,answer_variant_review,true
-vg_7c760859242d,118,176,1,A driver must not cross the broken white line unless it is safe to do so.,answer_variant_review,true
-vg_7c760859242d,118,236,1,"Traffic must not enter unless they can clear the box junction without stopping, or when turning right.",answer_variant_review,true
-vg_7c760859242d,118,237,3,All traffic must keep to the left of the white line.,answer_variant_review,true
-vg_7c760859242d,118,240,3,No entry.,answer_variant_review,true
-vg_7c760859242d,118,824,0,Drivers must keep left of the continuous white line.,answer_variant_review,true
-vg_7c760859242d,118,922,3,A driver must not enter unless turning right or the exit is clear.,answer_variant_review,true
-vg_7c760859242d,118,923,1,A driver must not cross the line.,answer_variant_review,true
-vg_7c760859242d,118,925,2,Continuous white line lies ahead.,answer_variant_review,true
-vg_ef916bd66d7c,119,119,1,Parking not allowed at the times shown.,answer_variant_review,true
-vg_ef916bd66d7c,119,238,0,Parking not allowed at the times and days shown.,answer_variant_review,true
-vg_a8e259919352,121,121,3,A driver may overtake if it is safe to do so.,answer_variant_review,true
-vg_a8e259919352,121,122,3,A driver may not cross the lines to overtake.,answer_variant_review,true
-vg_a8e259919352,121,178,0,A driver may overtake if it is safe to do so.,answer_variant_review,true
-vg_c31012e638eb,126,126,1,"Stop, unless it is unsafe to do so.",answer_variant_review,true
-vg_c31012e638eb,126,127,0,The driver may proceed in the direction of the green arrow if the way is clear.,answer_variant_review,true
-vg_c31012e638eb,126,128,2,Traffic must stop at the traffic light.,answer_variant_review,true
-vg_c31012e638eb,126,129,3,Traffic may proceed if the way is clear.,answer_variant_review,true
-vg_c31012e638eb,126,241,1,Traffic turning left may proceed if the way is clear.,answer_variant_review,true
-vg_c31012e638eb,126,342,1,The battery is not charging.,answer_variant_review,true
-vg_c31012e638eb,126,927,0,"Stop, unless it would be unsafe to do so.",answer_variant_review,true
-vg_c31012e638eb,126,1200,3,The high-beam headlights are switched on.,answer_variant_review,true
-vg_c31012e638eb,126,1201,0,Low oil level.,answer_variant_review,true
-vg_c31012e638eb,126,1202,1,Directional indicator on.,answer_variant_review,true
-vg_37c7dde2df95,131,131,2,"Stop, unless it is unsafe to do so.",answer_variant_review,true
-vg_37c7dde2df95,131,974,2,"Stop, unless it is not safe.",answer_variant_review,true
-vg_19563035255b,135,135,1,"Yield to traffic coming from the right, or already on the roundabout.",answer_variant_review,true
-vg_19563035255b,135,1148,1,Yield to traffic coming from the right.,answer_variant_review,true
-vg_623bac15a71f,160,160,2,The cyclist intends to go straight on.,answer_variant_review,true
-vg_623bac15a71f,160,232,0,The cyclist intends to move out or turn right.,answer_variant_review,true
-vg_623bac15a71f,160,233,1,The cyclist intends to slow down or stop.,answer_variant_review,true
-vg_623bac15a71f,160,234,1,The cyclist intends to turn right.,answer_variant_review,true
-vg_623bac15a71f,160,235,1,The driver intends to proceed straight ahead.,answer_variant_review,true
-vg_623bac15a71f,160,911,3,The cyclist intends to turn left.,answer_variant_review,true
-vg_623bac15a71f,160,912,2,The driver intends to turn left.,answer_variant_review,true
-vg_623bac15a71f,160,913,1,The driver intends to move out or turn right.,answer_variant_review,true
-vg_623bac15a71f,160,915,3,The driver intends to slow down or stop.,answer_variant_review,true
-vg_623bac15a71f,160,916,1,The driver intends to turn right.,answer_variant_review,true
-vg_623bac15a71f,160,917,2,The driver intends to move straight ahead.,answer_variant_review,true
-vg_560b22622bdd,198,198,1,Under no circumstances should a tax disc be transferred to another vehicle.,answer_variant_review,false
-vg_560b22622bdd,198,521,1,No. Tax discs are not transferable.,answer_variant_review,false
-vg_e2aa0d6aea1a,208,208,2,The driver must allow the cyclist to proceed.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,254,0,There may be a car hidden from view in front of the bus.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,268,2,Animals could suddenly appear on the road ahead.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,698,0,The car driver must allow the motorcycle to proceed.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,734,1,A dangerous right-hand bend ahead.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,958,0,Pedestrians may leave the traffic island without paying attention.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,965,0,The cyclist will move onto the roadway without paying attention to moving traffic.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,987,0,Oncoming traffic may cut the corner.,answer_variant_review,true
-vg_e2aa0d6aea1a,208,990,1,Children may unexpectedly run out from between parked cars.,answer_variant_review,true
-vg_8c907ce02abe,226,226,0,Proceed with caution.,answer_variant_review,true
-vg_8c907ce02abe,226,227,2,Stop before or at the sign.,answer_variant_review,true
-vg_fff81050e638,248,248,1,There may be a slow-moving vehicle in your lane.,answer_variant_review,false
-vg_fff81050e638,248,249,0,A vehicle may have broken down.,answer_variant_review,false
-vg_fff81050e638,248,250,3,An oncoming vehicle may be straddling part of your lane.,answer_variant_review,false
-vg_fff81050e638,248,251,0,There may be oncoming pedestrians.,answer_variant_review,false
-vg_fff81050e638,248,252,0,There may be livestock on the road.,answer_variant_review,false
-vg_fff81050e638,248,716,3,There may be a slow moving vehicle in your lane.,answer_variant_review,false
-vg_fff81050e638,248,718,0,There may be oncoming pedestrians.,answer_variant_review,false
-vg_fff81050e638,248,719,0,There may be livestock on the road.,answer_variant_review,false
-vg_fff81050e638,248,720,0,There may be hedge-cutting taking place.,answer_variant_review,false
-vg_8283188ef0e4,256,256,2,1.6 millimetres,answer_variant_review,false
-vg_8283188ef0e4,256,844,2,1.6 millimetres.,answer_variant_review,false
-vg_8283188ef0e4,256,1295,1,1.6 millimeters.,answer_variant_review,false
-vg_2e4139f07162,262,262,1,Take care when moving damaged vehicles and make every effort to warn other traffic.,answer_variant_review,false
-vg_2e4139f07162,262,1178,0,Mark the position of the vehicles and move them off the road.,answer_variant_review,false
-vg_5a797debf9b1,266,266,1,Try to keep the person warm with a blanket or overcoat.,answer_variant_review,false
-vg_5a797debf9b1,266,1183,3,Loosen tight clothing around the neck and keep the person warm with a blanket or overcoat.,answer_variant_review,false
-vg_837ebc0a1f3d,268,268,2,Animals could suddenly appear on the road ahead.,answer_variant_review,true
-vg_837ebc0a1f3d,268,987,0,Oncoming traffic may cut the corner.,answer_variant_review,true
-vg_bce512f5f8ad,269,269,2,Keep well clear and call the emergency services.,answer_variant_review,false
-vg_bce512f5f8ad,269,1189,2,Keep well clear and raise the alarm.,answer_variant_review,false
-vg_e1a07efb7d97,273,273,1,It would reduce the driver's ability to control the vehicle.,answer_variant_review,false
-vg_e1a07efb7d97,273,1193,1,It would reduce the drivers ability to control the vehicle.,answer_variant_review,false
-vg_cf2d8270247e,274,274,0,It could make the vehicle unstable while turning.,answer_variant_review,false
-vg_cf2d8270247e,274,1194,0,It could make the vehicle unstable while turning a corner or braking.,answer_variant_review,false
-vg_80e9af25028b,276,276,1,Daily before driving.,answer_variant_review,false
-vg_80e9af25028b,276,1195,3,Regularly.,answer_variant_review,false
-vg_eaed7bba4447,280,280,2,"No, it is never permitted to be driven.",answer_variant_review,false
-vg_eaed7bba4447,280,1199,3,"No, the driver is never permitted to be driven.",answer_variant_review,false
-vg_d1479ffb3d5c,293,293,1,Fuel consumption.,answer_variant_review,false
-vg_d1479ffb3d5c,293,1228,1,Braking ability.,answer_variant_review,false
-vg_d1479ffb3d5c,293,1242,1,Steering.,answer_variant_review,false
-vg_548f28fb4370,301,301,2,Seatbelts.,answer_variant_review,false
-vg_548f28fb4370,301,1198,1,Headlights.,answer_variant_review,false
-vg_659d16c1fd66,302,302,3,Have extended mirrors fitted to the towing vehicle.,answer_variant_review,false
-vg_659d16c1fd66,302,335,1,Have extended mirrors fitted to the towing vehicle.,answer_variant_review,false
-vg_659d16c1fd66,302,1256,2,Have extended mirrors fitted to the towing vehicle and use them regularly.,answer_variant_review,false
-vg_c3522cb1b12a,304,304,1,It can seriously reduce visibility.,answer_variant_review,false
-vg_c3522cb1b12a,304,332,1,It can seriously reduce visibility.,answer_variant_review,false
-vg_c3522cb1b12a,304,1259,0,It can create a mirror effect and reduce visibility.,answer_variant_review,false
-vg_81ccdfa5851d,311,311,2,That the load is evenly spread.,answer_variant_review,false
-vg_81ccdfa5851d,311,312,1,That the trailer coupling is attached securely.,answer_variant_review,false
-vg_81ccdfa5851d,311,729,2,That the load is evenly spread.,answer_variant_review,false
-vg_81ccdfa5851d,311,1287,2,That the trailer coupling is attached securely.,answer_variant_review,false
-vg_2e7f8ee1f900,314,314,0,When the vehicle has broken down.,answer_variant_review,false
-vg_2e7f8ee1f900,314,315,1,When causing an unavoidable obstruction.,answer_variant_review,false
-vg_2e7f8ee1f900,314,316,2,When broken down and causing an obstruction.,answer_variant_review,false
-vg_2e7f8ee1f900,314,840,1,When the vehicle has broken down.,answer_variant_review,false
-vg_2e7f8ee1f900,314,1293,2,When the vehicle has broken down.,answer_variant_review,false
-vg_efb76b1da83f,315,315,1,When causing an unavoidable obstruction.,answer_variant_review,false
-vg_efb76b1da83f,315,316,2,When broken down and causing an obstruction.,answer_variant_review,false
-vg_efb76b1da83f,315,1293,2,When the vehicle has broken down.,answer_variant_review,false
-vg_de63b8fd11cb,321,321,2,Have the wiper blades replaced as soon as possible.,answer_variant_review,false
-vg_de63b8fd11cb,321,859,0,Have the blades replaced as soon as possible.,answer_variant_review,false
-vg_a5730ae5a468,322,322,0,Use a roadside phone to contact Gardaí and never try to carry out repairs yourself.,answer_variant_review,false
-vg_a5730ae5a468,322,331,0,Move the vehicle to the hard shoulder.,answer_variant_review,false
-vg_de88a0a494d9,324,324,1,The passenger only.,answer_variant_review,false
-vg_de88a0a494d9,324,325,0,The driver only.,answer_variant_review,false
-vg_de88a0a494d9,324,786,1,The passengers only.,answer_variant_review,false
-vg_de88a0a494d9,324,1307,2,The driver.,answer_variant_review,false
-vg_27d184bd3ed3,330,330,0,When the vehicle has broken down.,answer_variant_review,false
-vg_27d184bd3ed3,330,767,1,When slowing down quickly because of danger ahead.,answer_variant_review,false
-vg_27d184bd3ed3,330,801,0,When slowing down quickly because of danger ahead.,answer_variant_review,false
-vg_27d184bd3ed3,330,1252,0,When the vehicle has broken down.,answer_variant_review,false
-vg_a521cffd337c,342,342,1,The battery is not charging.,answer_variant_review,true
-vg_a521cffd337c,342,1200,3,The high-beam headlights are switched on.,answer_variant_review,true
-vg_a521cffd337c,342,1201,0,Low oil level.,answer_variant_review,true
-vg_a521cffd337c,342,1202,1,Directional indicator on.,answer_variant_review,true
-vg_31e7cbf533b4,345,345,0,Be patient.,answer_variant_review,false
-vg_31e7cbf533b4,345,388,0,Be patient and show restraint.,answer_variant_review,false
-vg_ee2acf955d78,347,347,0,The driver should be aware that the lights may change before they reach them and be prepared to stop.,answer_variant_review,false
-vg_ee2acf955d78,347,1001,0,The driver should prepare to stop in case the lights change before they reach them.,answer_variant_review,false
-vg_915ebcbe4d07,348,348,1,Treat it as an unmarked junction and proceed cautiously while watching out for other traffic.,answer_variant_review,false
-vg_915ebcbe4d07,348,1002,0,Treat the junction as an unmarked junction and proceed cautiously while watching out for other traffic.,answer_variant_review,false
-vg_c2d742e86aec,352,352,0,That the oncoming vehicle may be slow moving or extra wide.,answer_variant_review,false
-vg_c2d742e86aec,352,1006,0,That the oncoming traffic maybe slow moving or extra wide.,answer_variant_review,false
-vg_e1fa5742d99d,353,353,3,Slow down and prepare to stop.,answer_variant_review,false
-vg_e1fa5742d99d,353,1007,3,Slow down and be prepared to stop.,answer_variant_review,false
-vg_29328bfebd84,354,354,3,There may be an uneven surface and tyre grip may be reduced when crossing the rails.,answer_variant_review,false
-vg_29328bfebd84,354,1008,2,There may be an uneven surface and tyre grip may be reduced when crossing.,answer_variant_review,false
-vg_9f8eb4d580da,363,363,3,Slow down and allow extra clearance to all traffic until they have gone past the area with the loose chippings.,answer_variant_review,false
-vg_9f8eb4d580da,363,405,0,Slow down and allow extra clearance to other traffic.,answer_variant_review,false
-vg_29b0bcc854b2,365,365,1,Drive at lower speeds and use gentle acceleration and braking.,answer_variant_review,false
-vg_29b0bcc854b2,365,408,0,Drive at lower speeds and use gentle acceleration and braking.,answer_variant_review,false
-vg_29b0bcc854b2,365,436,3,Use gentle acceleration and braking.,answer_variant_review,false
-vg_fdde4743c150,368,368,2,The driver in the red car should wait.,answer_variant_review,true
-vg_fdde4743c150,368,992,0,The driver behind the stopped van should wait.,answer_variant_review,true
-vg_9a13a26ea492,369,369,2,Overtake on the left-hand side and carry on if safe to do so.,answer_variant_review,false
-vg_9a13a26ea492,369,414,2,Overtake on the left-hand side and carry on if safe to do so.,answer_variant_review,false
-vg_9a13a26ea492,369,823,0,Overtake on the left-hand side and carry on.,answer_variant_review,false
-vg_05aa1a15d267,376,376,3,The driver should stay well back in a safe position.,answer_variant_review,false
-vg_05aa1a15d267,376,1028,0,The driver should stay well back until the road widens sufficiently to allow safe overtaking.,answer_variant_review,false
-vg_c243491e8c17,379,379,2,Stop back safely and wait until the way is clear.,answer_variant_review,false
-vg_c243491e8c17,379,1029,3,Stop and wait until your way is clear.,answer_variant_review,false
-vg_6b5b81408aac,381,381,3,"Yes, temporarily when the hard shoulder is clear and it is safe to drive there.",answer_variant_review,false
-vg_6b5b81408aac,381,1031,1,"Yes, temporarily when the hard shoulder is clear, and it is safe to drive there while the faster traffic overtakes.",answer_variant_review,false
-vg_d161a9136b96,382,382,1,Reduce speed and use dipped headlights.,answer_variant_review,false
-vg_d161a9136b96,382,506,0,Reduce speed and use dipped headlights.,answer_variant_review,false
-vg_d161a9136b96,382,1056,0,Drive with dipped headlights and fog lights.,answer_variant_review,false
-vg_aab5c018624e,384,384,0,Initially drive with extra care and at a lower speed until fully familiar with the vehicle.,answer_variant_review,false
-vg_aab5c018624e,384,1035,1,Drive initially with extra care and at a lower speed than normal.,answer_variant_review,false
-vg_35af7eca66cd,390,390,0,Allow the overtaking vehicle to pass and return safely to the left side of the road.,answer_variant_review,false
-vg_35af7eca66cd,390,1038,3,Reduce speed and allow the overtaking vehicle to return to the left side of the road after completing the overtaking manoeuvre.,answer_variant_review,false
-vg_10628b2914a2,392,392,2,Stop at a safe place and change the wheel.,answer_variant_review,false
-vg_10628b2914a2,392,1040,3,Stop at a safe place and change the tyre.,answer_variant_review,false
-vg_96714e42a876,395,395,3,It reduces concentration.,answer_variant_review,false
-vg_96714e42a876,395,1042,2,It makes the driver drowsy.,answer_variant_review,false
-vg_94c864b17679,397,397,2,"Generally, it doubles the braking distance of that required on a dry surface.",answer_variant_review,false
-vg_94c864b17679,397,1044,2,Generally. it doubles the normal braking distance required on a dry surface.,answer_variant_review,false
-vg_ecd855f55916,398,398,2,Gradually move back into the left when the vehicle has been passed.,answer_variant_review,false
-vg_ecd855f55916,398,1045,0,Gradually move back into the left when the vehicle has been overtaken.,answer_variant_review,false
-vg_bd3ea66b3e82,416,416,2,Check that the road is not one way.,answer_variant_review,false
-vg_bd3ea66b3e82,416,1023,0,Check ahead and behind for approaching traffic.,answer_variant_review,false
-vg_66ccb5b0b766,418,418,0,"Take good observation, wait for a clear break in the traffic and proceed to cross the road safely.",answer_variant_review,false
-vg_66ccb5b0b766,418,1026,2,"Take good observations, wait for a clear break in the traffic and proceed to cross the road.",answer_variant_review,false
-vg_55df7d302fe5,420,420,1,Look towards the verge and slow down and stop if necessary.,answer_variant_review,false
-vg_55df7d302fe5,420,455,0,Look towards the verge and slow down and stop if necessary.,answer_variant_review,false
-vg_55df7d302fe5,420,1060,1,Look away and slow down and stop if necessary.,answer_variant_review,false
-vg_e02070f57bfd,424,424,0,Avoid looking directly at the oncoming vehicle's lights.,answer_variant_review,false
-vg_e02070f57bfd,424,1064,1,Not look directly at the oncoming vehicle's lights.,answer_variant_review,false
-vg_d637de1dc748,428,428,3,That there is a danger of themselves or other drivers falling asleep.,answer_variant_review,false
-vg_d637de1dc748,428,1068,1,That there is a danger of falling asleep.,answer_variant_review,false
-vg_f8bdc9ee6c53,429,429,2,Drive in the left-hand lane unless intending to overtake.,answer_variant_review,false
-vg_f8bdc9ee6c53,429,1094,0,Be alert for other drivers who may suddenly change lane or reduce speed.,answer_variant_review,false
-vg_91075f96149d,439,439,3,Be aware that the vehicle may slide or ?aquaplane?.,answer_variant_review,false
-vg_91075f96149d,439,1078,1,Be in the alert for skidding or aquaplaning .,answer_variant_review,false
-vg_980f31eb68a5,444,444,2,Drive in a low gear as slowly as possible keeping the revs high.,answer_variant_review,false
-vg_980f31eb68a5,444,822,3,Reduce speed and use a lower gear.,answer_variant_review,false
-vg_089a341a3298,446,446,1,Narrower lanes than usual and restricted shoulder areas.,answer_variant_review,false
-vg_089a341a3298,446,629,2,Narrower lanes than usual and restricted shoulder areas.,answer_variant_review,false
-vg_089a341a3298,446,1084,3,That the surface may be slippery due to mud or loose chippings.,answer_variant_review,false
-vg_2830d2a342fa,448,448,2,"Give way to cyclists, taxis and buses which may be using the bus lane.",answer_variant_review,false
-vg_2830d2a342fa,448,1087,1,"Watch out for cyclists, taxis and buses which may be using the bus lane.",answer_variant_review,false
-vg_eb5379d4ce40,456,456,0,A driver is never permitted to pick up or set down passengers on a motorway.,answer_variant_review,false
-vg_eb5379d4ce40,456,1097,3,No. this is not permitted.,answer_variant_review,false
-vg_604dd473e2fa,471,471,1,Keep a safe distance from the vehicle in front.,answer_variant_review,false
-vg_604dd473e2fa,471,1118,0,Switch on dipped headlights.,answer_variant_review,false
-vg_604dd473e2fa,471,1119,1,"Keep a safe distance from the vehicle in front and remove sunglasses, if you are wearing them.",answer_variant_review,false
-vg_d3f350f55480,474,474,1,Maintain a distance behind to avoid undue pressure.,answer_variant_review,false
-vg_d3f350f55480,474,631,0,Maintain a distance behind to avoid undue pressure.,answer_variant_review,false
-vg_d3f350f55480,474,1124,1,Be patient and allow extra time to the driver if necessary.,answer_variant_review,false
-vg_d3f350f55480,474,1125,0,Stay back until the driver can overtake safely.,answer_variant_review,false
-vg_4dff70d80658,479,479,0,Cyclists.,answer_variant_review,false
-vg_4dff70d80658,479,1134,1,Motorcyclists.,answer_variant_review,false
-vg_4dff70d80658,479,1135,3,Pedestrians.,answer_variant_review,false
-vg_180bef0a8684,490,490,0,Signal their intention to overtake the pedestrians.,answer_variant_review,false
-vg_180bef0a8684,490,1154,2,Signal to following traffic their intention to overtake the pedestrians.,answer_variant_review,false
-vg_57d78569a381,491,491,1,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
-vg_57d78569a381,491,492,0,That there could be vulnerable pedestrians walking on the road.,answer_variant_review,false
-vg_57d78569a381,491,493,1,Schoolchildren are more vulnerable on unlit country roads on dark winter mornings and evenings.,answer_variant_review,false
-vg_57d78569a381,491,895,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
-vg_57d78569a381,491,1155,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
-vg_57d78569a381,491,1156,2,A driver should take extra care for cyclists and pedestrians in the countryside as they may not be clearly visible.,answer_variant_review,false
-vg_443aeee05a39,495,495,2,Carry a suitable fire extinguisher in the vehicle.,answer_variant_review,false
-vg_443aeee05a39,495,1251,3,Investigate strong fumes and carry a fire extinguisher.,answer_variant_review,false
-vg_94468bc14562,500,500,1,Watch out for pedestrians wearing dark clothing.,answer_variant_review,false
-vg_94468bc14562,500,1150,1,Watch out for cars parked on the left.,answer_variant_review,false
-vg_94468bc14562,500,1151,0,Watch out for stray animals or livestock.,answer_variant_review,false
-vg_e68f71596e38,504,504,0,Reduce speed as there may be loose gravel or mud on the road.,answer_variant_review,false
-vg_e68f71596e38,504,1036,0,Reduce speed as there maybe loose gravel or mud on the road.,answer_variant_review,false
-vg_ed4ebfc813d6,508,508,0,Two non-motorway lanes in one direction and one non-motorway lane in the opposite direction.,answer_variant_review,false
-vg_ed4ebfc813d6,508,1092,3,Two lanes of traffic in one direction and one in the opposite direction.,answer_variant_review,false
-vg_37c93b58a59c,513,513,1,Pedestrians.,answer_variant_review,false
-vg_37c93b58a59c,513,1129,3,Motorcyclists.,answer_variant_review,false
-vg_1a123c3bb6cb,517,517,0,Reduced fuel consumption.,answer_variant_review,false
-vg_1a123c3bb6cb,517,688,3,Improved road safety.,answer_variant_review,false
-vg_1a123c3bb6cb,517,689,3,Increased fuel efficiency.,answer_variant_review,false
-vg_1a123c3bb6cb,517,1246,1,Increased road safety.,answer_variant_review,false
-vg_1a123c3bb6cb,517,1247,2,Reduced emissions.,answer_variant_review,false
-vg_aaa1f6e6c5c7,518,518,2,Selecting a high gear as soon as possible.,answer_variant_review,false
-vg_aaa1f6e6c5c7,518,690,0,Maintaining a steady speed.,answer_variant_review,false
-vg_aaa1f6e6c5c7,518,691,0,Looking ahead and anticipating.,answer_variant_review,false
-vg_7b848679a7a4,526,526,0,When there is proper passenger seating and the passenger holds a full Category W licence.,answer_variant_review,false
-vg_7b848679a7a4,526,828,3,When there is proper passenger seating and the passenger holds a full category W license.,answer_variant_review,false
-vg_8faf5a52e26f,534,534,3,Because the required stopping distances is greater.,answer_variant_review,false
-vg_8faf5a52e26f,534,983,1,Because wheel-spray may impair visibility.,answer_variant_review,false
-vg_8faf5a52e26f,534,984,2,Because stopping distances are greater.,answer_variant_review,false
-vg_9b306dc3e496,541,541,3,Keep a safe distance from the vehicle in front.,answer_variant_review,false
-vg_9b306dc3e496,541,542,3,Scan the road well ahead.,answer_variant_review,false
-vg_e3d7e15032db,543,543,1,Use the emergency telephone to call for help.,answer_variant_review,false
-vg_e3d7e15032db,543,577,3,Switch on the hazard warning lights.,answer_variant_review,false
-vg_e3d7e15032db,543,637,2,Use the emergency telephone to call for help.,answer_variant_review,false
-vg_e3d7e15032db,543,638,3,Switch on the hazard warning lights.,answer_variant_review,false
-vg_e3d7e15032db,543,712,3,Use the emergency telephone to call for help.,answer_variant_review,false
-vg_853c81a1e782,559,559,0,"At night, when walking outside built-up areas.",answer_variant_review,false
-vg_853c81a1e782,559,937,2,At all times outside well-lit urban areas.,answer_variant_review,false
-vg_275677ce8c57,562,562,1,When the vehicle in front is signalling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
-vg_275677ce8c57,562,645,3,When the vehicle in front is signalling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
-vg_275677ce8c57,562,943,2,When the vehicle in front is signaling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
-vg_8f68ca8600a4,565,565,2,Drivers should be aware that loud noises from their vehicle may frighten the horses and cause them to bolt.,answer_variant_review,false
-vg_8f68ca8600a4,565,1005,0,Drivers should be aware that loud noises from your vehicle may frighten the horses and cause them to bolt.,answer_variant_review,false
-vg_da92f0fbb3fa,568,568,0,Indicate in good time and pull in gradually to allow the vehicle behind extra stopping distance.,answer_variant_review,false
-vg_da92f0fbb3fa,568,1010,0,Indicate in good time and pull up gradually to allow the vehicle behind extra stopping distance.,answer_variant_review,false
-vg_773199c64cfb,574,574,3,Clean them with a cloth or tissue before starting their journey.,answer_variant_review,false
-vg_773199c64cfb,574,1222,2,Clean them with a cloth or tissue before continuing on.,answer_variant_review,false
-vg_d9a045f8f943,576,576,1,Water droplets can obscure the reflected image.,answer_variant_review,false
-vg_d9a045f8f943,576,627,2,It can distort the rear vision of the driver.,answer_variant_review,false
-vg_de87b22dc7ee,580,580,2,It filters exhaust gases and reduces air pollution.,answer_variant_review,false
-vg_de87b22dc7ee,580,612,1,To reduce harmful exhaust emissions.,answer_variant_review,false
-vg_de87b22dc7ee,580,732,0,To reduce harmful exhaust emissions.,answer_variant_review,false
-vg_a926c2992521,582,582,1,Use gentle acceleration and braking.,answer_variant_review,false
-vg_a926c2992521,582,1237,0,Use gently acceleration and braking.,answer_variant_review,false
-vg_5f6e212e63fc,586,586,1,Between 11:30 pm and 7:00 am in a built-up area.,answer_variant_review,false
-vg_5f6e212e63fc,586,1238,1,Between 11:30pm and 7:00am in a built-up area.,answer_variant_review,false
-vg_b6a24328b32e,597,597,1,Ask someone to guide you when reversing.,answer_variant_review,false
-vg_b6a24328b32e,597,1263,3,Ask someone to assist when reversing.,answer_variant_review,false
-vg_79dc0a40de93,598,598,0,Increase the air circulation and stop if necessary.,answer_variant_review,false
-vg_79dc0a40de93,598,1265,0,Increase the air circulation and make regular stops if necessary.,answer_variant_review,false
-vg_1d8b3b8e4e56,599,599,1,In dense fog or falling snow.,answer_variant_review,false
-vg_1d8b3b8e4e56,599,600,1,When driving in dense fog or falling snow.,answer_variant_review,false
-vg_4a427c640fe3,621,621,1,Keep a close eye on the children and be prepared to brake in good time.,answer_variant_review,true
-vg_4a427c640fe3,621,949,0,"Keep a close eye on the children, if necessary give a warning signal and be prepared to brake in good time.",answer_variant_review,true
-vg_b3f046902a56,625,625,2,Apply the footbrake firmly.,answer_variant_review,false
-vg_b3f046902a56,625,1317,1,Maintain firm pressure on the footbrake.,answer_variant_review,false
-vg_b3f046902a56,625,1318,3,Press the footbrake firmly.,answer_variant_review,false
-vg_120eb04ee36f,634,634,2,Switch on hazard warning lights.,answer_variant_review,false
-vg_120eb04ee36f,634,635,0,Switch off the engine.,answer_variant_review,false
-vg_e2dbad29fbed,640,640,2,"Adjust speed to match that of the motorway traffic, and merge into a suitable gap.",answer_variant_review,false
-vg_e2dbad29fbed,640,1096,2,Try to match the vehicle speed to that of traffic already on the motorway and merge into it in a suitable gap.,answer_variant_review,false
-vg_0353ce5ff01b,646,646,1,Between 71-90,answer_variant_review,false
-vg_0353ce5ff01b,646,879,3,71 – 90,answer_variant_review,false
-vg_538cf5f54e9f,680,680,3,Switch off the engine and switch on the hazard lights.,answer_variant_review,false
-vg_538cf5f54e9f,680,1121,0,Switch on hazard lights and stop as close to the left-hand side as possible.,answer_variant_review,false
-vg_04dbdf97c9df,685,685,1,Motorcyclists.,answer_variant_review,false
-vg_04dbdf97c9df,685,686,1,Pedestrians.,answer_variant_review,false
-vg_0977c6a2128d,692,692,1,Watch for cyclists or pedestrians who may try to cross the road in front of the vehicle.,answer_variant_review,false
-vg_0977c6a2128d,692,1132,1,Watch for cyclists or pedestrians who may try to cross the road in front of the vehicle.,answer_variant_review,false
-vg_0977c6a2128d,692,1133,1,Watch for cyclists or pedestrians on the left.,answer_variant_review,false
-vg_8b6f39cfe920,695,695,0,A driver may proceed with caution.,answer_variant_review,true
-vg_8b6f39cfe920,695,951,0,A driver may proceed.,answer_variant_review,true
-vg_019eeff0ce85,697,697,3,The driver must yield to the yellow car on the roundabout.,answer_variant_review,true
-vg_019eeff0ce85,697,699,2,The driver may turn in front of the other two cars.,answer_variant_review,true
-vg_019eeff0ce85,697,702,3,The driver must allow the blue truck to proceed.,answer_variant_review,true
-vg_019eeff0ce85,697,733,1,Allow the pedestrian to cross the road.,answer_variant_review,true
-vg_019eeff0ce85,697,955,3,The driver may cross first with caution.,answer_variant_review,true
-vg_019eeff0ce85,697,956,0,The driver may proceed first.,answer_variant_review,true
-vg_019eeff0ce85,697,991,1,Reduce speed and be prepared to stop because other children could follow.,answer_variant_review,true
-vg_5f3771a6ee35,703,703,2,People crossing the street at the rear of the bus.,answer_variant_review,true
-vg_5f3771a6ee35,703,963,1,The pedestrian may suddenly cross the roadway in front of the vehicle.,answer_variant_review,true
-vg_746551c98916,705,705,2,The driver's field of view is not good enough to allow safe overtaking.,answer_variant_review,true
-vg_746551c98916,705,959,1,The drivers field of view is not good enough to allow safe overtaking.,answer_variant_review,true
-vg_c58df877087c,714,714,1,It may be difficult to make out poorly lit vehicles in the dark areas.,answer_variant_review,true
-vg_c58df877087c,714,971,1,Pedestrians crossing in a dark area might be difficult to see.,answer_variant_review,true
-vg_b05edc2364f6,715,715,3,Stop at the line.,answer_variant_review,true
-vg_b05edc2364f6,715,972,1,Proceed after the bus and motorcycle have passed.,answer_variant_review,true
-vg_b05edc2364f6,715,986,1,Allow the red car to proceed.,answer_variant_review,true
-vg_958dfaa43453,725,725,3,A vehicle door may open on either side of the street.,answer_variant_review,true
-vg_958dfaa43453,725,726,3,Pedestrians crossing between the vehicles.,answer_variant_review,true
-vg_958dfaa43453,725,985,1,Pedestrians crossing between vehicles.,answer_variant_review,true
-vg_acae001ae198,729,729,2,That the load is evenly spread.,answer_variant_review,false
-vg_acae001ae198,729,1287,2,That the trailer coupling is attached securely.,answer_variant_review,false
-vg_6630e9334699,733,733,1,Allow the pedestrian to cross the road.,answer_variant_review,true
-vg_6630e9334699,733,991,1,Reduce speed and be prepared to stop because other children could follow.,answer_variant_review,true
-vg_f73380b60e6c,770,770,1,An indicator bulb may have blown.,answer_variant_review,false
-vg_f73380b60e6c,770,1205,3,An indicator bulb has blown.,answer_variant_review,false
-vg_e8074648038b,779,779,2,It lubricates the engine.,answer_variant_review,false
-vg_e8074648038b,779,1214,0,It lubricates the engine components.,answer_variant_review,false
-vg_4c3109fd9a20,796,796,1,750 kg,answer_variant_review,false
-vg_4c3109fd9a20,796,845,1,750kg.,answer_variant_review,false
-vg_b470ac771137,830,830,0,Coin basket on this lane,answer_variant_review,true
-vg_b470ac771137,830,831,3,Electronic toll in this lane.,answer_variant_review,true
-vg_75ec821b44e0,952,952,1,One of the children could turn back to collect the ball from the roadway.,answer_variant_review,true
-vg_75ec821b44e0,952,995,0,The cyclist ahead may move out to turn right at the junction.,answer_variant_review,true
-vg_75ec821b44e0,952,996,1,Turning left ahead because of road works.,answer_variant_review,true
-vg_f4d50e2b42e4,970,970,0,Parking permitted at times shown.,answer_variant_review,true
-vg_f4d50e2b42e4,970,1004,3,Start of cycle track.,answer_variant_review,true
-vg_f4d50e2b42e4,970,1020,2,Pedestrianised street ahead - traffic not allowed except during times shown.,answer_variant_review,true
-vg_f4d50e2b42e4,970,1062,0,"Only buses, cyclists and taxis are allowed to use the lane during the hours indicated.",answer_variant_review,true
-vg_a8b2049cb701,975,975,0,Wait and allow the oncoming vehicle to pass.,answer_variant_review,true
-vg_a8b2049cb701,975,976,2,Proceed before the truck.,answer_variant_review,true
-vg_14116c0cd818,979,979,1,The motorcyclist may suddenly brake.,answer_variant_review,true
-vg_14116c0cd818,979,980,1,The driver following the motorcycle may need a longer braking distance than normal.,answer_variant_review,true
-vg_dd850a2090a8,1071,1071,3,There will be a decrease in road noise in the vehicle.,answer_variant_review,true
-vg_dd850a2090a8,1071,1072,2,Steering will seem lighter.,answer_variant_review,true
-vg_fab56af947e4,1100,1100,1,Comply with the speed limit on the road the driver is joining.,answer_variant_review,true
-vg_fab56af947e4,1100,1106,2,Obey the posted speed limit.,answer_variant_review,true
-vg_e760bfecc379,1144,1144,0,Check for pedestrians or cyclists who may have come up on the inside.,answer_variant_review,true
-vg_e760bfecc379,1144,1320,3,Cyclists might come up on the inside.,answer_variant_review,true
-vg_d06a56dd8e07,1145,1145,0,Vehicles may drive or reverse onto the road.,answer_variant_review,true
-vg_d06a56dd8e07,1145,1146,2,Children or residents may come out suddenly.,answer_variant_review,true
-vg_a0100aef4386,1155,1155,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,true
-vg_a0100aef4386,1155,1156,2,A driver should take extra care for cyclists and pedestrians in the countryside as they may not be clearly visible.,answer_variant_review,true
-vg_f9cf05bcfc7d,1157,1157,1,That there could be vulnerable pedestrians walking in the countryside.,answer_variant_review,true
-vg_f9cf05bcfc7d,1157,1158,1,Schoolchildren are more vulnerable on unlit country roads on dark winter mornings and evenings.,answer_variant_review,true
-vg_13fb3dc926ae,1246,1246,1,Increased road safety.,answer_variant_review,true
-vg_13fb3dc926ae,1246,1247,2,Reduced emissions.,answer_variant_review,true
-vg_3c1c23e4f3d0,1297,1297,0,Turn on the hazard warning lights.,answer_variant_review,true
-vg_3c1c23e4f3d0,1297,1298,2,Wear reflective clothing if available.,answer_variant_review,true
-vg_2c35c55fef82,1314,1314,2,Engage a lower gear.,answer_variant_review,true
-vg_2c35c55fef82,1314,1315,1,Pump the brake pedal rapidly.,answer_variant_review,true
+vg_453c6f47ee89,8,8,2,Excessive heavy braking.,answer_variant_review,false
+vg_453c6f47ee89,8,825,0,Using harsh acceleration.,answer_variant_review,false
+vg_453c6f47ee89,8,1248,1,Excessively heavy braking.,answer_variant_review,false
+vg_453c6f47ee89,8,1249,2,Excessive speed.,answer_variant_review,false
+vg_89be2e6448b8,15,15,0,Fire brigade.,answer_variant_review,false
+vg_89be2e6448b8,15,16,0,Ambulance.,answer_variant_review,false
+vg_89be2e6448b8,15,17,3,Garda.,answer_variant_review,false
+vg_89be2e6448b8,15,670,1,Ambulance.,answer_variant_review,false
+vg_4ade41eae008,36,36,2,Contra-flow bus lane on the right.,answer_variant_review,false
+vg_4ade41eae008,36,37,0,Contra-flow bus lane.,answer_variant_review,false
+vg_d56007cb5f95,53,53,2,At all times when the vehicle is on a public road.,answer_variant_review,false
+vg_d56007cb5f95,53,200,0,At all times when the vehicle is on a public road.,answer_variant_review,false
+vg_d56007cb5f95,53,1169,0,At all times.,answer_variant_review,false
+vg_dbd0febbe76c,58,58,3,They should not drive until their insurance company confirms that they are insured.,answer_variant_review,false
+vg_dbd0febbe76c,58,1174,0,They should not drive until cover is confirmed by their insurance company.,answer_variant_review,false
+vg_2957cb004efa,73,73,3,Only when the passenger also holds a Category W driving licence and the vehicle is designed to carry a passenger.,answer_variant_review,false
+vg_2957cb004efa,73,1281,2,Only when the passenger also holds a Category W driving licence and the vehicle is designed to take a passenger.,answer_variant_review,false
+vg_f40b99c6aca3,76,76,1,When it would be unsafe to do so.,answer_variant_review,false
+vg_f40b99c6aca3,76,168,1,"When by doing so, your vehicle blocks the junction.",answer_variant_review,false
+vg_1bb7b39c1680,84,84,1,Parking is never permitted on the brow of a hill.,answer_variant_review,false
+vg_1bb7b39c1680,84,935,3,Parking on the brow of a hill is never allowed.,answer_variant_review,false
+vg_4e3d64cd76d6,114,114,3,The Garda is beckoning on traffic approaching from either side.,answer_variant_review,false
+vg_4e3d64cd76d6,114,115,1,Traffic approaching from the front may proceed.,answer_variant_review,false
+vg_4e3d64cd76d6,114,918,0,Stop if approaching from the front.,answer_variant_review,false
+vg_4e3d64cd76d6,114,919,0,Stop if approaching from behind.,answer_variant_review,false
+vg_4e3d64cd76d6,114,920,3,Stop if approaching from either the front or behind.,answer_variant_review,false
+vg_9fea25e5d595,126,126,1,"Stop, unless it is unsafe to do so.",answer_variant_review,false
+vg_9fea25e5d595,126,127,0,The driver may proceed in the direction of the green arrow if the way is clear.,answer_variant_review,false
+vg_9fea25e5d595,126,128,2,Traffic must stop at the traffic light.,answer_variant_review,false
+vg_9fea25e5d595,126,129,3,Traffic may proceed if the way is clear.,answer_variant_review,false
+vg_9fea25e5d595,126,241,1,Traffic turning left may proceed if the way is clear.,answer_variant_review,false
+vg_9fea25e5d595,126,927,0,"Stop, unless it would be unsafe to do so.",answer_variant_review,false
+vg_f549c76187f8,126,126,1,"Stop, unless it is unsafe to do so.",answer_variant_review,false
+vg_f549c76187f8,126,127,0,The driver may proceed in the direction of the green arrow if the way is clear.,answer_variant_review,false
+vg_f549c76187f8,126,128,2,Traffic must stop at the traffic light.,answer_variant_review,false
+vg_f549c76187f8,126,129,3,Traffic may proceed if the way is clear.,answer_variant_review,false
+vg_f549c76187f8,126,241,1,Traffic turning left may proceed if the way is clear.,answer_variant_review,false
+vg_f549c76187f8,126,342,1,The battery is not charging.,answer_variant_review,false
+vg_f549c76187f8,126,927,0,"Stop, unless it would be unsafe to do so.",answer_variant_review,false
+vg_f549c76187f8,126,1200,3,The high-beam headlights are switched on.,answer_variant_review,false
+vg_f549c76187f8,126,1201,0,Low oil level.,answer_variant_review,false
+vg_f549c76187f8,126,1202,1,Directional indicator on.,answer_variant_review,false
+vg_fe738827d09a,131,131,2,"Stop, unless it is unsafe to do so.",answer_variant_review,false
+vg_fe738827d09a,131,974,2,"Stop, unless it is not safe.",answer_variant_review,false
+vg_3b0d0a69af9b,160,160,2,The cyclist intends to go straight on.,answer_variant_review,false
+vg_3b0d0a69af9b,160,232,0,The cyclist intends to move out or turn right.,answer_variant_review,false
+vg_3b0d0a69af9b,160,233,1,The cyclist intends to slow down or stop.,answer_variant_review,false
+vg_3b0d0a69af9b,160,234,1,The cyclist intends to turn right.,answer_variant_review,false
+vg_3b0d0a69af9b,160,235,1,The driver intends to proceed straight ahead.,answer_variant_review,false
+vg_3b0d0a69af9b,160,911,3,The cyclist intends to turn left.,answer_variant_review,false
+vg_3b0d0a69af9b,160,912,2,The driver intends to turn left.,answer_variant_review,false
+vg_3b0d0a69af9b,160,913,1,The driver intends to move out or turn right.,answer_variant_review,false
+vg_3b0d0a69af9b,160,915,3,The driver intends to slow down or stop.,answer_variant_review,false
+vg_3b0d0a69af9b,160,916,1,The driver intends to turn right.,answer_variant_review,false
+vg_3b0d0a69af9b,160,917,2,The driver intends to move straight ahead.,answer_variant_review,false
+vg_d45488b68528,165,165,1,Contra-flow bus lane on the right.,answer_variant_review,false
+vg_d45488b68528,165,166,0,Contra-flow bus lane.,answer_variant_review,false
+vg_1f0c3559c4bb,198,198,1,Under no circumstances should a tax disc be transferred to another vehicle.,answer_variant_review,false
+vg_1f0c3559c4bb,198,521,1,No. Tax discs are not transferable.,answer_variant_review,false
+vg_3312482773fd,248,248,1,There may be a slow-moving vehicle in your lane.,answer_variant_review,false
+vg_3312482773fd,248,249,0,A vehicle may have broken down.,answer_variant_review,false
+vg_3312482773fd,248,250,3,An oncoming vehicle may be straddling part of your lane.,answer_variant_review,false
+vg_3312482773fd,248,251,0,There may be oncoming pedestrians.,answer_variant_review,false
+vg_3312482773fd,248,252,0,There may be livestock on the road.,answer_variant_review,false
+vg_3312482773fd,248,716,3,There may be a slow moving vehicle in your lane.,answer_variant_review,false
+vg_3312482773fd,248,718,0,There may be oncoming pedestrians.,answer_variant_review,false
+vg_3312482773fd,248,719,0,There may be livestock on the road.,answer_variant_review,false
+vg_3312482773fd,248,720,0,There may be hedge-cutting taking place.,answer_variant_review,false
+vg_848342a64b06,248,248,1,There may be a slow-moving vehicle in your lane.,answer_variant_review,false
+vg_848342a64b06,248,249,0,A vehicle may have broken down.,answer_variant_review,false
+vg_848342a64b06,248,250,3,An oncoming vehicle may be straddling part of your lane.,answer_variant_review,false
+vg_848342a64b06,248,251,0,There may be oncoming pedestrians.,answer_variant_review,false
+vg_848342a64b06,248,252,0,There may be livestock on the road.,answer_variant_review,false
+vg_6aee662ff433,262,262,1,Take care when moving damaged vehicles and make every effort to warn other traffic.,answer_variant_review,false
+vg_6aee662ff433,262,1178,0,Mark the position of the vehicles and move them off the road.,answer_variant_review,false
+vg_c7aa38b871eb,266,266,1,Try to keep the person warm with a blanket or overcoat.,answer_variant_review,false
+vg_c7aa38b871eb,266,1183,3,Loosen tight clothing around the neck and keep the person warm with a blanket or overcoat.,answer_variant_review,false
+vg_4aa5ff8666cf,268,268,2,Animals could suddenly appear on the road ahead.,answer_variant_review,false
+vg_4aa5ff8666cf,268,987,0,Oncoming traffic may cut the corner.,answer_variant_review,false
+vg_d445c5799a7f,269,269,2,Keep well clear and call the emergency services.,answer_variant_review,false
+vg_d445c5799a7f,269,1189,2,Keep well clear and raise the alarm.,answer_variant_review,false
+vg_86653f03481c,273,273,1,It would reduce the driver's ability to control the vehicle.,answer_variant_review,false
+vg_86653f03481c,273,1193,1,It would reduce the drivers ability to control the vehicle.,answer_variant_review,false
+vg_4c4d9749624d,274,274,0,It could make the vehicle unstable while turning.,answer_variant_review,false
+vg_4c4d9749624d,274,1194,0,It could make the vehicle unstable while turning a corner or braking.,answer_variant_review,false
+vg_88c761656d3f,276,276,1,Daily before driving.,answer_variant_review,false
+vg_88c761656d3f,276,1195,3,Regularly.,answer_variant_review,false
+vg_85cc3f018a04,280,280,2,"No, it is never permitted to be driven.",answer_variant_review,false
+vg_85cc3f018a04,280,1199,3,"No, the driver is never permitted to be driven.",answer_variant_review,false
+vg_5c44966b6c7f,293,293,1,Fuel consumption.,answer_variant_review,false
+vg_5c44966b6c7f,293,1228,1,Braking ability.,answer_variant_review,false
+vg_3ae05fb7df28,293,293,1,Fuel consumption.,answer_variant_review,false
+vg_3ae05fb7df28,293,1228,1,Braking ability.,answer_variant_review,false
+vg_3ae05fb7df28,293,1242,1,Steering.,answer_variant_review,false
+vg_a99da8af234b,301,301,2,Seatbelts.,answer_variant_review,false
+vg_a99da8af234b,301,1198,1,Headlights.,answer_variant_review,false
+vg_aeca9de65171,302,302,3,Have extended mirrors fitted to the towing vehicle.,answer_variant_review,false
+vg_aeca9de65171,302,335,1,Have extended mirrors fitted to the towing vehicle.,answer_variant_review,false
+vg_aeca9de65171,302,1256,2,Have extended mirrors fitted to the towing vehicle and use them regularly.,answer_variant_review,false
+vg_8273348f9898,304,304,1,It can seriously reduce visibility.,answer_variant_review,false
+vg_8273348f9898,304,1259,0,It can create a mirror effect and reduce visibility.,answer_variant_review,false
+vg_e6fb94495376,304,304,1,It can seriously reduce visibility.,answer_variant_review,false
+vg_e6fb94495376,304,332,1,It can seriously reduce visibility.,answer_variant_review,false
+vg_e6fb94495376,304,1259,0,It can create a mirror effect and reduce visibility.,answer_variant_review,false
+vg_26427cdd012b,311,311,2,That the load is evenly spread.,answer_variant_review,false
+vg_26427cdd012b,311,312,1,That the trailer coupling is attached securely.,answer_variant_review,false
+vg_e7be83b6b85a,311,311,2,That the load is evenly spread.,answer_variant_review,false
+vg_e7be83b6b85a,311,312,1,That the trailer coupling is attached securely.,answer_variant_review,false
+vg_e7be83b6b85a,311,729,2,That the load is evenly spread.,answer_variant_review,false
+vg_e7be83b6b85a,311,1287,2,That the trailer coupling is attached securely.,answer_variant_review,false
+vg_7e50af61b5a4,314,314,0,When the vehicle has broken down.,answer_variant_review,false
+vg_7e50af61b5a4,314,315,1,When causing an unavoidable obstruction.,answer_variant_review,false
+vg_7e50af61b5a4,314,316,2,When broken down and causing an obstruction.,answer_variant_review,false
+vg_7e50af61b5a4,314,840,1,When the vehicle has broken down.,answer_variant_review,false
+vg_7e50af61b5a4,314,1293,2,When the vehicle has broken down.,answer_variant_review,false
+vg_75c913770ff9,315,315,1,When causing an unavoidable obstruction.,answer_variant_review,false
+vg_75c913770ff9,315,316,2,When broken down and causing an obstruction.,answer_variant_review,false
+vg_f167185eb827,315,315,1,When causing an unavoidable obstruction.,answer_variant_review,false
+vg_f167185eb827,315,316,2,When broken down and causing an obstruction.,answer_variant_review,false
+vg_f167185eb827,315,1293,2,When the vehicle has broken down.,answer_variant_review,false
+vg_b407e190032b,321,321,2,Have the wiper blades replaced as soon as possible.,answer_variant_review,false
+vg_b407e190032b,321,859,0,Have the blades replaced as soon as possible.,answer_variant_review,false
+vg_44f7eeb56f53,322,322,0,Use a roadside phone to contact Gardaí and never try to carry out repairs yourself.,answer_variant_review,false
+vg_44f7eeb56f53,322,331,0,Move the vehicle to the hard shoulder.,answer_variant_review,false
+vg_3c14c5a9eec2,324,324,1,The passenger only.,answer_variant_review,false
+vg_3c14c5a9eec2,324,786,1,The passengers only.,answer_variant_review,false
+vg_16b7fe69a5ef,324,324,1,The passenger only.,answer_variant_review,false
+vg_16b7fe69a5ef,324,325,0,The driver only.,answer_variant_review,false
+vg_16b7fe69a5ef,324,786,1,The passengers only.,answer_variant_review,false
+vg_16b7fe69a5ef,324,1307,2,The driver.,answer_variant_review,false
+vg_9428dd35201b,330,330,0,When the vehicle has broken down.,answer_variant_review,false
+vg_9428dd35201b,330,767,1,When slowing down quickly because of danger ahead.,answer_variant_review,false
+vg_9428dd35201b,330,801,0,When slowing down quickly because of danger ahead.,answer_variant_review,false
+vg_da5a0381b398,330,330,0,When the vehicle has broken down.,answer_variant_review,false
+vg_da5a0381b398,330,767,1,When slowing down quickly because of danger ahead.,answer_variant_review,false
+vg_da5a0381b398,330,801,0,When slowing down quickly because of danger ahead.,answer_variant_review,false
+vg_da5a0381b398,330,1252,0,When the vehicle has broken down.,answer_variant_review,false
+vg_5f8c6231891b,342,342,1,The battery is not charging.,answer_variant_review,false
+vg_5f8c6231891b,342,1200,3,The high-beam headlights are switched on.,answer_variant_review,false
+vg_5f8c6231891b,342,1201,0,Low oil level.,answer_variant_review,false
+vg_5f8c6231891b,342,1202,1,Directional indicator on.,answer_variant_review,false
+vg_af9e13833fd8,345,345,0,Be patient.,answer_variant_review,false
+vg_af9e13833fd8,345,388,0,Be patient and show restraint.,answer_variant_review,false
+vg_59d2a920f096,347,347,0,The driver should be aware that the lights may change before they reach them and be prepared to stop.,answer_variant_review,false
+vg_59d2a920f096,347,1001,0,The driver should prepare to stop in case the lights change before they reach them.,answer_variant_review,false
+vg_eafebc68f2b2,348,348,1,Treat it as an unmarked junction and proceed cautiously while watching out for other traffic.,answer_variant_review,false
+vg_eafebc68f2b2,348,1002,0,Treat the junction as an unmarked junction and proceed cautiously while watching out for other traffic.,answer_variant_review,false
+vg_250c475d4ed8,352,352,0,That the oncoming vehicle may be slow moving or extra wide.,answer_variant_review,false
+vg_250c475d4ed8,352,1006,0,That the oncoming traffic maybe slow moving or extra wide.,answer_variant_review,false
+vg_1954c4623b44,353,353,3,Slow down and prepare to stop.,answer_variant_review,false
+vg_1954c4623b44,353,1007,3,Slow down and be prepared to stop.,answer_variant_review,false
+vg_afb24a910455,354,354,3,There may be an uneven surface and tyre grip may be reduced when crossing the rails.,answer_variant_review,false
+vg_afb24a910455,354,1008,2,There may be an uneven surface and tyre grip may be reduced when crossing.,answer_variant_review,false
+vg_28608e221367,363,363,3,Slow down and allow extra clearance to all traffic until they have gone past the area with the loose chippings.,answer_variant_review,false
+vg_28608e221367,363,405,0,Slow down and allow extra clearance to other traffic.,answer_variant_review,false
+vg_1acd80dd1de9,365,365,1,Drive at lower speeds and use gentle acceleration and braking.,answer_variant_review,false
+vg_1acd80dd1de9,365,408,0,Drive at lower speeds and use gentle acceleration and braking.,answer_variant_review,false
+vg_1acd80dd1de9,365,436,3,Use gentle acceleration and braking.,answer_variant_review,false
+vg_e690597e4266,369,369,2,Overtake on the left-hand side and carry on if safe to do so.,answer_variant_review,false
+vg_e690597e4266,369,414,2,Overtake on the left-hand side and carry on if safe to do so.,answer_variant_review,false
+vg_e690597e4266,369,823,0,Overtake on the left-hand side and carry on.,answer_variant_review,false
+vg_3b8a379624a9,376,376,3,The driver should stay well back in a safe position.,answer_variant_review,false
+vg_3b8a379624a9,376,1028,0,The driver should stay well back until the road widens sufficiently to allow safe overtaking.,answer_variant_review,false
+vg_c5f1081bfaec,379,379,2,Stop back safely and wait until the way is clear.,answer_variant_review,false
+vg_c5f1081bfaec,379,1029,3,Stop and wait until your way is clear.,answer_variant_review,false
+vg_b09fa82da05f,381,381,3,"Yes, temporarily when the hard shoulder is clear and it is safe to drive there.",answer_variant_review,false
+vg_b09fa82da05f,381,1031,1,"Yes, temporarily when the hard shoulder is clear, and it is safe to drive there while the faster traffic overtakes.",answer_variant_review,false
+vg_2096a07d289b,382,382,1,Reduce speed and use dipped headlights.,answer_variant_review,false
+vg_2096a07d289b,382,506,0,Reduce speed and use dipped headlights.,answer_variant_review,false
+vg_2096a07d289b,382,1056,0,Drive with dipped headlights and fog lights.,answer_variant_review,false
+vg_716e44f50d86,384,384,0,Initially drive with extra care and at a lower speed until fully familiar with the vehicle.,answer_variant_review,false
+vg_716e44f50d86,384,1035,1,Drive initially with extra care and at a lower speed than normal.,answer_variant_review,false
+vg_1249b1fa6f60,390,390,0,Allow the overtaking vehicle to pass and return safely to the left side of the road.,answer_variant_review,false
+vg_1249b1fa6f60,390,1038,3,Reduce speed and allow the overtaking vehicle to return to the left side of the road after completing the overtaking manoeuvre.,answer_variant_review,false
+vg_9628c511058c,392,392,2,Stop at a safe place and change the wheel.,answer_variant_review,false
+vg_9628c511058c,392,1040,3,Stop at a safe place and change the tyre.,answer_variant_review,false
+vg_db9f034a351b,395,395,3,It reduces concentration.,answer_variant_review,false
+vg_db9f034a351b,395,1042,2,It makes the driver drowsy.,answer_variant_review,false
+vg_6c1cd7dfe410,397,397,2,"Generally, it doubles the braking distance of that required on a dry surface.",answer_variant_review,false
+vg_6c1cd7dfe410,397,1044,2,Generally. it doubles the normal braking distance required on a dry surface.,answer_variant_review,false
+vg_9e683d3c1131,398,398,2,Gradually move back into the left when the vehicle has been passed.,answer_variant_review,false
+vg_9e683d3c1131,398,1045,0,Gradually move back into the left when the vehicle has been overtaken.,answer_variant_review,false
+vg_4b8999710062,416,416,2,Check that the road is not one way.,answer_variant_review,false
+vg_4b8999710062,416,1023,0,Check ahead and behind for approaching traffic.,answer_variant_review,false
+vg_5f057c605fdf,418,418,0,"Take good observation, wait for a clear break in the traffic and proceed to cross the road safely.",answer_variant_review,false
+vg_5f057c605fdf,418,1026,2,"Take good observations, wait for a clear break in the traffic and proceed to cross the road.",answer_variant_review,false
+vg_a51fd9fd276c,420,420,1,Look towards the verge and slow down and stop if necessary.,answer_variant_review,false
+vg_a51fd9fd276c,420,455,0,Look towards the verge and slow down and stop if necessary.,answer_variant_review,false
+vg_a51fd9fd276c,420,1060,1,Look away and slow down and stop if necessary.,answer_variant_review,false
+vg_18eeda465fb0,424,424,0,Avoid looking directly at the oncoming vehicle's lights.,answer_variant_review,false
+vg_18eeda465fb0,424,1064,1,Not look directly at the oncoming vehicle's lights.,answer_variant_review,false
+vg_4970a695a721,428,428,3,That there is a danger of themselves or other drivers falling asleep.,answer_variant_review,false
+vg_4970a695a721,428,1068,1,That there is a danger of falling asleep.,answer_variant_review,false
+vg_49cf4eb3192f,429,429,2,Drive in the left-hand lane unless intending to overtake.,answer_variant_review,false
+vg_49cf4eb3192f,429,1094,0,Be alert for other drivers who may suddenly change lane or reduce speed.,answer_variant_review,false
+vg_0d71423fa340,439,439,3,Be aware that the vehicle may slide or ?aquaplane?.,answer_variant_review,false
+vg_0d71423fa340,439,1078,1,Be in the alert for skidding or aquaplaning .,answer_variant_review,false
+vg_abb02c4eb817,444,444,2,Drive in a low gear as slowly as possible keeping the revs high.,answer_variant_review,false
+vg_abb02c4eb817,444,822,3,Reduce speed and use a lower gear.,answer_variant_review,false
+vg_26b70a6f56b8,446,446,1,Narrower lanes than usual and restricted shoulder areas.,answer_variant_review,false
+vg_26b70a6f56b8,446,629,2,Narrower lanes than usual and restricted shoulder areas.,answer_variant_review,false
+vg_26b70a6f56b8,446,1084,3,That the surface may be slippery due to mud or loose chippings.,answer_variant_review,false
+vg_d29231b70bf3,448,448,2,"Give way to cyclists, taxis and buses which may be using the bus lane.",answer_variant_review,false
+vg_d29231b70bf3,448,1087,1,"Watch out for cyclists, taxis and buses which may be using the bus lane.",answer_variant_review,false
+vg_061fee673014,456,456,0,A driver is never permitted to pick up or set down passengers on a motorway.,answer_variant_review,false
+vg_061fee673014,456,1097,3,No. this is not permitted.,answer_variant_review,false
+vg_053964834918,471,471,1,Keep a safe distance from the vehicle in front.,answer_variant_review,false
+vg_053964834918,471,1118,0,Switch on dipped headlights.,answer_variant_review,false
+vg_053964834918,471,1119,1,"Keep a safe distance from the vehicle in front and remove sunglasses, if you are wearing them.",answer_variant_review,false
+vg_95a692fe4418,474,474,1,Maintain a distance behind to avoid undue pressure.,answer_variant_review,false
+vg_95a692fe4418,474,631,0,Maintain a distance behind to avoid undue pressure.,answer_variant_review,false
+vg_95a692fe4418,474,1124,1,Be patient and allow extra time to the driver if necessary.,answer_variant_review,false
+vg_95a692fe4418,474,1125,0,Stay back until the driver can overtake safely.,answer_variant_review,false
+vg_6e8e83015ac5,479,479,0,Cyclists.,answer_variant_review,false
+vg_6e8e83015ac5,479,1134,1,Motorcyclists.,answer_variant_review,false
+vg_f98f542809f3,479,479,0,Cyclists.,answer_variant_review,false
+vg_f98f542809f3,479,1134,1,Motorcyclists.,answer_variant_review,false
+vg_f98f542809f3,479,1135,3,Pedestrians.,answer_variant_review,false
+vg_0fb5501ec862,490,490,0,Signal their intention to overtake the pedestrians.,answer_variant_review,false
+vg_0fb5501ec862,490,1154,2,Signal to following traffic their intention to overtake the pedestrians.,answer_variant_review,false
+vg_1eaa74c9f446,491,491,1,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
+vg_1eaa74c9f446,491,492,0,That there could be vulnerable pedestrians walking on the road.,answer_variant_review,false
+vg_1eaa74c9f446,491,493,1,Schoolchildren are more vulnerable on unlit country roads on dark winter mornings and evenings.,answer_variant_review,false
+vg_b54cece4047a,491,491,1,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
+vg_b54cece4047a,491,492,0,That there could be vulnerable pedestrians walking on the road.,answer_variant_review,false
+vg_b54cece4047a,491,493,1,Schoolchildren are more vulnerable on unlit country roads on dark winter mornings and evenings.,answer_variant_review,false
+vg_b54cece4047a,491,895,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
+vg_b54cece4047a,491,1155,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
+vg_b54cece4047a,491,1156,2,A driver should take extra care for cyclists and pedestrians in the countryside as they may not be clearly visible.,answer_variant_review,false
+vg_21cf8c61f215,495,495,2,Carry a suitable fire extinguisher in the vehicle.,answer_variant_review,false
+vg_21cf8c61f215,495,1251,3,Investigate strong fumes and carry a fire extinguisher.,answer_variant_review,false
+vg_91b4588baaf7,500,500,1,Watch out for pedestrians wearing dark clothing.,answer_variant_review,false
+vg_91b4588baaf7,500,1150,1,Watch out for cars parked on the left.,answer_variant_review,false
+vg_91b4588baaf7,500,1151,0,Watch out for stray animals or livestock.,answer_variant_review,false
+vg_9ad310341825,504,504,0,Reduce speed as there may be loose gravel or mud on the road.,answer_variant_review,false
+vg_9ad310341825,504,1036,0,Reduce speed as there maybe loose gravel or mud on the road.,answer_variant_review,false
+vg_6902a76edbb7,508,508,0,Two non-motorway lanes in one direction and one non-motorway lane in the opposite direction.,answer_variant_review,false
+vg_6902a76edbb7,508,1092,3,Two lanes of traffic in one direction and one in the opposite direction.,answer_variant_review,false
+vg_c55b0783405e,513,513,1,Pedestrians.,answer_variant_review,false
+vg_c55b0783405e,513,1129,3,Motorcyclists.,answer_variant_review,false
+vg_77be51794d54,517,517,0,Reduced fuel consumption.,answer_variant_review,false
+vg_77be51794d54,517,688,3,Improved road safety.,answer_variant_review,false
+vg_77be51794d54,517,689,3,Increased fuel efficiency.,answer_variant_review,false
+vg_a9b2e2dbe3d5,517,517,0,Reduced fuel consumption.,answer_variant_review,false
+vg_a9b2e2dbe3d5,517,688,3,Improved road safety.,answer_variant_review,false
+vg_a9b2e2dbe3d5,517,689,3,Increased fuel efficiency.,answer_variant_review,false
+vg_a9b2e2dbe3d5,517,1246,1,Increased road safety.,answer_variant_review,false
+vg_a9b2e2dbe3d5,517,1247,2,Reduced emissions.,answer_variant_review,false
+vg_ce782294e6c5,518,518,2,Selecting a high gear as soon as possible.,answer_variant_review,false
+vg_ce782294e6c5,518,690,0,Maintaining a steady speed.,answer_variant_review,false
+vg_ce782294e6c5,518,691,0,Looking ahead and anticipating.,answer_variant_review,false
+vg_d05e4120d9de,534,534,3,Because the required stopping distances is greater.,answer_variant_review,false
+vg_d05e4120d9de,534,983,1,Because wheel-spray may impair visibility.,answer_variant_review,false
+vg_d05e4120d9de,534,984,2,Because stopping distances are greater.,answer_variant_review,false
+vg_10c4b69d2ca5,541,541,3,Keep a safe distance from the vehicle in front.,answer_variant_review,false
+vg_10c4b69d2ca5,541,542,3,Scan the road well ahead.,answer_variant_review,false
+vg_553a96c62bac,543,543,1,Use the emergency telephone to call for help.,answer_variant_review,false
+vg_553a96c62bac,543,577,3,Switch on the hazard warning lights.,answer_variant_review,false
+vg_553a96c62bac,543,637,2,Use the emergency telephone to call for help.,answer_variant_review,false
+vg_553a96c62bac,543,638,3,Switch on the hazard warning lights.,answer_variant_review,false
+vg_553a96c62bac,543,712,3,Use the emergency telephone to call for help.,answer_variant_review,false
+vg_2fd1b2548aa8,559,559,0,"At night, when walking outside built-up areas.",answer_variant_review,false
+vg_2fd1b2548aa8,559,937,2,At all times outside well-lit urban areas.,answer_variant_review,false
+vg_00ba0dc98eb1,562,562,1,When the vehicle in front is signalling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
+vg_00ba0dc98eb1,562,645,3,When the vehicle in front is signalling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
+vg_00ba0dc98eb1,562,943,2,When the vehicle in front is signaling to turn right or in slow moving lanes of traffic.,answer_variant_review,false
+vg_532cb866e9f0,565,565,2,Drivers should be aware that loud noises from their vehicle may frighten the horses and cause them to bolt.,answer_variant_review,false
+vg_532cb866e9f0,565,1005,0,Drivers should be aware that loud noises from your vehicle may frighten the horses and cause them to bolt.,answer_variant_review,false
+vg_5dfcdbd2e920,568,568,0,Indicate in good time and pull in gradually to allow the vehicle behind extra stopping distance.,answer_variant_review,false
+vg_5dfcdbd2e920,568,1010,0,Indicate in good time and pull up gradually to allow the vehicle behind extra stopping distance.,answer_variant_review,false
+vg_045ad6e3b9b4,574,574,3,Clean them with a cloth or tissue before starting their journey.,answer_variant_review,false
+vg_045ad6e3b9b4,574,1222,2,Clean them with a cloth or tissue before continuing on.,answer_variant_review,false
+vg_e61a157fde06,576,576,1,Water droplets can obscure the reflected image.,answer_variant_review,false
+vg_e61a157fde06,576,627,2,It can distort the rear vision of the driver.,answer_variant_review,false
+vg_5f5a66eb1fe4,580,580,2,It filters exhaust gases and reduces air pollution.,answer_variant_review,false
+vg_5f5a66eb1fe4,580,612,1,To reduce harmful exhaust emissions.,answer_variant_review,false
+vg_5f5a66eb1fe4,580,732,0,To reduce harmful exhaust emissions.,answer_variant_review,false
+vg_77cace7902ce,582,582,1,Use gentle acceleration and braking.,answer_variant_review,false
+vg_77cace7902ce,582,1237,0,Use gently acceleration and braking.,answer_variant_review,false
+vg_9b6e3935bf7a,586,586,1,Between 11:30 pm and 7:00 am in a built-up area.,answer_variant_review,false
+vg_9b6e3935bf7a,586,1238,1,Between 11:30pm and 7:00am in a built-up area.,answer_variant_review,false
+vg_6b125c19f546,597,597,1,Ask someone to guide you when reversing.,answer_variant_review,false
+vg_6b125c19f546,597,1263,3,Ask someone to assist when reversing.,answer_variant_review,false
+vg_12f772529d66,598,598,0,Increase the air circulation and stop if necessary.,answer_variant_review,false
+vg_12f772529d66,598,1265,0,Increase the air circulation and make regular stops if necessary.,answer_variant_review,false
+vg_9e110f08d039,599,599,1,In dense fog or falling snow.,answer_variant_review,false
+vg_9e110f08d039,599,600,1,When driving in dense fog or falling snow.,answer_variant_review,false
+vg_741fb527faec,625,625,2,Apply the footbrake firmly.,answer_variant_review,false
+vg_741fb527faec,625,1317,1,Maintain firm pressure on the footbrake.,answer_variant_review,false
+vg_741fb527faec,625,1318,3,Press the footbrake firmly.,answer_variant_review,false
+vg_7ee8a518762c,634,634,2,Switch on hazard warning lights.,answer_variant_review,false
+vg_7ee8a518762c,634,635,0,Switch off the engine.,answer_variant_review,false
+vg_29e81db00d0d,640,640,2,"Adjust speed to match that of the motorway traffic, and merge into a suitable gap.",answer_variant_review,false
+vg_29e81db00d0d,640,1096,2,Try to match the vehicle speed to that of traffic already on the motorway and merge into it in a suitable gap.,answer_variant_review,false
+vg_96efb34e09f5,646,646,1,Between 71-90,answer_variant_review,false
+vg_96efb34e09f5,646,879,3,71 – 90,answer_variant_review,false
+vg_94e9fbda3c90,680,680,3,Switch off the engine and switch on the hazard lights.,answer_variant_review,false
+vg_94e9fbda3c90,680,1121,0,Switch on hazard lights and stop as close to the left-hand side as possible.,answer_variant_review,false
+vg_31a1e8175a14,685,685,1,Motorcyclists.,answer_variant_review,false
+vg_31a1e8175a14,685,686,1,Pedestrians.,answer_variant_review,false
+vg_5859d128b4ed,692,692,1,Watch for cyclists or pedestrians who may try to cross the road in front of the vehicle.,answer_variant_review,false
+vg_5859d128b4ed,692,1132,1,Watch for cyclists or pedestrians who may try to cross the road in front of the vehicle.,answer_variant_review,false
+vg_5859d128b4ed,692,1133,1,Watch for cyclists or pedestrians on the left.,answer_variant_review,false
+vg_9c6e6b91408e,695,695,0,A driver may proceed with caution.,answer_variant_review,false
+vg_9c6e6b91408e,695,951,0,A driver may proceed.,answer_variant_review,false
+vg_352c6649a8a0,705,705,2,The driver's field of view is not good enough to allow safe overtaking.,answer_variant_review,false
+vg_352c6649a8a0,705,959,1,The drivers field of view is not good enough to allow safe overtaking.,answer_variant_review,false
+vg_dbb1e4e3a646,714,714,1,It may be difficult to make out poorly lit vehicles in the dark areas.,answer_variant_review,false
+vg_dbb1e4e3a646,714,971,1,Pedestrians crossing in a dark area might be difficult to see.,answer_variant_review,false
+vg_e29bba06b4a9,715,715,3,Stop at the line.,answer_variant_review,false
+vg_e29bba06b4a9,715,972,1,Proceed after the bus and motorcycle have passed.,answer_variant_review,false
+vg_085d690bc48b,715,715,3,Stop at the line.,answer_variant_review,false
+vg_085d690bc48b,715,972,1,Proceed after the bus and motorcycle have passed.,answer_variant_review,false
+vg_085d690bc48b,715,986,1,Allow the red car to proceed.,answer_variant_review,false
+vg_b6c51de72725,718,718,0,There may be oncoming pedestrians.,answer_variant_review,false
+vg_b6c51de72725,718,719,0,There may be livestock on the road.,answer_variant_review,false
+vg_b6c51de72725,718,720,0,There may be hedge-cutting taking place.,answer_variant_review,false
+vg_69408c9f48a8,725,725,3,A vehicle door may open on either side of the street.,answer_variant_review,false
+vg_69408c9f48a8,725,726,3,Pedestrians crossing between the vehicles.,answer_variant_review,false
+vg_69408c9f48a8,725,985,1,Pedestrians crossing between vehicles.,answer_variant_review,false
+vg_e618cb647fab,729,729,2,That the load is evenly spread.,answer_variant_review,false
+vg_e618cb647fab,729,1287,2,That the trailer coupling is attached securely.,answer_variant_review,false
+vg_a2eb3392d356,770,770,1,An indicator bulb may have blown.,answer_variant_review,false
+vg_a2eb3392d356,770,1205,3,An indicator bulb has blown.,answer_variant_review,false
+vg_c4ccf0710073,779,779,2,It lubricates the engine.,answer_variant_review,false
+vg_c4ccf0710073,779,1214,0,It lubricates the engine components.,answer_variant_review,false
+vg_99b9335b5b37,796,796,1,750 kg,answer_variant_review,false
+vg_99b9335b5b37,796,845,1,750kg.,answer_variant_review,false
+vg_cf86aa483c3e,824,824,0,Drivers must keep left of the continuous white line.,answer_variant_review,false
+vg_cf86aa483c3e,824,923,1,A driver must not cross the line.,answer_variant_review,false
+vg_8fa3c10a55fb,975,975,0,Wait and allow the oncoming vehicle to pass.,answer_variant_review,false
+vg_8fa3c10a55fb,975,976,2,Proceed before the truck.,answer_variant_review,false
+vg_1dfd56e58277,979,979,1,The motorcyclist may suddenly brake.,answer_variant_review,false
+vg_1dfd56e58277,979,980,1,The driver following the motorcycle may need a longer braking distance than normal.,answer_variant_review,false
+vg_f1e1e7e00159,983,983,1,Because wheel-spray may impair visibility.,answer_variant_review,false
+vg_f1e1e7e00159,983,984,2,Because stopping distances are greater.,answer_variant_review,false
+vg_439d55b7bc67,1071,1071,3,There will be a decrease in road noise in the vehicle.,answer_variant_review,false
+vg_439d55b7bc67,1071,1072,2,Steering will seem lighter.,answer_variant_review,false
+vg_52f0dea0cbdc,1100,1100,1,Comply with the speed limit on the road the driver is joining.,answer_variant_review,false
+vg_52f0dea0cbdc,1100,1106,2,Obey the posted speed limit.,answer_variant_review,false
+vg_07bc105cd756,1132,1132,1,Watch for cyclists or pedestrians who may try to cross the road in front of the vehicle.,answer_variant_review,false
+vg_07bc105cd756,1132,1133,1,Watch for cyclists or pedestrians on the left.,answer_variant_review,false
+vg_36236ac11587,1144,1144,0,Check for pedestrians or cyclists who may have come up on the inside.,answer_variant_review,false
+vg_36236ac11587,1144,1320,3,Cyclists might come up on the inside.,answer_variant_review,false
+vg_ac46f6c94f40,1145,1145,0,Vehicles may drive or reverse onto the road.,answer_variant_review,false
+vg_ac46f6c94f40,1145,1146,2,Children or residents may come out suddenly.,answer_variant_review,false
+vg_33e2c3c01496,1155,1155,2,Cyclists are much more vulnerable in poor lighting conditions.,answer_variant_review,false
+vg_33e2c3c01496,1155,1156,2,A driver should take extra care for cyclists and pedestrians in the countryside as they may not be clearly visible.,answer_variant_review,false
+vg_4d2001df47c1,1157,1157,1,That there could be vulnerable pedestrians walking in the countryside.,answer_variant_review,false
+vg_4d2001df47c1,1157,1158,1,Schoolchildren are more vulnerable on unlit country roads on dark winter mornings and evenings.,answer_variant_review,false
+vg_bf4e251b17cb,1246,1246,1,Increased road safety.,answer_variant_review,false
+vg_bf4e251b17cb,1246,1247,2,Reduced emissions.,answer_variant_review,false
+vg_a326b4477f80,1297,1297,0,Turn on the hazard warning lights.,answer_variant_review,false
+vg_a326b4477f80,1297,1298,2,Wear reflective clothing if available.,answer_variant_review,false
+vg_6add0f0bc56a,1314,1314,2,Engage a lower gear.,answer_variant_review,false
+vg_6add0f0bc56a,1314,1315,1,Pump the brake pedal rapidly.,answer_variant_review,false

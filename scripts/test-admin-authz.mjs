@@ -38,28 +38,34 @@ const endpointCases = [
   ["audit GET", adminAudit, { method: "GET" }, "admin"],
 ];
 
-await withEnv(validEnv(), async () => {
-  for (const [name, handler, request, allowedRole] of endpointCases) {
-    await assertLoggedOutRejected(name, handler, request);
-    await assertWrongRoleRejected(name, handler, request);
-    await assertAllowedRoleAccepted(name, handler, request, allowedRole);
-    console.log(`Admin authz passed: ${name}`);
-  }
-});
+const originalConsoleError = console.error;
+const unexpectedAdminLogs = [];
+console.error = (...args) => unexpectedAdminLogs.push(args);
+try {
+  await withEnv(validEnv(), async () => {
+    for (const [name, handler, request, allowedRole] of endpointCases) {
+      await assertLoggedOutRejected(name, handler, request);
+      await assertWrongRoleRejected(name, handler, request);
+      await assertAllowedRoleAccepted(name, handler, request, allowedRole);
+      console.log(`Admin authz passed: ${name}`);
+    }
+  });
+} finally {
+  console.error = originalConsoleError;
+}
+assert.equal(unexpectedAdminLogs.length, 0, "Expected admin access denials must not be logged as server errors.");
 
 async function assertLoggedOutRejected(name, handler, request) {
-  const res = await withSuppressedExpectedErrors(() => callHandler(handler, request));
+  const res = await callHandler(handler, request);
   assert.equal(res.statusCode, 401, `${name} should reject logged-out requests`);
   assert.deepEqual(res.body, { error: "Login required" });
 }
 
 async function assertWrongRoleRejected(name, handler, request) {
-  const res = await withSuppressedExpectedErrors(() =>
-    callHandler(handler, {
-      ...request,
-      __testSessionUser: sessionUser("learner@example.com", "user"),
-    })
-  );
+  const res = await callHandler(handler, {
+    ...request,
+    __testSessionUser: sessionUser("learner@example.com", "user"),
+  });
   assert.equal(res.statusCode, 403, `${name} should reject non-admin roles`);
   assert.deepEqual(res.body, { error: "Admin access required" });
 }
@@ -150,16 +156,6 @@ async function withEnv(values, callback) {
         process.env[key] = value;
       }
     }
-  }
-}
-
-async function withSuppressedExpectedErrors(callback) {
-  const original = console.error;
-  console.error = () => {};
-  try {
-    return await callback();
-  } finally {
-    console.error = original;
   }
 }
 

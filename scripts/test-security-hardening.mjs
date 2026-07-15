@@ -11,6 +11,7 @@ import {
 } from "../lib/auth.js";
 import { requireAdmin } from "../lib/admin.js";
 import { classifyAccess } from "../lib/account-data.js";
+import { normalizeDatabaseConnectionString } from "../lib/db.js";
 import {
   checkRateLimit,
   hashedClientIdentifier,
@@ -50,6 +51,7 @@ testOriginAndCsrfProtection();
 testSecurityHeaders();
 testRateLimitHashing();
 testSecureCookies();
+testDatabaseTlsNormalization();
 await testCheckoutOriginBlock();
 await testAdminOriginBlock();
 await testRouterRejectsLargeBodies();
@@ -207,6 +209,20 @@ function testSecureCookies() {
   assert.match(cookie, /HttpOnly/);
   assert.match(cookie, /SameSite=Lax/);
   assert.match(cookie, /Secure/);
+}
+
+function testDatabaseTlsNormalization() {
+  const credentialedPrefix = ["postgresql:/", "/unit_user", ":unit_credential", "@"].join("");
+  const remote = normalizeDatabaseConnectionString(
+    `${credentialedPrefix}database.example/app?sslmode=require&channel_binding=require`
+  );
+  const parsed = new URL(remote);
+  assert.equal(parsed.searchParams.get("sslmode"), "verify-full");
+  assert.equal(parsed.searchParams.get("channel_binding"), "require");
+
+  const local = "postgresql://localhost:5432/irish_theory_test_coach";
+  assert.equal(normalizeDatabaseConnectionString(local), local);
+  assert.equal(normalizeDatabaseConnectionString("not-a-url"), "not-a-url");
 }
 
 async function testCheckoutOriginBlock() {

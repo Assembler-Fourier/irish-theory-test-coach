@@ -11,7 +11,6 @@ import { readJsonBody } from "../../../lib/auth.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -55,8 +54,7 @@ export default async function handler(req, res) {
     const questions = await searchQuestions(env.databaseUrl, { q, category, status, review, highYield });
     return res.status(200).json({ ok: true, questions });
   } catch (error) {
-    console.error("Admin questions failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin questions failed");
   }
 }
 

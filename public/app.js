@@ -690,7 +690,7 @@ import { createProgressController } from "./progress-controller.js";
       image.decoding = "async";
       image.fetchPriority = question.isRoadSign ? "high" : "auto";
       image.src = resolveImageSrc(question.images[0]);
-      image.alt = `Image for question ${question.id}`;
+      image.alt = question.imageAlt || "Road sign or road scenario shown for this practice question.";
       image.addEventListener("load", () => imageWrap.classList.remove("image-loading"), { once: true });
       image.addEventListener("error", () => {
         imageWrap.classList.remove("image-loading");
@@ -980,8 +980,8 @@ import { createProgressController } from "./progress-controller.js";
     const reasonPanel = buildFeedbackHighYieldPanel(question);
     if (reasonPanel) details.append(reasonPanel);
 
-    appendAiExplanationControls(details, question, selectedIndex);
     feedback.append(details);
+    appendAiExplanationControls(feedback, question, selectedIndex);
     appendFeedbackActions(feedback, question, selectedIndex);
     focusFeedbackAfterAnswer(feedback);
   }
@@ -1331,17 +1331,10 @@ import { createProgressController } from "./progress-controller.js";
   }
 
   function buildAiExplanationPayload(question, selectedIndex) {
-    const selected = question.options[selectedIndex];
-    const correctOption = question.options.find((option) => option.isCorrect);
-
     return {
       questionId: question.id,
-      questionText: question.question,
-      answerChoices: question.options.map((option) => option.text),
-      correctAnswer: question.correctAnswer || correctOption?.text || "",
-      selectedAnswer: selected?.text || "",
-      selectedIndex,
-      category: question.category,
+      answerStateToken: state.answerStateToken,
+      studySessionPublicId: state.studySession?.publicId || "",
     };
   }
 

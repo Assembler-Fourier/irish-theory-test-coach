@@ -4,8 +4,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import v1Media from "../server/api/v1-media.js";
 import v1StudySessions from "../server/api/v1-study-sessions.js";
+import { buildVerifiedExplanationInput } from "../server/api/ai-explain.js";
 import { getPrivateQuestionBank } from "../lib/question-bank.js";
-import { signMediaToken } from "../lib/study-session-tokens.js";
+import { signAnswerState, signMediaToken } from "../lib/study-session-tokens.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const publicData = path.join(root, "public", "data");
@@ -22,6 +23,7 @@ const tests = [
   ["answer data returns only after submission", testAnswerRevealAfterSubmission],
   ["mock score cannot be forged from client state", testMockScoreCannotBeForged],
   ["protected image routes reject unauthorised requests", testProtectedMediaRejectsUnauthorised],
+  ["AI coaching requires signed post-answer proof", testAiCoachingRequiresAnswerProof],
 ];
 
 await withTestEnv(async () => {
@@ -32,7 +34,14 @@ await withTestEnv(async () => {
 });
 
 function testPublicBuildHasNoFullDataset() {
-  for (const file of ["questions.json", "questions.enriched.json", "hardest_questions.json", "study_report.json", "recovery_report.json"]) {
+  for (const file of [
+    "questions.json",
+    "questions.enriched.json",
+    "hardest_questions.json",
+    "study_report.json",
+    "recovery_report.json",
+    "question-quality-index.json",
+  ]) {
     assert.equal(fs.existsSync(path.join(publicData, file)), false, `public/data/${file} must not exist.`);
   }
   assert.equal(fs.existsSync(path.join(publicData, "assets")), false, "public/data/assets must not expose the premium media tree.");
@@ -74,6 +83,7 @@ async function testActivePremiumAllowed() {
   assert.equal(res.body.session.accessType, "premium");
   assert.ok(res.body.session.questions.length > 0);
   assertNoAnswerKeys(res.body.session);
+  assertDistinctSessionGroups(res.body.session.questions);
 }
 
 async function testPreviewLimitEnforced() {
@@ -86,6 +96,7 @@ async function testPreviewLimitEnforced() {
   assert.equal(res.body.session.accessType, "preview");
   assert.ok(res.body.session.questions.length <= 15);
   assertNoAnswerKeys(res.body.session);
+  assertDistinctSessionGroups(res.body.session.questions);
 }
 
 async function testAnswerRevealAfterSubmission() {
@@ -155,6 +166,44 @@ async function testProtectedMediaRejectsUnauthorised() {
   assert.deepEqual(res.body, { error: "Active access required" });
 }
 
+function testAiCoachingRequiresAnswerProof() {
+  const bank = getPrivateQuestionBank(process.env);
+  const question = bank[0];
+  const publicId = "ai-proof-session";
+  const answerStateToken = signAnswerState({
+    sid: publicId,
+    q: [question.id],
+    answers: {
+      [String(question.id)]: {
+        questionId: question.id,
+        selectedIndex: 0,
+        correct: question.correctIndex === 0,
+        answeredAt: Date.now(),
+      },
+    },
+    exp: Date.now() + 60_000,
+  }, TEST_SECRET);
+
+  assert.throws(
+    () => buildVerifiedExplanationInput({
+      questionId: question.id,
+      answerStateToken: "invalid-token",
+      studySessionPublicId: publicId,
+    }, { secret: TEST_SECRET, questions: bank }),
+    (error) => error?.statusCode === 403
+  );
+
+  const trusted = buildVerifiedExplanationInput({
+    questionId: question.id,
+    answerStateToken,
+    studySessionPublicId: publicId,
+    correctAnswer: "Client-controlled fake answer",
+    selectedAnswer: "Client-controlled fake selection",
+  }, { secret: TEST_SECRET, questions: bank });
+  assert.equal(trusted.correctAnswer, question.correctAnswer, "AI coaching must use the private-bank correct answer.");
+  assert.equal(trusted.selectedAnswer, question.options[0].text, "AI coaching must use the signed selected answer.");
+}
+
 async function startPremiumSession(mode) {
   return callStudy({
     method: "POST",
@@ -184,6 +233,16 @@ function assertNoAnswerKeys(payload) {
   assert.doesNotMatch(text, /"isCorrect"\s*:\s*true/i);
   assert.doesNotMatch(text, /"is_correct"\s*:\s*true/i);
   assert.doesNotMatch(text, /"explanation"\s*:\s*"[^\"]+/i);
+}
+
+function assertDistinctSessionGroups(questions) {
+  const groups = questions.map((question) => question.sessionGroupId || `sg_single_${question.id}`);
+  assert.equal(new Set(groups).size, groups.length, "A study session must not repeat a runtime duplicate group.");
+  for (const question of questions) {
+    if (Array.isArray(question.images) && question.images.length) {
+      assert.ok(question.imageAlt, `Image-backed question ${question.id} needs neutral alt text.`);
+    }
+  }
 }
 
 async function callStudy(req) {

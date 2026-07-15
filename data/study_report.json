@@ -1,23 +1,24 @@
 {
   "summary": {
     "questions": 1277,
-    "high_yield_questions": 159,
+    "high_yield_questions": 154,
     "critical_questions": 21,
     "road_sign_or_image_questions": 671,
     "archived_hardest_questions_found": 50
   },
   "priority_labels": {
     "Critical": 21,
-    "High": 138,
-    "Medium": 691,
-    "Standard": 427
+    "High": 133,
+    "Medium": 707,
+    "Standard": 416
   },
   "categories": {
     "Alert Driving and Consideration": 62,
     "Alert Driving and Consideration for Other Road Users": 1,
     "Characteristics of Various Types of Road": 42,
     "Collisions": 15,
-    "Control of Vehicle": 86,
+    "Collisions and Emergency Action": 8,
+    "Control of Vehicle": 30,
     "Driver Behaviour and Anticipation": 18,
     "Driving Risk Factors Related to Road Conditions as they Change with Weather and Day/Night": 1,
     "Driving Risk Factors Related to Various Road Conditions": 33,
@@ -25,48 +26,37 @@
     "Environmental Matters": 14,
     "Getting On or Off the Vehicle": 4,
     "Good Judgement and Perception": 26,
-    "Legal Matters/Rules of the Road": 151,
+    "Legal Matters / Rules of the Road": 4,
+    "Legal Matters/Rules of the Road": 52,
     "Managing Risk": 126,
-    "Necessary Documents": 19,
+    "Necessary Documents": 20,
     "Observance of Safe Distance": 19,
     "Observance of Safe Distances and Driving in Various Weather/Road Conditions": 1,
     "Observation/Field of View": 21,
     "Road Signs, Markings and Traffic Regulations": 3,
-    "Safe and Responsible Driving": 325,
+    "Safe and Responsible Driving": 331,
     "Safety Factors Relating to Vehicle Loading and Persons Carried": 1,
     "Safety Factors Relating to Vehicle and Persons Carried": 16,
     "Taking Corrective or Emergency Action": 1,
     "Taking Emergency/Corrective Action": 11,
     "Techincal Matters": 14,
+    "Technical Matters": 7,
     "Technical Matters with a Bearing on Road Safety": 77,
-    "Traffic Signs and Regulatory Matters": 97,
-    "Uncategorized": 34,
+    "Traffic Signs and Regulatory Matters": 260,
     "Vulnerable Road Users": 41
   },
   "top_categories": [
     {
-      "category": "Legal Matters/Rules of the Road",
-      "questions": 151,
-      "high_yield_questions": 33,
-      "average_score": 63.1
+      "category": "Traffic Signs and Regulatory Matters",
+      "questions": 260,
+      "high_yield_questions": 53,
+      "average_score": 63.2
     },
     {
       "category": "Safe and Responsible Driving",
-      "questions": 325,
+      "questions": 331,
       "high_yield_questions": 31,
-      "average_score": 56.4
-    },
-    {
-      "category": "Control of Vehicle",
-      "questions": 86,
-      "high_yield_questions": 18,
-      "average_score": 62.2
-    },
-    {
-      "category": "Traffic Signs and Regulatory Matters",
-      "questions": 97,
-      "high_yield_questions": 18,
-      "average_score": 62.0
+      "average_score": 56.5
     },
     {
       "category": "Managing Risk",
@@ -87,6 +77,12 @@
       "average_score": 60.8
     },
     {
+      "category": "Legal Matters/Rules of the Road",
+      "questions": 52,
+      "high_yield_questions": 7,
+      "average_score": 59.9
+    },
+    {
       "category": "Collisions",
       "questions": 15,
       "high_yield_questions": 6,
@@ -97,6 +93,12 @@
       "questions": 42,
       "high_yield_questions": 5,
       "average_score": 56.5
+    },
+    {
+      "category": "Control of Vehicle",
+      "questions": 30,
+      "high_yield_questions": 4,
+      "average_score": 55.2
     },
     {
       "category": "Good Judgement and Perception",
@@ -120,19 +122,19 @@
   "top_high_yield_reasons": [
     {
       "reason": "category_priority",
-      "questions": 143
+      "questions": 138
     },
     {
       "reason": "legal_consequence",
-      "questions": 142
+      "questions": 137
     },
     {
       "reason": "safety_critical",
-      "questions": 125
+      "questions": 122
     },
     {
       "reason": "road_sign_or_image",
-      "questions": 106
+      "questions": 101
     },
     {
       "reason": "commonly_missed",
@@ -141,17 +143,41 @@
   ],
   "component_coverage": {
     "archived_hardest_signal": 43,
-    "category_priority_signal": 159,
-    "legal_consequence_signal": 142,
-    "road_sign_or_image_signal": 106,
-    "safety_critical_signal": 125
+    "category_priority_signal": 154,
+    "legal_consequence_signal": 137,
+    "road_sign_or_image_signal": 101,
+    "safety_critical_signal": 122
   },
   "top_50_high_yield": [
+    {
+      "id": 143,
+      "score": 100,
+      "label": "Critical",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 7,
+      "community_correct_rate": 44.444,
+      "score_breakdown": {
+        "archived_hardest_signal": 31,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 16,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Legal/rules",
+        "Commonly missed",
+        "Low archive accuracy"
+      ],
+      "question": "What does this sign mean?"
+    },
     {
       "id": 147,
       "score": 100,
       "label": "Critical",
-      "category": "Control of Vehicle",
+      "category": "Traffic Signs and Regulatory Matters",
       "hardest_rank": 11,
       "community_correct_rate": 45.455,
       "score_breakdown": {
@@ -159,7 +185,7 @@
         "road_sign_or_image_signal": 9,
         "safety_critical_signal": 4,
         "legal_consequence_signal": 16,
-        "category_priority_signal": 7,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
@@ -173,34 +199,10 @@
       "question": "What does this sign mean?"
     },
     {
-      "id": 143,
-      "score": 98,
-      "label": "Critical",
-      "category": "Control of Vehicle",
-      "hardest_rank": 7,
-      "community_correct_rate": 44.444,
-      "score_breakdown": {
-        "archived_hardest_signal": 31,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 16,
-        "category_priority_signal": 7,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Legal/rules",
-        "Commonly missed",
-        "Low archive accuracy"
-      ],
-      "question": "What does this sign mean?"
-    },
-    {
       "id": 178,
-      "score": 94,
+      "score": 96,
       "label": "Critical",
-      "category": "Control of Vehicle",
+      "category": "Traffic Signs and Regulatory Matters",
       "hardest_rank": 10,
       "community_correct_rate": 45.324,
       "score_breakdown": {
@@ -208,7 +210,7 @@
         "road_sign_or_image_signal": 9,
         "safety_critical_signal": 0,
         "legal_consequence_signal": 14,
-        "category_priority_signal": 7,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
@@ -266,6 +268,30 @@
         "Low archive accuracy"
       ],
       "question": "If driving a vehicle with automatic transmission, what in particular should a driver be aware of?"
+    },
+    {
+      "id": 138,
+      "score": 90,
+      "label": "Critical",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 9,
+      "community_correct_rate": 45.169,
+      "score_breakdown": {
+        "archived_hardest_signal": 30,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 7,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Legal/rules",
+        "Commonly missed",
+        "Low archive accuracy"
+      ],
+      "question": "What does this sign mean?"
     },
     {
       "id": 630,
@@ -362,23 +388,24 @@
       "question": "What is the recommended minimum stopping distance for a car travelling at 50 km/h on a dry road?"
     },
     {
-      "id": 138,
-      "score": 88,
+      "id": 247,
+      "score": 87,
       "label": "Critical",
-      "category": "Control of Vehicle",
-      "hardest_rank": 9,
-      "community_correct_rate": 45.169,
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 17,
+      "community_correct_rate": 48.98,
       "score_breakdown": {
-        "archived_hardest_signal": 30,
+        "archived_hardest_signal": 27,
         "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 7,
-        "category_priority_signal": 7,
+        "safety_critical_signal": 4,
+        "legal_consequence_signal": 3,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
         "Core category",
         "Road sign/image",
+        "Safety-critical",
         "Legal/rules",
         "Commonly missed",
         "Low archive accuracy"
@@ -455,24 +482,23 @@
       "question": "Which vehicle is in the correct position to make a right turn from the major road into the minor road?"
     },
     {
-      "id": 247,
+      "id": 52,
       "score": 85,
       "label": "Critical",
-      "category": "Control of Vehicle",
-      "hardest_rank": 17,
-      "community_correct_rate": 48.98,
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 12,
+      "community_correct_rate": 45.745,
       "score_breakdown": {
-        "archived_hardest_signal": 27,
+        "archived_hardest_signal": 29,
         "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 4,
+        "safety_critical_signal": 0,
         "legal_consequence_signal": 3,
-        "category_priority_signal": 7,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
         "Core category",
         "Road sign/image",
-        "Safety-critical",
         "Legal/rules",
         "Commonly missed",
         "Low archive accuracy"
@@ -501,6 +527,29 @@
         "Commonly missed"
       ],
       "question": "What should a driver do if they wish to drive across a busy road and the traffic lights which normally control the junction are temporarily out of action?"
+    },
+    {
+      "id": 39,
+      "score": 85,
+      "label": "Critical",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 25,
+      "community_correct_rate": 50.122,
+      "score_breakdown": {
+        "archived_hardest_signal": 20,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 12,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Legal/rules",
+        "Commonly missed"
+      ],
+      "question": "What does this sign mean?"
     },
     {
       "id": 200,
@@ -550,53 +599,6 @@
       "question": "Unless otherwise indicated, what is the maximum speed allowed for a car towing a trailer on national roads?"
     },
     {
-      "id": 52,
-      "score": 83,
-      "label": "Critical",
-      "category": "Control of Vehicle",
-      "hardest_rank": 12,
-      "community_correct_rate": 45.745,
-      "score_breakdown": {
-        "archived_hardest_signal": 29,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 3,
-        "category_priority_signal": 7,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Legal/rules",
-        "Commonly missed",
-        "Low archive accuracy"
-      ],
-      "question": "What does this sign mean?"
-    },
-    {
-      "id": 39,
-      "score": 83,
-      "label": "Critical",
-      "category": "Control of Vehicle",
-      "hardest_rank": 25,
-      "community_correct_rate": 50.122,
-      "score_breakdown": {
-        "archived_hardest_signal": 20,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 12,
-        "category_priority_signal": 7,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Legal/rules",
-        "Commonly missed"
-      ],
-      "question": "What does this sign mean?"
-    },
-    {
       "id": 795,
       "score": 82,
       "label": "Critical",
@@ -640,6 +642,29 @@
         "Commonly missed"
       ],
       "question": "Why is tailgating (driving too close behind the vehicle in front) dangerous?"
+    },
+    {
+      "id": 177,
+      "score": 80,
+      "label": "High",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 28,
+      "community_correct_rate": 51.036,
+      "score_breakdown": {
+        "archived_hardest_signal": 19,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 8,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Legal/rules",
+        "Commonly missed"
+      ],
+      "question": "What do these road markings mean?"
     },
     {
       "id": 727,
@@ -711,50 +736,28 @@
       "question": "Which vehicle is in the correct position to make a right turn from a minor road onto a major road?"
     },
     {
-      "id": 174,
+      "id": 245,
       "score": 79,
       "label": "High",
-      "category": "Legal Matters/Rules of the Road",
-      "hardest_rank": 50,
-      "community_correct_rate": 58.333,
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 45,
+      "community_correct_rate": 57.431,
       "score_breakdown": {
-        "archived_hardest_signal": 10,
+        "archived_hardest_signal": 12,
         "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 14,
-        "category_priority_signal": 11,
+        "safety_critical_signal": 3,
+        "legal_consequence_signal": 11,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
         "Core category",
         "Road sign/image",
+        "Safety-critical",
         "Legal/rules",
         "Commonly missed"
       ],
       "question": "What does this sign mean?"
-    },
-    {
-      "id": 177,
-      "score": 78,
-      "label": "High",
-      "category": "Control of Vehicle",
-      "hardest_rank": 28,
-      "community_correct_rate": 51.036,
-      "score_breakdown": {
-        "archived_hardest_signal": 19,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 0,
-        "legal_consequence_signal": 8,
-        "category_priority_signal": 7,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Legal/rules",
-        "Commonly missed"
-      ],
-      "question": "What do these road markings mean?"
     },
     {
       "id": 534,
@@ -779,29 +782,6 @@
       "question": "After a heavy downpour, why should a driver keep a greater distance from the vehicle in front?"
     },
     {
-      "id": 125,
-      "score": 78,
-      "label": "High",
-      "category": "Legal Matters/Rules of the Road",
-      "hardest_rank": null,
-      "community_correct_rate": null,
-      "score_breakdown": {
-        "archived_hardest_signal": 0,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 11,
-        "legal_consequence_signal": 12,
-        "category_priority_signal": 11,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Safety-critical",
-        "Legal/rules"
-      ],
-      "question": "What does the broken yellow line road marking mean?"
-    },
-    {
       "id": 578,
       "score": 77,
       "label": "High",
@@ -824,74 +804,27 @@
       "question": "What is the effect of a worn exhaust?"
     },
     {
-      "id": 245,
+      "id": 174,
       "score": 77,
       "label": "High",
-      "category": "Control of Vehicle",
-      "hardest_rank": 45,
-      "community_correct_rate": 57.431,
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 50,
+      "community_correct_rate": 58.333,
       "score_breakdown": {
-        "archived_hardest_signal": 12,
+        "archived_hardest_signal": 10,
         "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 3,
-        "legal_consequence_signal": 11,
-        "category_priority_signal": 7,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 14,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
         "Core category",
         "Road sign/image",
-        "Safety-critical",
         "Legal/rules",
         "Commonly missed"
       ],
       "question": "What does this sign mean?"
-    },
-    {
-      "id": 124,
-      "score": 77,
-      "label": "High",
-      "category": "Legal Matters/Rules of the Road",
-      "hardest_rank": null,
-      "community_correct_rate": null,
-      "score_breakdown": {
-        "archived_hardest_signal": 0,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 6,
-        "legal_consequence_signal": 16,
-        "category_priority_signal": 11,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Safety-critical",
-        "Legal/rules"
-      ],
-      "question": "What does this road marking mean?"
-    },
-    {
-      "id": 135,
-      "score": 77,
-      "label": "High",
-      "category": "Legal Matters/Rules of the Road",
-      "hardest_rank": null,
-      "community_correct_rate": null,
-      "score_breakdown": {
-        "archived_hardest_signal": 0,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 6,
-        "legal_consequence_signal": 16,
-        "category_priority_signal": 11,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Safety-critical",
-        "Legal/rules"
-      ],
-      "question": "What does this sign mean at a roundabout?"
     },
     {
       "id": 1129,
@@ -962,6 +895,29 @@
       "question": "There are pedestrians on the footpath ahead and there are pools of water on the road. What should a driver do?"
     },
     {
+      "id": 158,
+      "score": 76,
+      "label": "High",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 37,
+      "community_correct_rate": 54.646,
+      "score_breakdown": {
+        "archived_hardest_signal": 16,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 0,
+        "legal_consequence_signal": 7,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Legal/rules",
+        "Commonly missed"
+      ],
+      "question": "What does this sign mean?"
+    },
+    {
       "id": 15,
       "score": 76,
       "label": "High",
@@ -1026,6 +982,29 @@
         "Legal/rules"
       ],
       "question": "Which vehicle is exempt from speed limits when being used in an emergency?"
+    },
+    {
+      "id": 125,
+      "score": 76,
+      "label": "High",
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": null,
+      "community_correct_rate": null,
+      "score_breakdown": {
+        "archived_hardest_signal": 0,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 11,
+        "legal_consequence_signal": 12,
+        "category_priority_signal": 9,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Road sign/image",
+        "Safety-critical",
+        "Legal/rules"
+      ],
+      "question": "What does the broken yellow line road marking mean?"
     },
     {
       "id": 1132,
@@ -1097,18 +1076,18 @@
       "question": "If the traffic lights change while pedestrians are still crossing at pelican crossings or traffic lights, what should a driver do?"
     },
     {
-      "id": 122,
+      "id": 124,
       "score": 75,
       "label": "High",
-      "category": "Legal Matters/Rules of the Road",
+      "category": "Traffic Signs and Regulatory Matters",
       "hardest_rank": null,
       "community_correct_rate": null,
       "score_breakdown": {
         "archived_hardest_signal": 0,
         "road_sign_or_image_signal": 9,
         "safety_critical_signal": 6,
-        "legal_consequence_signal": 14,
-        "category_priority_signal": 11,
+        "legal_consequence_signal": 16,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
@@ -1117,21 +1096,21 @@
         "Safety-critical",
         "Legal/rules"
       ],
-      "question": "If driving from A to B, what do these road markings mean?"
+      "question": "What does this road marking mean?"
     },
     {
-      "id": 144,
+      "id": 135,
       "score": 75,
       "label": "High",
-      "category": "Legal Matters/Rules of the Road",
+      "category": "Traffic Signs and Regulatory Matters",
       "hardest_rank": null,
       "community_correct_rate": null,
       "score_breakdown": {
         "archived_hardest_signal": 0,
         "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 4,
+        "safety_critical_signal": 6,
         "legal_consequence_signal": 16,
-        "category_priority_signal": 11,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
@@ -1140,7 +1119,7 @@
         "Safety-critical",
         "Legal/rules"
       ],
-      "question": "What does this sign mean?"
+      "question": "What does this sign mean at a roundabout?"
     },
     {
       "id": 824,
@@ -1189,18 +1168,18 @@
       "question": "When approaching a junction where a pedestrian is crossing the road what should a driver do?"
     },
     {
-      "id": 158,
+      "id": 246,
       "score": 74,
       "label": "High",
-      "category": "Control of Vehicle",
-      "hardest_rank": 37,
-      "community_correct_rate": 54.646,
+      "category": "Traffic Signs and Regulatory Matters",
+      "hardest_rank": 48,
+      "community_correct_rate": 58.019,
       "score_breakdown": {
-        "archived_hardest_signal": 16,
+        "archived_hardest_signal": 11,
         "road_sign_or_image_signal": 9,
         "safety_critical_signal": 0,
-        "legal_consequence_signal": 7,
-        "category_priority_signal": 7,
+        "legal_consequence_signal": 10,
+        "category_priority_signal": 9,
         "user_miss_rate_signal": 0
       },
       "reasons": [
@@ -1210,29 +1189,6 @@
         "Commonly missed"
       ],
       "question": "What does this sign mean?"
-    },
-    {
-      "id": 133,
-      "score": 74,
-      "label": "High",
-      "category": "Legal Matters/Rules of the Road",
-      "hardest_rank": null,
-      "community_correct_rate": null,
-      "score_breakdown": {
-        "archived_hardest_signal": 0,
-        "road_sign_or_image_signal": 9,
-        "safety_critical_signal": 3,
-        "legal_consequence_signal": 16,
-        "category_priority_signal": 11,
-        "user_miss_rate_signal": 0
-      },
-      "reasons": [
-        "Core category",
-        "Road sign/image",
-        "Safety-critical",
-        "Legal/rules"
-      ],
-      "question": "What does this sign mean at a junction?"
     },
     {
       "id": 265,
@@ -1301,6 +1257,50 @@
         "Legal/rules"
       ],
       "question": "When meeting oncoming traffic on a national road, is it permitted to move into the hard shoulder to allow following traffic to overtake?"
+    },
+    {
+      "id": 1032,
+      "score": 74,
+      "label": "High",
+      "category": "Good Judgement and Perception",
+      "hardest_rank": null,
+      "community_correct_rate": null,
+      "score_breakdown": {
+        "archived_hardest_signal": 0,
+        "road_sign_or_image_signal": 9,
+        "safety_critical_signal": 11,
+        "legal_consequence_signal": 16,
+        "category_priority_signal": 3,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Road sign/image",
+        "Safety-critical",
+        "Legal/rules"
+      ],
+      "question": "When driving on a national road is it permitted to drive on the hard shoulder in order to allow faster-moving traffic to overtake?"
+    },
+    {
+      "id": 64,
+      "score": 73,
+      "label": "High",
+      "category": "Legal Matters/Rules of the Road",
+      "hardest_rank": null,
+      "community_correct_rate": null,
+      "score_breakdown": {
+        "archived_hardest_signal": 0,
+        "road_sign_or_image_signal": 0,
+        "safety_critical_signal": 11,
+        "legal_consequence_signal": 16,
+        "category_priority_signal": 11,
+        "user_miss_rate_signal": 0
+      },
+      "reasons": [
+        "Core category",
+        "Safety-critical",
+        "Legal/rules"
+      ],
+      "question": "What do flashing amber lights at a pelican crossing mean?"
     }
   ],
   "methodology": [

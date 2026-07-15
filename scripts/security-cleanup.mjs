@@ -1,6 +1,4 @@
-import pg from "pg";
-
-const { Client } = pg;
+import { createDbClient } from "../lib/db.js";
 
 const databaseUrl = process.env.DATABASE_URL;
 const apply = process.env.SECURITY_CLEANUP_APPLY === "true";
@@ -18,10 +16,7 @@ if (!databaseUrl) {
   process.exit(1);
 }
 
-const client = new Client({
-  connectionString: databaseUrl,
-  ssl: databaseUrl.includes("localhost") ? false : { rejectUnauthorized: false },
-});
+const client = createDbClient(databaseUrl);
 
 const jobs = [
   {

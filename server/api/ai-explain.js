@@ -1,6 +1,7 @@
 import crypto from "node:crypto";
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { withDb } from "../../lib/db.js";
+import { findQuestionById, getPrivateQuestionBank } from "../../lib/question-bank.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -8,6 +9,7 @@ import {
 } from "../../lib/server-env.js";
 import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import { limitFromEnv } from "../../lib/rate-limit.js";
+import { getStudySessionSecret, verifyAnswerStateToken } from "../../lib/study-session-tokens.js";
 
 const AI_TIMEOUT_MS = 12000;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -35,8 +37,12 @@ export default async function handler(req, res) {
     }
 
     const body = await readJsonBody(req, { maxBytes: 12_288 });
-    const input = normalizeExplanationRequest(body);
+    const input = buildVerifiedExplanationInput(body, {
+      secret: getStudySessionSecret(process.env),
+      questions: getPrivateQuestionBank(process.env),
+    });
     const user = await getSessionUser(req, env.databaseUrl);
+    const providerEnv = getAiProviderEnv();
     const selectedAnswerHash = hashValue(input.selectedAnswer);
     const rateKey = buildRateKey(req, user);
     const requestLimit = user
@@ -45,7 +51,7 @@ export default async function handler(req, res) {
 
     const cached = await withDb(env.databaseUrl, async (client) => {
       await enforceRateLimit(client, rateKey, requestLimit);
-      return findCachedExplanation(client, input.questionId, selectedAnswerHash);
+      return findCachedExplanation(client, input.questionId, selectedAnswerHash, providerEnv.configured);
     });
 
     if (cached) {
@@ -57,7 +63,6 @@ export default async function handler(req, res) {
       });
     }
 
-    const providerEnv = getAiProviderEnv();
     let explanation;
     let provider = "fallback";
     let model = "local-fallback";
@@ -98,6 +103,10 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Question details are incomplete" });
     }
 
+    if (error.statusCode === 403) {
+      return res.status(403).json({ error: "Answer the question before requesting coaching" });
+    }
+
     if (error.statusCode === 429) {
       return res.status(429).json({ error: "Too many explanation requests. Try again later." });
     }
@@ -107,43 +116,52 @@ export default async function handler(req, res) {
   }
 }
 
-function normalizeExplanationRequest(body) {
+function normalizeExplanationProof(body) {
   const questionId = Number(body.questionId ?? body.question_id);
-  const questionText = cleanText(body.questionText || body.question || body.text, 1200);
-  const answerChoices = normalizeAnswerChoices(body.answerChoices || body.options || body.answers);
-  const correctAnswer = cleanText(body.correctAnswer || body.correct_answer, 700);
-  const selectedAnswer = cleanText(body.selectedAnswer || body.selected_answer, 700);
-  const category = cleanText(body.category || "Uncategorised", 160) || "Uncategorised";
+  const answerStateToken = cleanText(body.answerStateToken || body.answer_state_token, 10_000);
+  const studySessionPublicId = cleanText(body.studySessionPublicId || body.study_session_public_id, 120);
 
-  if (
-    !Number.isInteger(questionId) ||
-    !questionText ||
-    !answerChoices.length ||
-    !correctAnswer ||
-    !selectedAnswer
-  ) {
+  if (!Number.isInteger(questionId) || !answerStateToken || !studySessionPublicId) {
     throwStatus(400);
   }
 
-  return {
-    questionId,
-    questionText,
-    answerChoices,
-    correctAnswer,
-    selectedAnswer,
-    category,
-  };
+  return { questionId, answerStateToken, studySessionPublicId };
 }
 
-function normalizeAnswerChoices(value) {
-  const items = Array.isArray(value) ? value : [];
-  return items
-    .slice(0, MAX_OPTIONS)
-    .map((item) => {
-      if (typeof item === "string") return cleanText(item, 700);
-      return cleanText(item?.text || item?.label || item?.answer, 700);
-    })
-    .filter(Boolean);
+export function buildVerifiedExplanationInput(body, options = {}) {
+  const proof = normalizeExplanationProof(body || {});
+  let answerState;
+  try {
+    answerState = verifyAnswerStateToken(proof.answerStateToken, options.secret);
+  } catch {
+    throwStatus(403);
+  }
+  const answer = answerState?.answers?.[String(proof.questionId)];
+  if (
+    !answerState ||
+    answerState.sid !== proof.studySessionPublicId ||
+    Number(answerState.exp || 0) <= Number(options.now || Date.now()) ||
+    !Array.isArray(answerState.q) ||
+    !answerState.q.includes(proof.questionId) ||
+    !answer ||
+    !Number.isInteger(Number(answer.selectedIndex))
+  ) {
+    throwStatus(403);
+  }
+
+  const question = findQuestionById(options.questions || [], proof.questionId);
+  const selectedIndex = Number(answer.selectedIndex);
+  const selectedAnswer = question?.options?.[selectedIndex]?.text || "";
+  if (!question || !selectedAnswer || !question.correctAnswer) throwStatus(403);
+
+  return {
+    questionId: question.id,
+    questionText: question.question,
+    answerChoices: question.options.slice(0, MAX_OPTIONS).map((option) => option.text),
+    correctAnswer: question.correctAnswer,
+    selectedAnswer,
+    category: question.category || "Uncategorised",
+  };
 }
 
 async function enforceRateLimit(client, rateKey, limit) {
@@ -166,16 +184,21 @@ async function enforceRateLimit(client, rateKey, limit) {
   }
 }
 
-async function findCachedExplanation(client, questionId, selectedAnswerHash) {
+async function findCachedExplanation(client, questionId, selectedAnswerHash, aiConfigured) {
   const result = await client.query(
     `
       update ai_explanations
       set last_used_at = now()
       where question_id = $1
         and selected_answer_hash = $2
+        and (
+          fallback = false
+          or $3 = false
+          or updated_at >= now() - interval '15 minutes'
+        )
       returning payload, fallback
     `,
-    [questionId, selectedAnswerHash]
+    [questionId, selectedAnswerHash, Boolean(aiConfigured)]
   );
 
   return result.rows[0] || null;

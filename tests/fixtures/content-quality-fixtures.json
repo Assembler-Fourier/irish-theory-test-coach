@@ -5,7 +5,7 @@
     "question": "What should you check before driving?",
     "options": [
       { "text": "The tyres", "is_correct": true },
-      { "text": "The radio", "is_correct": false },
+      { "text": "The mirrors", "is_correct": false },
       { "text": "The radio", "is_correct": false },
       { "text": "The seat colour", "is_correct": false }
     ],
@@ -62,7 +62,8 @@
     "category": "Uncategorized",
     "question": "!!! NCT?",
     "options": [
-      { "text": "No explanation", "is_correct": true }
+      { "text": "No explanation", "is_correct": true },
+      { "text": "No explanation", "is_correct": false }
     ],
     "correct_index": 0,
     "correct_answer": "No explanation",
@@ -124,5 +125,78 @@
     "correct_index": 0,
     "correct_answer": "An oil spill",
     "explanation": "Fixture for answer-set variant review."
+  },
+  {
+    "id": 10,
+    "category": "Traffic Signs and Regulatory Matters",
+    "question": "What does this sign mean?",
+    "options": [
+      { "text": "Turn left", "is_correct": true },
+      { "text": "Turn right", "is_correct": false },
+      { "text": "No entry", "is_correct": false },
+      { "text": "Stop", "is_correct": false }
+    ],
+    "correct_index": 0,
+    "correct_answer": "Turn left",
+    "explanation": "The pictured sign directs traffic to turn left.",
+    "local_image_paths": ["data/assets/img/test/turn-left.svg"],
+    "image_content_hashes": ["visual-left"],
+    "image_alt": "Road sign shown for this practice question."
+  },
+  {
+    "id": 11,
+    "category": "Traffic Signs and Regulatory Matters",
+    "question": "What does this sign mean?",
+    "options": [
+      { "text": "Sharp bend", "is_correct": false },
+      { "text": "School ahead", "is_correct": true },
+      { "text": "Uneven road", "is_correct": false },
+      { "text": "Crosswinds", "is_correct": false }
+    ],
+    "correct_index": 1,
+    "correct_answer": "School ahead",
+    "explanation": "The pictured sign warns that a school is ahead.",
+    "local_image_paths": ["data/assets/img/test/school.svg"],
+    "image_content_hashes": ["visual-school"],
+    "image_alt": "Road sign shown for this practice question."
+  },
+  {
+    "id": 12,
+    "category": "Managing Risk",
+    "question": "What should you do on a slippery road?",
+    "options": [
+      { "text": "Slow down smoothly", "is_correct": true },
+      { "text": "Brake sharply", "is_correct": false },
+      { "text": "Accelerate", "is_correct": false },
+      { "text": "Follow closely", "is_correct": false }
+    ],
+    "correct_index": 0,
+    "correct_answer": "Slow down smoothly",
+    "explanation": "Smooth control reduces the risk of losing grip."
+  },
+  {
+    "id": 13,
+    "category": "Managing Risk",
+    "question": "What should you do on a slippery road?",
+    "options": [
+      { "text": "Follow closely", "is_correct": false },
+      { "text": "Slow down smoothly", "is_correct": true },
+      { "text": "Accelerate", "is_correct": false },
+      { "text": "Brake sharply", "is_correct": false }
+    ],
+    "correct_index": 1,
+    "correct_answer": "Slow down smoothly",
+    "explanation": "Smooth control reduces the risk of losing grip."
+  },
+  {
+    "id": 14,
+    "category": "Managing Risk",
+    "question": "Is this incomplete fixture structurally valid?",
+    "options": [
+      { "text": "No", "is_correct": true }
+    ],
+    "correct_index": 0,
+    "correct_answer": "No",
+    "explanation": "This fixture intentionally has too few options."
   }
 ]

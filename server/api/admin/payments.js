@@ -9,7 +9,6 @@ import {
 import {
   getAuthServerEnv,
   getRequiredServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 import { handleStripeEvent } from "../stripe-webhook.js";
@@ -98,8 +97,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ error: "Method not allowed" });
   } catch (error) {
-    console.error("Admin payments request failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin payments request failed");
   }
 }
 

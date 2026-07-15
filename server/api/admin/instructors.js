@@ -9,7 +9,6 @@ import { withDb, withTransaction } from "../../../lib/db.js";
 import { revokeInstructorCode } from "../../../lib/instructor-codes.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -39,8 +38,7 @@ export default async function handler(req, res) {
     const result = await mutateInstructorOperations(env.databaseUrl, admin, body);
     return res.status(200).json({ ok: true, ...result });
   } catch (error) {
-    console.error("Admin instructors failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin instructors failed");
   }
 }
 

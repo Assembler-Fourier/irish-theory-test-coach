@@ -2,7 +2,6 @@ import { requireAdmin, sendAdminError, testAuthzOk } from "../../../lib/admin.js
 import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -25,8 +24,7 @@ export default async function handler(req, res) {
     const payload = await listAuditLog(env.databaseUrl, req.query || {});
     return res.status(200).json({ ok: true, ...payload });
   } catch (error) {
-    console.error("Admin audit failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin audit failed");
   }
 }
 

@@ -1,11 +1,7 @@
-import pg from "pg";
+import { createDbClient } from "../lib/db.js";
 import { requireDatabaseUrl } from "./db-utils.mjs";
 
-const { Client } = pg;
-const client = new Client({
-  connectionString: requireDatabaseUrl(),
-  ssl: { rejectUnauthorized: false },
-});
+const client = createDbClient(requireDatabaseUrl());
 
 try {
   await client.connect();

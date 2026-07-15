@@ -2,7 +2,6 @@ import { requireAdmin, sendAdminError, testAuthzOk } from "../../../lib/admin.js
 import { withDb } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -33,8 +32,7 @@ export default async function handler(req, res) {
     res.setHeader("Content-Disposition", `attachment; filename="${type}.csv"`);
     return res.status(200).send(csv);
   } catch (error) {
-    console.error("Admin export failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin export failed");
   }
 }
 

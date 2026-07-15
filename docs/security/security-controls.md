@@ -100,6 +100,7 @@ Support cases, audit logs, account deletion requests, purchases, refunds, and di
 
 ## Database Controls Reviewed
 
+- Remote PostgreSQL URLs with legacy `sslmode=require`, `prefer`, or `verify-ca` are upgraded to `verify-full` by the shared database adapter; certificate verification is never explicitly disabled. Local URLs without an SSL mode retain local-development behavior.
 - Login tokens, sessions, Stripe events, checkout attempts, purchases, refunds, instructor codes, referral codes, and audit records have unique constraints or indexes for the main lookup/idempotency paths.
 - Stripe webhook replay is controlled by a unique `stripe_event_id` and event processing status.
 - Instructor-code redemption uses a transaction and `for update` row lock before incrementing redemption counts.
@@ -123,6 +124,7 @@ Support cases, audit logs, account deletion requests, purchases, refunds, and di
 
 ## Operational Follow-Ups
 
+- Run `npm run db:check` after deploying a database URL or certificate change.
 - Move rate limits to a shared store before high traffic or active abuse.
 - Remove inline script/style allowances from CSP after a frontend cleanup pass.
 - Add MFA or stronger admin authentication when supported by the chosen account model.

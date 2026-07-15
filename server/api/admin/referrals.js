@@ -4,7 +4,6 @@ import { normalizeReferralCode } from "../../../lib/referrals.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -33,8 +32,7 @@ export default async function handler(req, res) {
     res.setHeader("Allow", "GET, POST");
     return res.status(405).json({ error: "Method not allowed" });
   } catch (error) {
-    console.error("Admin referrals failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin referrals failed");
   }
 }
 

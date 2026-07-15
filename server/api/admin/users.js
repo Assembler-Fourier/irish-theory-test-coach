@@ -8,7 +8,6 @@ import { normalizeEmail, readJsonBody } from "../../../lib/auth.js";
 import { withDb, withTransaction } from "../../../lib/db.js";
 import {
   getAuthServerEnv,
-  safeErrorSummary,
   sendSafeConfigError,
 } from "../../../lib/server-env.js";
 
@@ -45,8 +44,7 @@ export default async function handler(req, res) {
     const users = await searchUsers(env.databaseUrl, q);
     return res.status(200).json({ ok: true, users });
   } catch (error) {
-    console.error("Admin users failed", safeErrorSummary(error));
-    return sendAdminError(res, error);
+    return sendAdminError(res, error, "Admin users failed");
   }
 }
 

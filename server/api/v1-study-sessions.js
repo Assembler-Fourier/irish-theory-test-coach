@@ -1,3 +1,4 @@
+import crypto from "node:crypto";
 import { SESSION_COOKIE, getSessionUser, readJsonBody } from "../../lib/auth.js";
 import {
   getPrivateQuestionBank,
@@ -79,14 +80,15 @@ async function startStudySession(req, res) {
   const questions = getPrivateQuestionBank(process.env);
   const accessType = premiumRequired || hasActiveEntitlement(user) ? "premium" : "preview";
   const limit = accessType === "preview" ? PREVIEW_LIMIT : Number(body.limit || 50);
+  const now = Date.now();
   const selected = selectQuestionsForMode(questions, {
     mode,
     limit,
     preview: accessType === "preview",
     category: cleanText(body.category, 160),
     reviewQuestionIds: Array.isArray(body.reviewQuestionIds) ? body.reviewQuestionIds : [],
+    variantSeed: crypto.randomUUID(),
   });
-  const now = Date.now();
   const durationSeconds = mode === "exam" ? 45 * 60 : 0;
   const sessionPayload = {
     accessType,
