@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Independent mobile-first Irish Category B theory-test practice app with mock exams, road signs, progress coaching, and secure paid access.",
   "private": true,
-  "homepage": "https://irish-theory-test-coach.vercel.app",
+  "homepage": "https://irishtheorycoach.ie",
   "repository": {
     "type": "git",
     "url": "https://github.com/Assembler-Fourier/irish-theory-test-coach.git"

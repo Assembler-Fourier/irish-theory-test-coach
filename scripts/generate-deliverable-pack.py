@@ -213,7 +213,7 @@ def build_audit_docx(facts: dict[str, Any]) -> None:
         doc,
         "Executive Snapshot",
         [
-            ("Live app", "https://irish-theory-test-coach.vercel.app"),
+            ("Live app", "https://irishtheorycoach.ie"),
             ("Production deployment", "https://irish-theory-test-coach-k4z00up0v-job-work.vercel.app"),
             ("GitHub PR", facts.get("github_pr", {}).get("url", "Not found")),
             ("Branch", facts["current_branch"]),
@@ -409,7 +409,7 @@ def build_audit_pdf(facts: dict[str, Any]) -> None:
     story.append(Paragraph("Independent practice tool. Not affiliated with RSA or Prometric.", styles["Small"]))
     story.append(Spacer(1, 0.15 * inch))
     story.append(pdf_kv_table([
-        ("Live app", "https://irish-theory-test-coach.vercel.app"),
+        ("Live app", "https://irishtheorycoach.ie"),
         ("Deployment", "https://irish-theory-test-coach-k4z00up0v-job-work.vercel.app"),
         ("Repository", facts.get("github_repo", {}).get("url", "Not found")),
         ("PR", facts.get("github_pr", {}).get("url", "Not found")),
@@ -1041,7 +1041,7 @@ def available_screenshots() -> list[tuple[Path, str]]:
 def live_data_check() -> dict[str, Any]:
     node_code = """
 const https = require('https');
-https.get('https://irish-theory-test-coach.vercel.app/data/preview-questions.json', res => {
+https.get('https://irishtheorycoach.ie/data/preview-questions.json', res => {
   let data='';
   res.on('data', d => data += d);
   res.on('end', () => {
