@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-07-11T22:03:08.560Z",
-  "branch": "codex/commercial-v1",
-  "commit": "f93876c95d2f2ce0d26dceafbe12a7c6d4cf1181",
+  "generatedAt": "2026-07-15T13:08:40.323Z",
+  "branch": "chore/hiring-profile-hardening",
+  "commit": "f5d42eed9bd9d9965c970ede8004ae7947bb09e8",
   "decision": "NO-GO",
   "product": {
     "productVersion": "0.1.0-commercial-v1",
     "contentVersion": "ff1535f7684d9ccc",
-    "schemaVersion": "2175d48d6406",
-    "releaseManifestSchemaVersion": "2175d48d6406",
+    "schemaVersion": "da07814e976a",
+    "releaseManifestSchemaVersion": "da07814e976a",
     "totalPublishedQuestions": 1277,
     "previewLimit": 15,
     "activePrice": "EUR 4.99",
@@ -36,8 +36,8 @@
     {
       "id": "P1-PAY-001",
       "severity": "P1",
-      "title": "Full Stripe test-mode checkout, webhook entitlement, instructor pack, and refund reconciliation were not executed against a real test Stripe account and Neon database in this audit pass.",
-      "evidence": "Automated tests cover mocked webhook/payment policy behavior, but no safe test-mode Stripe keys/price IDs/webhook forwarding target were supplied for an end-to-end purchase run in this pass.",
+      "title": "Stripe test-mode checkout, webhook, entitlement, instructor, refund, dispute, and reconciliation evidence is incomplete or invalid.",
+      "evidence": "generatedAt must be an ISO timestamp. commit must be a full 40-character Git SHA. Evidence commit does not match the audited Git commit. Evidence branch does not match the audited branch. vercelDeploymentId must be a Vercel deployment ID. The audit must provide the expected Vercel deployment ID. tests.fullStudyPassCheckout is missing. tests.instructor10Checkout is missing. tests.instructor25Checkout is missing. tests.webhookEntitlement is missing. tests.duplicateWebhook is missing. tests.repeatPurchaseExtension is missing. tests.checkoutCancellation is missing. tests.declinedPayment is missing. tests.partialRefund is missing. tests.fullRefund is missing. tests.disputeOpen is missing. tests.disputeWonClosed is missing. tests.instructorCodeGeneration is missing. tests.instructorCodeRedemption is missing. tests.malformedWebhookSignature is missing. tests.validWebhookResponse is missing. tests.reconciliation is missing.",
       "affectedFilesRoutes": [
         "server/api/create-checkout-session.js",
         "server/api/stripe-webhook.js",
@@ -46,24 +46,24 @@
         "/api/create-checkout-session",
         "/api/stripe-webhook"
       ],
-      "reproduction": "Configure a Neon preview database and Stripe test-mode prices/webhook secret, then run a real test card Checkout for learner and instructor plans; confirm webhook creates purchase, entitlement, and instructor codes.",
-      "requiredFix": "Complete and record test-mode purchases for Full Study Pass, launch offer if enabled, instructor_10, instructor_25, duplicate webhook replay, refund/dispute recording, and entitlement effects.",
+      "reproduction": "Set PAYMENT_EVIDENCE_DEPLOYMENT_ID to the audited preview deployment, then run npm run audit:final and inspect the validation errors for reports/final/payment-test-evidence.json.",
+      "requiredFix": "Run the complete deployed Preview Stripe sandbox matrix and generate schema-valid, fresh, redacted evidence for the exact audited commit and deployment with zero unresolved reconciliation findings.",
       "owner": "Payments / operations",
       "retestRequirement": "Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted."
     },
     {
       "id": "P1-DOMAIN-001",
       "severity": "P1",
-      "title": "Production canonical origin is still the Vercel app URL instead of a configured custom commercial domain.",
-      "evidence": "public/growth-config.json canonicalOrigin is https://irish-theory-test-coach.vercel.app; sitemap/canonical metadata currently use that origin.",
+      "title": "The custom commercial domain is not publicly ready.",
+      "evidence": "Canonical metadata uses https://irishtheorycoach.ie, but live domain validation failed: The apex domain is not available through public DNS.",
       "affectedFilesRoutes": [
         "public/growth-config.json",
         "public/sitemap.xml",
         "shared/growth-config.js",
         "all public SEO pages"
       ],
-      "reproduction": "Run `npm run build` without PUBLIC_CANONICAL_ORIGIN, then inspect public/growth-config.json and public/sitemap.xml.",
-      "requiredFix": "Connect the custom domain, set PUBLIC_CANONICAL_ORIGIN to the final HTTPS origin, rebuild, and submit the final sitemap.",
+      "reproduction": "Run `npm run audit:final`, inspect evidence.domainValidation in reports/final/production-readiness.json, and test apex/www DNS plus HTTPS.",
+      "requiredFix": "Connect the custom domain, wait for public DNS and HTTPS certificate issuance, confirm the www permanent redirect, rebuild if needed, and submit the final sitemap.",
       "owner": "Growth / operations",
       "retestRequirement": "Run npm run check:seo, npm run qa, and inspect Search Console URL Inspection for priority pages."
     }
@@ -135,6 +135,36 @@
       "ok": true,
       "errors": []
     },
+    "paymentEvidence": {
+      "valid": false,
+      "errors": [
+        "generatedAt must be an ISO timestamp.",
+        "commit must be a full 40-character Git SHA.",
+        "Evidence commit does not match the audited Git commit.",
+        "Evidence branch does not match the audited branch.",
+        "vercelDeploymentId must be a Vercel deployment ID.",
+        "The audit must provide the expected Vercel deployment ID.",
+        "tests.fullStudyPassCheckout is missing.",
+        "tests.instructor10Checkout is missing.",
+        "tests.instructor25Checkout is missing.",
+        "tests.webhookEntitlement is missing.",
+        "tests.duplicateWebhook is missing.",
+        "tests.repeatPurchaseExtension is missing.",
+        "tests.checkoutCancellation is missing.",
+        "tests.declinedPayment is missing.",
+        "tests.partialRefund is missing.",
+        "tests.fullRefund is missing.",
+        "tests.disputeOpen is missing.",
+        "tests.disputeWonClosed is missing.",
+        "tests.instructorCodeGeneration is missing.",
+        "tests.instructorCodeRedemption is missing.",
+        "tests.malformedWebhookSignature is missing.",
+        "tests.validWebhookResponse is missing.",
+        "tests.reconciliation is missing."
+      ],
+      "deploymentId": "PENDING_PREVIEW_DEPLOYMENT",
+      "generatedAt": "PENDING_REAL_SANDBOX_RUN"
+    },
     "businessLaunchBlockers": [
       "Configure legalTradingName.",
       "Configure operatorType.",
@@ -147,9 +177,13 @@
       "Configure internationalTransferBasis.",
       "Configure complaintRoute."
     ],
-    "canonicalOrigin": "https://irish-theory-test-coach.vercel.app",
+    "canonicalOrigin": "https://irishtheorycoach.ie",
+    "domainValidation": {
+      "valid": false,
+      "reason": "The apex domain is not available through public DNS."
+    },
     "robotsAdminBlocked": true,
-    "sitemapUrlCount": 41
+    "sitemapUrlCount": 46
   },
   "journeys": {
     "freeLearner": [
@@ -203,12 +237,12 @@
       {
         "name": "checkout test-mode flow",
         "status": "blocked",
-        "evidence": "Requires real Stripe test-mode env and Neon preview DB; not executed in this pass."
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
       },
       {
         "name": "webhook entitlement",
         "status": "partial",
-        "evidence": "Mock webhook test passes; real test-mode webhook entitlement must be exercised before launch."
+        "evidence": "Mock webhook test passes; real test-mode webhook entitlement evidence is incomplete."
       },
       {
         "name": "login link",
@@ -270,7 +304,7 @@
       {
         "name": "pack purchase",
         "status": "blocked",
-        "evidence": "Instructor Stripe pack purchase was not executed in real Stripe test mode."
+        "evidence": "Instructor Stripe pack purchase requires valid test evidence."
       },
       {
         "name": "code generation",
@@ -555,8 +589,8 @@
         "entitlementDays": 90,
         "enabled": false,
         "checkout": true,
-        "tested": "mock_or_static_only",
-        "realStripeTestModeStatus": "not_executed"
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
       },
       {
         "key": "full_study_pass",
@@ -567,8 +601,8 @@
         "entitlementDays": 90,
         "enabled": true,
         "checkout": true,
-        "tested": "mock_or_static_only",
-        "realStripeTestModeStatus": "not_executed"
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
       },
       {
         "key": "instructor_10",
@@ -579,8 +613,8 @@
         "entitlementDays": 90,
         "enabled": true,
         "checkout": true,
-        "tested": "mock_or_static_only",
-        "realStripeTestModeStatus": "not_executed"
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
       },
       {
         "key": "instructor_25",
@@ -591,8 +625,8 @@
         "entitlementDays": 90,
         "enabled": true,
         "checkout": true,
-        "tested": "mock_or_static_only",
-        "realStripeTestModeStatus": "not_executed"
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
       }
     ],
     "checks": [
@@ -629,12 +663,42 @@
       {
         "name": "real learner checkout",
         "status": "blocked",
-        "evidence": "Needs Stripe test-mode run."
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
       },
       {
         "name": "real instructor checkout",
         "status": "blocked",
-        "evidence": "Needs Stripe test-mode run."
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
+      },
+      {
+        "name": "webhook entitlement",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "duplicate webhook",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "repeat purchase extension",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "partial/full refunds",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "dispute revoke/restore",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "reconciliation",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
       }
     ]
   },

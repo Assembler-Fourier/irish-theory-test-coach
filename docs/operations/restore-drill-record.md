@@ -28,4 +28,4 @@ The drill used a real Neon non-production branch created from the production bra
 - Elapsed time: approximately 20 seconds for migration, table check, and reconciliation after branch readiness
 - Problems: none encountered during the recorded checks
 - Follow-up fixes: keep scheduled backup/restore drills after launch and record production row-count growth without including personal data
-- Recorded by: Codex, supervised for the project owner
+- Recorded by: AI-assisted project tooling; owner verification required before relying on this as operational evidence

@@ -8,7 +8,7 @@ const now = new Date("2026-07-12T12:00:00.000Z");
 const context = {
   now,
   commit: "a".repeat(40),
-  branch: "codex/commercial-v1",
+  branch: "main",
   deploymentId: "dpl_TestEvidence123",
   previewOrigin: "https://preview.example.test",
   launchOfferEnabled: true,

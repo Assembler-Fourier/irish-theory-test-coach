@@ -401,7 +401,7 @@ def build_audit_pdf(facts: dict[str, Any]) -> None:
         topMargin=0.55 * inch,
         bottomMargin=0.55 * inch,
         title="Irish Theory Test Coach Full Audit Report",
-        author="Codex",
+        author="AI-assisted project documentation",
     )
     story: list[Any] = []
     story.append(Paragraph("Irish Theory Test Coach", styles["Title"]))
@@ -477,7 +477,7 @@ def build_question_pdf(facts: dict[str, Any]) -> None:
         topMargin=0.45 * inch,
         bottomMargin=0.45 * inch,
         title="Irish Theory Test Coach Question Bank With Answers",
-        author="Codex",
+        author="AI-assisted project documentation",
     )
     story: list[Any] = []
     story.append(Paragraph("Irish Theory Test Coach Question Bank", styles["Title"]))
@@ -737,7 +737,7 @@ def setup_doc(doc: Document, title: str) -> None:
     section.footer_distance = Inches(0.38)
     core = doc.core_properties
     core.title = title
-    core.author = "Codex"
+    core.author = "AI-assisted project documentation"
     styles = doc.styles
     styles["Normal"].font.name = "Calibri"
     styles["Normal"].font.size = Pt(10)

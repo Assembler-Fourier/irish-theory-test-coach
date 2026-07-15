@@ -1,3 +1,3 @@
 -- Baseline migration for existing Irish Theory Test Coach databases.
 -- The migration runner expands this include and records the checksum.
--- codex-include: ../schema.sql
+-- migration-include: ../schema.sql

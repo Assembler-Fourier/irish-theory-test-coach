@@ -135,6 +135,8 @@ requireText("app.html", app, "Cancellation rights");
 const businessRuntime = JSON.parse(readPublic("business-config.json"));
 assert.equal(businessRuntime.policyVersions.terms, business.policyVersions.terms);
 assert.ok(Array.isArray(businessRuntime.launchBlockers));
+assert.equal(Object.hasOwn(businessRuntime, "registeredAddress"), false, "Public runtime must not expose a private service address.");
+assert.equal(Object.hasOwn(businessRuntime, "supportPhone"), false, "Public runtime must not expose a personal phone number.");
 if (businessRuntime.launchBlockers.length) {
   requireText("contact.html", contact, "Launch blocker");
 }

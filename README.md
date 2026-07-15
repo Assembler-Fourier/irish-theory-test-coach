@@ -1,19 +1,19 @@
 # Irish Theory Test Coach
 
-I built Irish Theory Test Coach as a commercial-grade learning product for Irish Category B learner drivers. It started as a question recovery project and grew into a complete study platform with protected premium content, timed mock exams, progress coaching, passwordless accounts, payments, instructor codes, and an operator dashboard.
+I built Irish Theory Test Coach as a pre-launch learning product for Irish Category B learner drivers. It started as a question-recovery project and grew into a deployed preview with protected-content boundaries, timed mock exams, progress coaching, passwordless-account flows, payment integration, instructor-code logic, and operator tooling.
 
-This repository is public as a portfolio case study. It shows how I approach product design, backend security, payment reliability, content operations, accessibility, SEO, and production readiness in one working system.
+This repository is public as an engineering case study. It shows how I approach product design, backend security, payment-state modelling, content operations, accessibility, SEO, and explicit release gates in one system.
 
 > **Independent practice tool. Not affiliated with RSA or Prometric.** The product does not guarantee a pass or claim to know official exam frequency.
 
 ## Try It
 
-- **Live product preview:** [Open Irish Theory Test Coach](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app)
-- **Learner workspace:** [Start the 15-question preview](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/app)
-- **Pricing:** [View learner and instructor plans](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/pricing)
-- **Learning hub:** [Browse the study guides](https://irish-theory-test-coach-assembler-fourier-job-work.vercel.app/learn)
+- **Public preview:** [Open Irish Theory Test Coach](https://irishtheorycoach.ie)
+- **Learner workspace:** [Start the 15-question preview](https://irishtheorycoach.ie/app)
+- **Pricing surface:** [View the current plan presentation](https://irishtheorycoach.ie/pricing)
+- **Learning hub:** [Browse the study guides](https://irishtheorycoach.ie/learn)
 
-The custom `.ie` domain is still completing registry activation. The Vercel Preview is the current review environment and intentionally uses Stripe sandbox payments.
+The custom `.ie` domain is active. The product should still be treated as a public pre-launch preview: this remediation did not execute a real Stripe test-mode purchase, webhook, refund, dispute, or instructor-code journey against the deployed database.
 
 ![Current Irish Theory Test Coach learner workspace](docs/images/portfolio-desktop.png)
 
@@ -51,9 +51,9 @@ The commercial and operator side includes:
 
 The browser receives only the free preview before authentication. Premium sessions are selected on the server, correct answers are withheld until submission, mock scoring is calculated server-side, and premium media routes require active access.
 
-### Payments survive real failure cases
+### Payment state models failure cases explicitly
 
-Checkout amounts and plan selection are server-authoritative. Webhook events are signature-verified and idempotent. The payment ledger represents completed, failed, expired, refunded, disputed, and replayed events. A won dispute restores only the entitlement revoked by that same dispute and preserves the learner's remaining access time.
+Checkout amounts and plan selection are server-authoritative. Webhook code verifies signatures and records idempotency state. The payment model represents completed, failed, expired, refunded, disputed, and replayed events. These paths have automated mock/static coverage; they still require provider-backed test-mode verification before commercial launch.
 
 ### Content quality is an operational workflow
 
@@ -76,6 +76,8 @@ flowchart LR
     Stripe --> Webhook["Raw-body webhook endpoint"]
     Webhook --> Neon
 ```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for the authentication flow, payment-state model, environment boundaries, migration procedure, test strategy, deployment checklist, and known limitations.
 
 ```text
 public/                 Static learner app, marketing pages, PWA, and admin UI
@@ -112,12 +114,12 @@ The current commercial Preview was tested against the exact deployed Git commit.
 | --- | --- |
 | Published dataset | 1,277 questions validated |
 | Public content exposure | 15 preview questions, no answer key |
-| Stripe sandbox matrix | 18 of 18 scenarios passed |
+| Payment logic | 18 automated mock/static scenarios recorded; real Stripe test-mode journey not verified here |
 | Payment reconciliation | 0 unresolved findings |
 | Accessibility | 7 states, 0 critical axe violations |
 | Visual regression | 15 deterministic mobile, tablet, and desktop screenshots |
-| Post-deploy smoke test | 11 of 11 routes and behaviors passed |
-| Dependency audit | 0 known vulnerabilities at the latest audit |
+| Recorded deployment smoke evidence | 11 routes and behaviours in the previous evidence set; rerun after this branch is deployed |
+| Dependency audit | Run again for every release; do not rely on this README as a live vulnerability result |
 
 Run the complete local quality gate with:
 
@@ -163,11 +165,11 @@ Operational documentation includes:
 
 ## Current Status
 
-The full commercial build is deployed to Vercel Preview. Production promotion is deliberately held until the custom `.ie` domain leaves registry hold, HTTPS is issued, final credentials are rotated, and legal review is completed. Remaining content work is tracked openly in the generated QA reports rather than hidden behind a launch-ready claim.
+The custom domain is active and the free preview is publicly reviewable. The repository is still **pre-launch for paid commerce**. Real provider-backed payment journeys, final legal review, a non-residential business service address, production monitoring, backup evidence, and operator-run release checks remain gates. Generated QA reports describe code and recorded test evidence; they are not a substitute for current production verification.
 
 ## About Me
 
-I am Uzair Waseem. I built this project end to end, including product design, data tooling, frontend UX, serverless APIs, database design, payments, authentication, admin operations, automated QA, and deployment.
+I am Uzair Waseem. I built and maintain this portfolio project across product design, data tooling, frontend UX, serverless APIs, database design, payment integration, authentication, admin operations, automated QA, and deployment.
 
 For hiring conversations, the most useful places to start are the live Preview, the architecture above, and the security/payment modules under `server/api/` and `lib/`.
 

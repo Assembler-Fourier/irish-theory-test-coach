@@ -2,14 +2,15 @@ import fs from "node:fs";
 import path from "node:path";
 
 const root = process.cwd();
-const defaultInputPath = path.join(
-  process.env.USERPROFILE || "",
-  ".codex",
-  "attachments",
-  "95cb1c0c-ee8e-4799-8fde-95f611541b8a",
-  "pasted-text.txt"
-);
-const inputPath = path.resolve(process.argv[2] || defaultInputPath);
+const requestedInputPath = process.argv[2] || process.env.OWNER_QUESTION_IMPORT_PATH;
+
+if (!requestedInputPath) {
+  console.error("Usage: npm run import:owner-questions -- <path-to-owner-question-export>");
+  console.error("Alternatively set OWNER_QUESTION_IMPORT_PATH to the source file.");
+  process.exit(1);
+}
+
+const inputPath = path.resolve(requestedInputPath);
 const questionsPath = path.join(root, "data", "questions.json");
 const assetsDir = path.join(root, "data", "assets", "img", "owner-provided");
 const generatedDir = path.join(root, "data", "assets", "img", "coach-generated");

@@ -9,14 +9,15 @@ Irish Theory Test Coach ships through small pull requests into a protected `main
 - Require at least one reviewer for commercial, payment, access-control, database, or content-publication changes.
 - Keep PRs small: one pass, one clear objective, one migration set, one commit theme.
 - Do not continue creating 1000-file feature PRs; split generated reports/assets from application logic where possible.
-- Use `codex/*` branches for implementation work and merge through reviewed PRs.
-- Emergency hotfixes use `codex/hotfix-YYYYMMDD-short-name`, run the same checks, then merge through the fastest review path allowed by branch protection.
+- Use short-lived `feature/*`, `fix/*`, or `chore/*` branches and merge through reviewed pull requests.
+- Emergency hotfixes use `fix/hotfix-YYYYMMDD-short-name`, run the same checks, then merge through the fastest review path allowed by branch protection.
 
 ## Pull Request Checks
 
 The PR workflow runs:
 
 - `npm ci`
+- `npx playwright install --with-deps chromium`
 - `npm run check:syntax`
 - `npm run validate`
 - `npm run build`
@@ -58,7 +59,7 @@ The PR workflow runs:
 - `VERCEL_TOKEN`
 - `VERCEL_ORG_ID`
 - `VERCEL_PROJECT_ID`
-- `DATABASE_URL` for scheduled reconciliation
+- `DATABASE_URL` for manually dispatched production reconciliation
 - `RATE_LIMIT_SALT`
 - `MONITORING_WEBHOOK_URL` if external monitoring is enabled
 
@@ -68,13 +69,17 @@ Use GitHub Environments for production approval. The workflow references the `pr
 
 ## Post-Deploy Smoke
 
-Run:
+Run after deployment:
 
 ```powershell
-npm run smoke:postdeploy -- https://your-production-domain.example
+npm run smoke:postdeploy -- https://irishtheorycoach.ie
 ```
 
 The smoke test checks homepage, preview package, `/api/health`, pricing config, restore generic response, unauthorized admin rejection, sitemap, robots, PWA manifest, and protected premium rejection. It does not create Stripe Checkout sessions or real charges.
+
+## Operations Reconciliation
+
+The reconciliation workflow is manual until the production environment is configured. It fails with an explicit message when `DATABASE_URL` is missing and uploads its JSON evidence when it runs. Re-enable a schedule only after a successful manual run, owner review, and alerting/ownership are in place.
 
 ## References
 

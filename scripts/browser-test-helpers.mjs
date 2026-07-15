@@ -2,7 +2,6 @@ import { createServer } from "node:http";
 import { createRequire } from "node:module";
 import { existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { readFile, stat, writeFile } from "node:fs/promises";
-import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -20,18 +19,6 @@ export function loadPlaywright() {
     const configured = tryRequirePlaywrightFromRoot(require, configuredRoot, "PLAYWRIGHT_NODE_MODULES");
     if (configured) return configured;
   }
-
-  const bundledRoot = path.join(
-    os.homedir(),
-    ".cache",
-    "codex-runtimes",
-    "codex-primary-runtime",
-    "dependencies",
-    "node",
-    "node_modules"
-  );
-  const bundled = tryRequirePlaywrightFromRoot(require, bundledRoot, "Codex bundled runtime");
-  if (bundled) return bundled;
 
   throw new Error("Playwright is not available. Install playwright or set PLAYWRIGHT_NODE_MODULES.");
 }

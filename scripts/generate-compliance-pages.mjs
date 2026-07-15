@@ -97,7 +97,7 @@ function privacyPage() {
     h1: "Privacy Notice",
     policy: "privacy",
     sections: [
-      section("Controller identity", `<p>${escapeHtml(business.legalTradingName)} operates ${escapeHtml(business.publicProductName)}. Operator type: ${escapeHtml(business.operatorType)}. Address: ${escapeHtml(business.registeredAddress)}.</p>`),
+      section("Controller identity", `<p>${escapeHtml(business.legalTradingName)} operates ${escapeHtml(business.publicProductName)}. Operator type: ${escapeHtml(business.operatorType)}. Public operator location: ${escapeHtml(business.publicOperatorLocation)}. A suitable business service address and legal review remain required before paid launch.</p>`),
       section("Scope and data sources", "<p>This notice covers learners, purchasers, instructor-code users, support contacts, administrators, and website visitors. Data comes from you, your browser or device, Stripe payment events, instructor or referral-code activity, and records created while operating the service.</p>"),
       section("Data collected", `<ul>
         <li><strong>Identity and contact:</strong> email address used for checkout, passwordless login, access restoration, support, export, deletion, or code redemption.</li>
@@ -180,7 +180,7 @@ function termsPage() {
     h1: "Terms & Conditions",
     policy: "terms",
     sections: [
-      section("Product identity", `<p>${escapeHtml(business.publicProductName)} is an independent Irish Category B theory-test practice product operated by ${escapeHtml(business.legalTradingName)}, ${escapeHtml(business.operatorType)}, at ${escapeHtml(business.registeredAddress)}. ${disclaimer}</p>`),
+      section("Product identity", `<p>${escapeHtml(business.publicProductName)} is an independent Irish Category B theory-test practice preview operated by ${escapeHtml(business.legalTradingName)}, ${escapeHtml(business.operatorType)}, in ${escapeHtml(business.publicOperatorLocation)}. ${disclaimer}</p>`),
       section("When these terms apply", "<p>These terms apply when you browse the site, use the free preview, create or restore an account, redeem a code, or purchase access. The information shown immediately before Stripe Checkout, including the chosen plan, price, access duration, and policy versions, forms part of the contract.</p>"),
       section("The service", "<p>The service provides independent practice questions, coaching feedback, progress tools, road-sign practice, review modes, and timed mocks. It does not provide an official appointment, official exam question feed, driving instruction, legal advice, or a promise of a particular test result.</p>"),
       section("Price, payment, and contract formation", `<p>Checkout is handled by Stripe. The server, not the browser, selects the configured price. The active learner offer is displayed as ${formatUnlockCta(summary)} and other plans are shown on the <a href="/pricing">Pricing page</a>. Prices are one-time charges in EUR unless checkout clearly says otherwise. A contract is formed when payment succeeds and the service confirms or records access.</p>`),
@@ -237,7 +237,7 @@ function cancellationPage() {
     scripts: ["./cancellation.js?v=20260715-legal-v1"],
     sections: [
       section("How to cancel", `<p>To notify ${escapeHtml(business.legalTradingName)} that you wish to cancel an eligible consumer contract, complete this form and use the email button, print it, or send another clear statement to <a href="mailto:${escapeHtml(business.refundEmail)}">${escapeHtml(business.refundEmail)}</a>. Using this exact form is optional.</p>`),
-      `<section class="model-cancellation-form" aria-labelledby="modelCancellationHeading"><h2 id="modelCancellationHeading">Model cancellation notice</h2><form id="cancellationForm" novalidate><p>To: ${escapeHtml(business.legalTradingName)}, ${escapeHtml(business.registeredAddress)}, ${escapeHtml(business.refundEmail)}</p><p>I give notice that I wish to cancel my contract for the following digital service:</p><label class="field"><span>Plan or service</span><input id="cancelPlan" name="plan" type="text" required maxlength="120" placeholder="For example, Full Study Pass"></label><label class="field"><span>Order or Stripe receipt reference (optional)</span><input id="cancelReference" name="reference" type="text" maxlength="120" autocomplete="off"></label><label class="field"><span>Order date</span><input id="cancelOrderDate" name="orderDate" type="date" required></label><label class="field"><span>Name</span><input id="cancelName" name="name" type="text" required maxlength="120" autocomplete="name"></label><label class="field"><span>Email used for purchase</span><input id="cancelEmail" name="email" type="email" required maxlength="254" autocomplete="email"></label><label class="field"><span>Date of this notice</span><input id="cancelNoticeDate" name="noticeDate" type="date" required></label><div class="cancellation-actions"><button class="button-primary" type="submit">Prepare cancellation email</button><button id="printCancellation" class="button-secondary" type="button">Print form</button></div><p id="cancellationStatus" class="account-message" role="status" aria-live="polite">The email button opens your email app. Nothing is submitted to this website.</p></form></section>`,
+      `<section class="model-cancellation-form" aria-labelledby="modelCancellationHeading"><h2 id="modelCancellationHeading">Model cancellation notice</h2><form id="cancellationForm" novalidate><p>To: ${escapeHtml(business.legalTradingName)}, ${escapeHtml(business.refundEmail)}</p><p>I give notice that I wish to cancel my contract for the following digital service:</p><label class="field"><span>Plan or service</span><input id="cancelPlan" name="plan" type="text" required maxlength="120" placeholder="For example, Full Study Pass"></label><label class="field"><span>Order or Stripe receipt reference (optional)</span><input id="cancelReference" name="reference" type="text" maxlength="120" autocomplete="off"></label><label class="field"><span>Order date</span><input id="cancelOrderDate" name="orderDate" type="date" required></label><label class="field"><span>Name</span><input id="cancelName" name="name" type="text" required maxlength="120" autocomplete="name"></label><label class="field"><span>Email used for purchase</span><input id="cancelEmail" name="email" type="email" required maxlength="254" autocomplete="email"></label><label class="field"><span>Date of this notice</span><input id="cancelNoticeDate" name="noticeDate" type="date" required></label><div class="cancellation-actions"><button class="button-primary" type="submit">Prepare cancellation email</button><button id="printCancellation" class="button-secondary" type="button">Print form</button></div><p id="cancellationStatus" class="account-message" role="status" aria-live="polite">The email button opens your email app. Nothing is submitted to this website.</p></form></section>`,
       section("What happens next", "<p>Support will acknowledge the request, verify the purchase where necessary, assess the applicable statutory or goodwill route, and explain the refund and entitlement effect. Keep a copy of your sent notice.</p>"),
     ],
   });
@@ -358,12 +358,11 @@ function identityList() {
     ["Legal trading name", business.legalTradingName],
     ["Public product name", business.publicProductName],
     ["Operator type", business.operatorType],
-    ["Registered address", business.registeredAddress],
+    ["Public operator location", business.publicOperatorLocation],
     ["Governing jurisdiction", business.governingJurisdiction],
   ];
   if (!isPlaceholder(business.businessRegistrationNumber)) rows.push(["Business registration number", business.businessRegistrationNumber]);
   if (!isPlaceholder(business.vatNumber)) rows.push(["VAT number", business.vatNumber]);
-  if (business.supportPhone) rows.push(["Support phone", business.supportPhone]);
   return `<dl class="compliance-list">${rows.map(([name, value]) => `<div><dt>${escapeHtml(name)}</dt><dd>${placeholderMarkup(value)}</dd></div>`).join("")}</dl>`;
 }
 

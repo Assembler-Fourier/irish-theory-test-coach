@@ -80,7 +80,7 @@ function loadMigrations() {
 }
 
 function expandIncludes(sql, filePath) {
-  return sql.replace(/^--\s*codex-include:\s*(.+)$/gm, (_, includePath) => {
+  return sql.replace(/^--\s*migration-include:\s*(.+)$/gm, (_, includePath) => {
     const resolved = path.resolve(path.dirname(filePath), includePath.trim());
     if (!resolved.startsWith(root)) {
       throw new Error(`Migration include escapes repository root: ${includePath}`);

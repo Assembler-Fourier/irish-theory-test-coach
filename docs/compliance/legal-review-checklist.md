@@ -1,6 +1,6 @@
 # Legal Review Checklist
 
-Codex-generated policy text is a technical draft based on current system behavior. It is not lawyer-approved text.
+The policy text is an AI-assisted technical draft based on current system behavior. It is not lawyer-approved text and requires owner and legal review.
 
 ## Commercial Identity
 
@@ -11,7 +11,7 @@ Codex-generated policy text is a technical draft based on current system behavio
 - VAT number configured or marked not applicable.
 - Governing jurisdiction configured.
 - Support, privacy, refund, and security emails route to monitored inboxes.
-- Confirm whether a public telephone number is required for the final sales model and configure `SUPPORT_PHONE` only with the owner's approval.
+- Do not publish a personal phone number. If the final sales model legally requires a telephone channel, use a dedicated business number only after owner approval.
 
 ## Privacy Notice
 

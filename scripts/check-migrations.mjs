@@ -68,7 +68,7 @@ assert.ok(files.includes("0001_baseline_schema.sql"), "baseline migration is req
 console.log(`Migration check passed (${files.length} migrations).`);
 
 function expandIncludes(sql, filePath) {
-  return sql.replace(/^--\s*codex-include:\s*(.+)$/gm, (_, includePath) => {
+  return sql.replace(/^--\s*migration-include:\s*(.+)$/gm, (_, includePath) => {
     const resolved = path.resolve(path.dirname(filePath), includePath.trim());
     if (!resolved.startsWith(root)) {
       errors.push(`${path.basename(filePath)} include escapes repository root: ${includePath}`);

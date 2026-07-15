@@ -2,7 +2,7 @@
 
 ## Local
 
-- Branch: any `codex/*` development branch.
+- Branch: a short-lived `feature/*`, `fix/*`, or `chore/*` development branch.
 - Database: local or Neon preview branch.
 - Stripe: test key and test price IDs only.
 - Site URL: localhost.
@@ -38,7 +38,7 @@ Required checks:
 - Branch: protected `main`.
 - Database: Neon production branch.
 - Stripe: live secret and live price IDs only.
-- Site URL: final custom domain via `PUBLIC_CANONICAL_ORIGIN` and `PUBLIC_SITE_URL`.
+- Site URL: `https://irishtheorycoach.ie` via `PUBLIC_CANONICAL_ORIGIN` and `PUBLIC_SITE_URL`.
 - Monitoring: enabled.
 - Deploy: GitHub manual workflow dispatch into `production` environment.
 
@@ -55,6 +55,7 @@ Required checks:
 - `DATABASE_URL`
 - `PUBLIC_SITE_URL`
 - `PUBLIC_CANONICAL_ORIGIN`
+- `PUBLIC_OPERATOR_LOCATION` (coarse public location only; do not publish a residential address)
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `STRIPE_PRICE_MODE`
@@ -67,9 +68,12 @@ Required checks:
 - `MONITORING_ENABLED`
 - `MONITORING_WEBHOOK_URL` if external monitoring is used
 
+The private `REGISTERED_ADDRESS` value may be required for business/legal operations, but it is deliberately excluded from generated public runtime JSON and pages. Confirm a suitable non-residential service address and the disclosure requirements with a qualified adviser before paid launch.
+
 ## Hard Rules
 
 - Do not mix live Stripe secrets with test price IDs.
 - Do not use production site URL in local mode.
 - Do not expose secrets in frontend files.
 - Do not deploy production from a laptop.
+- Do not enable scheduled operations until the production environment provides the required secrets and a successful manual reconciliation has been recorded.

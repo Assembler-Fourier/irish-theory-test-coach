@@ -185,11 +185,12 @@ export function buildGrowthConfig(env = process.env) {
 }
 
 export function canonicalSiteOrigin(env = process.env) {
-  const raw = env.PUBLIC_CANONICAL_ORIGIN || env.PUBLIC_SITE_URL || "https://irish-theory-test-coach.vercel.app";
+  const productionOrigin = "https://irishtheorycoach.ie";
+  const raw = env.PUBLIC_CANONICAL_ORIGIN || env.PUBLIC_SITE_URL || productionOrigin;
   try {
     return new URL(raw).origin.replace(/\/+$/, "");
   } catch {
-    return "https://irish-theory-test-coach.vercel.app";
+    return productionOrigin;
   }
 }
 

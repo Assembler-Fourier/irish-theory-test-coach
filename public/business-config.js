@@ -1,17 +1,17 @@
 window.BUSINESS_CONFIG = {
   "configVersion": 2,
   "publicProductName": "Irish Theory Test Coach",
-  "legalTradingName": "Uzair Waseem",
-  "operatorType": "Sole trader",
-  "registeredAddress": "15 Aderrig Avenue, Adamstown, Lucan, Co. Dublin, K78 H9Y9",
-  "supportEmail": "uzairwaseem29@gmail.com",
-  "privacyEmail": "uzairwaseem29@gmail.com",
-  "refundEmail": "uzairwaseem29@gmail.com",
-  "securityEmail": "uzairwaseem29@gmail.com",
-  "governingJurisdiction": "Ireland",
-  "privacyLawfulBasis": "Performance of a contract for purchases, account access and delivery of the service; compliance with legal obligations for payment and accounting records; legitimate interests for security, fraud prevention and essential service operations; consent for optional analytics.",
-  "complaintRoute": "Contact uzairwaseem29@gmail.com first. If the matter is not resolved, you may raise a concern with the Irish Data Protection Commission through its online complaint form.",
-  "internationalTransferBasis": "Where personal data is transferred outside the EEA, the transfer relies on an applicable adequacy decision or appropriate safeguards such as the European Commission Standard Contractual Clauses, as applicable to the processor.",
+  "legalTradingName": "NOT_CONFIGURED: legal trading name",
+  "operatorType": "NOT_CONFIGURED: operator type",
+  "publicOperatorLocation": "Dublin, Ireland",
+  "supportEmail": "NOT_CONFIGURED_support@example.invalid",
+  "privacyEmail": "NOT_CONFIGURED_support@example.invalid",
+  "refundEmail": "NOT_CONFIGURED_support@example.invalid",
+  "securityEmail": "NOT_CONFIGURED_support@example.invalid",
+  "governingJurisdiction": "NOT_CONFIGURED: governing jurisdiction",
+  "privacyLawfulBasis": "NOT_CONFIGURED: lawful basis for processing",
+  "complaintRoute": "NOT_CONFIGURED: data-protection complaint route",
+  "internationalTransferBasis": "NOT_CONFIGURED: international transfer basis",
   "storageLocations": [
     "Vercel deployment regions",
     "Neon Postgres hosting region",
@@ -89,5 +89,16 @@ window.BUSINESS_CONFIG = {
     "privacy": "We normally respond to valid privacy requests within one month after any necessary identity verification.",
     "security": "We aim to acknowledge credible urgent security reports promptly and prioritize them by impact."
   },
-  "launchBlockers": []
+  "launchBlockers": [
+    "Configure legalTradingName.",
+    "Configure operatorType.",
+    "Configure registeredAddress.",
+    "Configure supportEmail.",
+    "Configure privacyEmail.",
+    "Configure refundEmail.",
+    "Configure governingJurisdiction.",
+    "Configure privacyLawfulBasis.",
+    "Configure internationalTransferBasis.",
+    "Configure complaintRoute."
+  ]
 };

@@ -1,6 +1,6 @@
 # Security Red-Team Report
 
-Generated: 2026-07-11T22:03:08.560Z
+Generated: 2026-07-15T13:08:40.323Z
 
 NO-GO
 
@@ -26,13 +26,13 @@ NO-GO
 | inspect public assets for secrets or answer keys | pass | No obvious public secret patterns; preview package has no answer-key fields. |
 
 ## Security Blockers
-### P1-PAY-001: Full Stripe test-mode checkout, webhook entitlement, instructor pack, and refund reconciliation were not executed against a real test Stripe account and Neon database in this audit pass.
+### P1-PAY-001: Stripe test-mode checkout, webhook, entitlement, instructor, refund, dispute, and reconciliation evidence is incomplete or invalid.
 
 - Severity: P1
-- Evidence: Automated tests cover mocked webhook/payment policy behavior, but no safe test-mode Stripe keys/price IDs/webhook forwarding target were supplied for an end-to-end purchase run in this pass.
+- Evidence: generatedAt must be an ISO timestamp. commit must be a full 40-character Git SHA. Evidence commit does not match the audited Git commit. Evidence branch does not match the audited branch. vercelDeploymentId must be a Vercel deployment ID. The audit must provide the expected Vercel deployment ID. tests.fullStudyPassCheckout is missing. tests.instructor10Checkout is missing. tests.instructor25Checkout is missing. tests.webhookEntitlement is missing. tests.duplicateWebhook is missing. tests.repeatPurchaseExtension is missing. tests.checkoutCancellation is missing. tests.declinedPayment is missing. tests.partialRefund is missing. tests.fullRefund is missing. tests.disputeOpen is missing. tests.disputeWonClosed is missing. tests.instructorCodeGeneration is missing. tests.instructorCodeRedemption is missing. tests.malformedWebhookSignature is missing. tests.validWebhookResponse is missing. tests.reconciliation is missing.
 - Affected files/routes: server/api/create-checkout-session.js, server/api/stripe-webhook.js, server/api/admin/payments.js, lib/instructor-codes.js, /api/create-checkout-session, /api/stripe-webhook
-- Reproduction: Configure a Neon preview database and Stripe test-mode prices/webhook secret, then run a real test card Checkout for learner and instructor plans; confirm webhook creates purchase, entitlement, and instructor codes.
-- Required fix: Complete and record test-mode purchases for Full Study Pass, launch offer if enabled, instructor_10, instructor_25, duplicate webhook replay, refund/dispute recording, and entitlement effects.
+- Reproduction: Set PAYMENT_EVIDENCE_DEPLOYMENT_ID to the audited preview deployment, then run npm run audit:final and inspect the validation errors for reports/final/payment-test-evidence.json.
+- Required fix: Run the complete deployed Preview Stripe sandbox matrix and generate schema-valid, fresh, redacted evidence for the exact audited commit and deployment with zero unresolved reconciliation findings.
 - Owner: Payments / operations
 - Retest requirement: Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted.
 

@@ -3377,11 +3377,13 @@ button.is-loading::after,
 .legal-page li {
   color: var(--color-muted);
   line-height: 1.75;
+  overflow-wrap: anywhere;
 }
 
 .legal-page a {
   color: var(--color-primary);
   font-weight: 750;
+  overflow-wrap: anywhere;
 }
 
 .legal-local-nav {
@@ -3438,13 +3440,26 @@ button.is-loading::after,
 
 .model-cancellation-form form {
   display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-4);
+}
+
+.model-cancellation-form form > * {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .cancellation-actions {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);
+}
+
+.cancellation-actions button {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
 }
 
 .checkout-consent-note {

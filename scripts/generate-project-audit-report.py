@@ -363,7 +363,7 @@ def build_pdf(facts: dict, markdown: str) -> None:
         topMargin=0.62 * inch,
         bottomMargin=0.58 * inch,
         title="Irish Theory Test Coach Project Audit",
-        author="Codex",
+        author="AI-assisted project documentation",
     )
 
     story = []

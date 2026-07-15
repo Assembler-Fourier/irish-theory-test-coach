@@ -1,8 +1,8 @@
 # Final Commercial Launch Audit
 
-Generated: 2026-07-11T22:03:08.560Z
-Branch: codex/commercial-v1
-Commit: f93876c95d2f2ce0d26dceafbe12a7c6d4cf1181
+Generated: 2026-07-15T13:08:40.323Z
+Branch: chore/hiring-profile-hardening
+Commit: f5d42eed9bd9d9965c970ede8004ae7947bb09e8
 
 NO-GO
 
@@ -21,23 +21,23 @@ The current build passes the automated commercial QA suite, but this red-team au
 - Owner: Product owner / legal / operations
 - Retest requirement: Run npm run build, npm run check:compliance, npm run qa, and manually inspect contact/privacy/terms/refunds plus checkout creation.
 
-### P1-PAY-001: Full Stripe test-mode checkout, webhook entitlement, instructor pack, and refund reconciliation were not executed against a real test Stripe account and Neon database in this audit pass.
+### P1-PAY-001: Stripe test-mode checkout, webhook, entitlement, instructor, refund, dispute, and reconciliation evidence is incomplete or invalid.
 
 - Severity: P1
-- Evidence: Automated tests cover mocked webhook/payment policy behavior, but no safe test-mode Stripe keys/price IDs/webhook forwarding target were supplied for an end-to-end purchase run in this pass.
+- Evidence: generatedAt must be an ISO timestamp. commit must be a full 40-character Git SHA. Evidence commit does not match the audited Git commit. Evidence branch does not match the audited branch. vercelDeploymentId must be a Vercel deployment ID. The audit must provide the expected Vercel deployment ID. tests.fullStudyPassCheckout is missing. tests.instructor10Checkout is missing. tests.instructor25Checkout is missing. tests.webhookEntitlement is missing. tests.duplicateWebhook is missing. tests.repeatPurchaseExtension is missing. tests.checkoutCancellation is missing. tests.declinedPayment is missing. tests.partialRefund is missing. tests.fullRefund is missing. tests.disputeOpen is missing. tests.disputeWonClosed is missing. tests.instructorCodeGeneration is missing. tests.instructorCodeRedemption is missing. tests.malformedWebhookSignature is missing. tests.validWebhookResponse is missing. tests.reconciliation is missing.
 - Affected files/routes: server/api/create-checkout-session.js, server/api/stripe-webhook.js, server/api/admin/payments.js, lib/instructor-codes.js, /api/create-checkout-session, /api/stripe-webhook
-- Reproduction: Configure a Neon preview database and Stripe test-mode prices/webhook secret, then run a real test card Checkout for learner and instructor plans; confirm webhook creates purchase, entitlement, and instructor codes.
-- Required fix: Complete and record test-mode purchases for Full Study Pass, launch offer if enabled, instructor_10, instructor_25, duplicate webhook replay, refund/dispute recording, and entitlement effects.
+- Reproduction: Set PAYMENT_EVIDENCE_DEPLOYMENT_ID to the audited preview deployment, then run npm run audit:final and inspect the validation errors for reports/final/payment-test-evidence.json.
+- Required fix: Run the complete deployed Preview Stripe sandbox matrix and generate schema-valid, fresh, redacted evidence for the exact audited commit and deployment with zero unresolved reconciliation findings.
 - Owner: Payments / operations
 - Retest requirement: Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted.
 
-### P1-DOMAIN-001: Production canonical origin is still the Vercel app URL instead of a configured custom commercial domain.
+### P1-DOMAIN-001: The custom commercial domain is not publicly ready.
 
 - Severity: P1
-- Evidence: public/growth-config.json canonicalOrigin is https://irish-theory-test-coach.vercel.app; sitemap/canonical metadata currently use that origin.
+- Evidence: Canonical metadata uses https://irishtheorycoach.ie, but live domain validation failed: The apex domain is not available through public DNS.
 - Affected files/routes: public/growth-config.json, public/sitemap.xml, shared/growth-config.js, all public SEO pages
-- Reproduction: Run `npm run build` without PUBLIC_CANONICAL_ORIGIN, then inspect public/growth-config.json and public/sitemap.xml.
-- Required fix: Connect the custom domain, set PUBLIC_CANONICAL_ORIGIN to the final HTTPS origin, rebuild, and submit the final sitemap.
+- Reproduction: Run `npm run audit:final`, inspect evidence.domainValidation in reports/final/production-readiness.json, and test apex/www DNS plus HTTPS.
+- Required fix: Connect the custom domain, wait for public DNS and HTTPS certificate issuance, confirm the www permanent redirect, rebuild if needed, and submit the final sitemap.
 - Owner: Growth / operations
 - Retest requirement: Run npm run check:seo, npm run qa, and inspect Search Console URL Inspection for priority pages.
 
@@ -77,8 +77,8 @@ The current build passes the automated commercial QA suite, but this red-team au
 
 | Journey | Status | Evidence |
 | --- | --- | --- |
-| checkout test-mode flow | blocked | Requires real Stripe test-mode env and Neon preview DB; not executed in this pass. |
-| webhook entitlement | partial | Mock webhook test passes; real test-mode webhook entitlement must be exercised before launch. |
+| checkout test-mode flow | blocked | Valid deployment-bound Stripe test evidence is required. |
+| webhook entitlement | partial | Mock webhook test passes; real test-mode webhook entitlement evidence is incomplete. |
 | login link | pass | Auth tests cover unknown/known/malformed/throttled/expired/used token behavior. |
 | access restoration | partial | Restore UI/API covered; production email provider and support identity remain unconfigured. |
 | premium study | pass | Content-security tests verify active paid users can access premium questions and logged-out/expired users cannot. |
@@ -95,7 +95,7 @@ The current build passes the automated commercial QA suite, but this red-team au
 
 | Journey | Status | Evidence |
 | --- | --- | --- |
-| pack purchase | blocked | Instructor Stripe pack purchase was not executed in real Stripe test mode. |
+| pack purchase | blocked | Instructor Stripe pack purchase requires valid test evidence. |
 | code generation | partial | generateInstructorCodesForPurchase creates strong codes; needs real pack purchase test. |
 | CSV export | pass | Admin export/instructor routes exist and admin authz test covers them. |
 | learner redemption | partial | Server redemption logic exists with generic errors; real DB redemption test still needed. |
@@ -129,7 +129,7 @@ The current build passes the automated commercial QA suite, but this red-team au
 - Policy version recording: implemented through checkout metadata; final legal config blocked by 10 placeholder(s).
 - Operator details present: blocked
 - Support mailbox configured: blocked
-- Custom domain canonical: blocked
+- Custom domain canonical and HTTPS: blocked (The apex domain is not available through public DNS.)
 
 ## Release Checklist
 ### Environment
