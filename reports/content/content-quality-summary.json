@@ -1,0 +1,238 @@
+{
+  "generatedAt": "2026-07-15T17:59:42.120Z",
+  "registryVersion": 1,
+  "summary": {
+    "totalQuestions": 1277,
+    "canonicalCategories": 12,
+    "duplicateGroups": 276,
+    "answerVariantGroups": 135,
+    "conflictingAnswerGroups": 0,
+    "lintFindings": 1160,
+    "editorialBacklog": 1436
+  },
+  "taxonomy": [
+    {
+      "key": "alert_driving_consideration",
+      "displayName": "Alert Driving and Consideration",
+      "description": "Observation, anticipation, courtesy, and consideration for other road users.",
+      "order": 10,
+      "aliases": [
+        "Alert Driving and Consideration",
+        "Alert Driving and Consideration for Other Road Users",
+        "Driver Behaviour and Anticipation",
+        "Observation/Field of View",
+        "Good Judgement and Perception"
+      ],
+      "active": true
+    },
+    {
+      "key": "safe_responsible_driving",
+      "displayName": "Safe and Responsible Driving",
+      "description": "Safe driving behaviour, vulnerable-road-user awareness, and responsible decision-making.",
+      "order": 20,
+      "aliases": [
+        "Safe and Responsible Driving",
+        "Vulnerable Road Users"
+      ],
+      "active": true
+    },
+    {
+      "key": "legal_rules_road",
+      "displayName": "Legal Matters / Rules of the Road",
+      "description": "Legal duties, rules of the road, restrictions, priorities, and required driver actions.",
+      "order": 30,
+      "aliases": [
+        "Legal Matters/Rules of the Road",
+        "Legal Matters / Rules of the Road",
+        "Road Signs, Markings and Traffic Regulations"
+      ],
+      "active": true
+    },
+    {
+      "key": "traffic_signs_regulatory",
+      "displayName": "Traffic Signs and Regulatory Matters",
+      "description": "Traffic signs, road markings, regulatory instructions, and visual road information.",
+      "order": 40,
+      "aliases": [
+        "Traffic Signs and Regulatory Matters",
+        "Road markings",
+        "Road Markings",
+        "Regulatory signs",
+        "Regulatory Signs",
+        "Warning signs",
+        "Warning Signs"
+      ],
+      "active": true
+    },
+    {
+      "key": "managing_risk",
+      "displayName": "Managing Risk",
+      "description": "Hazard awareness, changing road conditions, speed choice, and risk reduction.",
+      "order": 50,
+      "aliases": [
+        "Managing Risk",
+        "Driving Risk Factors Related to Various Road Conditions",
+        "Driving Risk Factors Related to Road Conditions as they Change with Weather and Day/Night",
+        "Observance of Safe Distance",
+        "Observance of Safe Distances and Driving in Various Weather/Road Conditions"
+      ],
+      "active": true
+    },
+    {
+      "key": "control_vehicle",
+      "displayName": "Control of Vehicle",
+      "description": "Vehicle control, positioning, steering, braking, and safe operation of controls.",
+      "order": 60,
+      "aliases": [
+        "Control of Vehicle",
+        "Getting On or Off the Vehicle"
+      ],
+      "active": true
+    },
+    {
+      "key": "technical_matters",
+      "displayName": "Technical Matters",
+      "description": "Vehicle condition, maintenance, tyres, lights, warning systems, and technical safety checks.",
+      "order": 70,
+      "aliases": [
+        "Technical Matters",
+        "Techincal Matters",
+        "Technical Matters with a Bearing on Road Safety",
+        "Safety Factors Relating to Vehicle and Persons Carried",
+        "Safety Factors Relating to Vehicle Loading and Persons Carried"
+      ],
+      "active": true
+    },
+    {
+      "key": "collisions_emergency",
+      "displayName": "Collisions and Emergency Action",
+      "description": "Collisions, emergencies, corrective action, and incident response.",
+      "order": 80,
+      "aliases": [
+        "Collisions",
+        "Taking Emergency/Corrective Action",
+        "Taking Corrective or Emergency Action"
+      ],
+      "active": true
+    },
+    {
+      "key": "documents",
+      "displayName": "Necessary Documents",
+      "description": "Licences, insurance, test certificates, and required vehicle or driver documents.",
+      "order": 90,
+      "aliases": [
+        "Necessary Documents"
+      ],
+      "active": true
+    },
+    {
+      "key": "road_types_environment",
+      "displayName": "Road Types and Environmental Matters",
+      "description": "Road types, environmental considerations, and conditions affecting driving choices.",
+      "order": 100,
+      "aliases": [
+        "Characteristics of Various Types of Road",
+        "Environmental Matters"
+      ],
+      "active": true
+    },
+    {
+      "key": "drugs_alcohol",
+      "displayName": "Drugs and Alcohol",
+      "description": "Alcohol, drugs, medication, impairment, and related legal or safety consequences.",
+      "order": 110,
+      "aliases": [
+        "Drugs and Alcohol"
+      ],
+      "active": true
+    },
+    {
+      "key": "uncategorised",
+      "displayName": "Uncategorised",
+      "description": "Questions awaiting canonical category assignment.",
+      "order": 999,
+      "aliases": [
+        "Uncategorized",
+        "Uncategorised",
+        ""
+      ],
+      "active": false
+    }
+  ],
+  "topLintTypes": [
+    {
+      "key": "missing_alt_description",
+      "count": 666
+    },
+    {
+      "key": "malformed_image_path",
+      "count": 357
+    },
+    {
+      "key": "category_unmapped",
+      "count": 34
+    },
+    {
+      "key": "non_standard_option_count",
+      "count": 34
+    },
+    {
+      "key": "unexplained_acronym",
+      "count": 30
+    },
+    {
+      "key": "leading_symbol",
+      "count": 26
+    },
+    {
+      "key": "irish_british_english",
+      "count": 13
+    }
+  ],
+  "topDuplicateReasons": [
+    {
+      "key": "exact_stem|normalised_stem",
+      "count": 121
+    },
+    {
+      "key": "near_duplicate_stem",
+      "count": 58
+    },
+    {
+      "key": "exact_stem|normalised_stem|same_question_answers_reordered",
+      "count": 50
+    },
+    {
+      "key": "normalised_stem",
+      "count": 16
+    },
+    {
+      "key": "exact_stem|near_duplicate_stem|normalised_stem|same_question_answers_reordered",
+      "count": 12
+    },
+    {
+      "key": "exact_stem|near_duplicate_stem|normalised_stem",
+      "count": 11
+    },
+    {
+      "key": "exact_stem",
+      "count": 3
+    },
+    {
+      "key": "normalised_stem|same_question_answers_reordered",
+      "count": 2
+    },
+    {
+      "key": "exact_stem|normalised_stem|same_image_repeated_question",
+      "count": 1
+    },
+    {
+      "key": "near_duplicate_stem|normalised_stem",
+      "count": 1
+    },
+    {
+      "key": "near_duplicate_stem|normalised_stem|same_question_answers_reordered",
+      "count": 1
+    }
+  ]
+}

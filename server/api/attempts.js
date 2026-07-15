@@ -1,5 +1,7 @@
 import { getSessionUser, readJsonBody } from "../../lib/auth.js";
 import { withDb } from "../../lib/db.js";
+import { checkRateLimit, limitFromEnv, rateLimitKey, sendRateLimited } from "../../lib/rate-limit.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
 import {
   getAuthServerEnv,
   safeErrorSummary,
@@ -21,13 +23,23 @@ export default async function handler(req, res) {
     return sendSafeConfigError(res, error);
   }
 
+  const origin = verifyStateChangingRequest(req, env);
+  if (!origin.ok) return rejectUnverifiedRequest(res);
+
+  const limit = checkRateLimit({
+    key: rateLimitKey(req, "attempts-write"),
+    limit: limitFromEnv("RATE_LIMIT_ATTEMPTS_WRITE", 240),
+    windowMs: 60_000,
+  });
+  if (!limit.allowed) return sendRateLimited(res, limit);
+
   try {
     const user = await getSessionUser(req, env.databaseUrl);
     if (!user) {
       return res.status(401).json({ error: "Login required" });
     }
 
-    const body = await readJsonBody(req);
+    const body = await readJsonBody(req, { maxBytes: 24_576 });
     const attempts = normalizeAttempts(body.attempts || body.attempt || []);
     if (!attempts.length) {
       return res.status(400).json({ error: "No attempts provided" });
@@ -48,6 +60,7 @@ function normalizeAttempts(value) {
     .map((item) => ({
       clientEventId: cleanText(item.clientEventId || item.client_event_id, 120),
       questionId: Number(item.questionId ?? item.question_id),
+      canonicalQuestionId: Number(item.canonicalQuestionId ?? item.canonical_question_id ?? item.questionId ?? item.question_id),
       selectedIndex: Number.isInteger(item.selectedIndex)
         ? item.selectedIndex
         : Number.isInteger(item.selected_index)
@@ -71,6 +84,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
             user_id,
             email,
             question_id,
+            canonical_question_id,
             selected_index,
             correct,
             mode,
@@ -78,7 +92,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
             client_event_id,
             created_at
           )
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
           on conflict (user_id, client_event_id)
           where user_id is not null and client_event_id is not null
           do nothing
@@ -87,6 +101,7 @@ async function saveAttempts(databaseUrl, user, attempts) {
           user.userId,
           user.email,
           attempt.questionId,
+          Number.isInteger(attempt.canonicalQuestionId) ? attempt.canonicalQuestionId : attempt.questionId,
           attempt.selectedIndex,
           attempt.correct,
           attempt.mode,
@@ -96,6 +111,17 @@ async function saveAttempts(databaseUrl, user, attempts) {
         ]
       );
       saved += result.rowCount;
+    }
+    if (saved) {
+      await client.query(
+        `
+          update users
+          set last_active_at = now(),
+              updated_at = now()
+          where id = $1
+        `,
+        [user.userId]
+      );
     }
     return saved;
   });

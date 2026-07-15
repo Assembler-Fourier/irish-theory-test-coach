@@ -1,0 +1,753 @@
+{
+  "generatedAt": "2026-07-15T13:08:40.323Z",
+  "branch": "chore/hiring-profile-hardening",
+  "commit": "f5d42eed9bd9d9965c970ede8004ae7947bb09e8",
+  "decision": "NO-GO",
+  "product": {
+    "productVersion": "0.1.0-commercial-v1",
+    "contentVersion": "ff1535f7684d9ccc",
+    "schemaVersion": "da07814e976a",
+    "releaseManifestSchemaVersion": "da07814e976a",
+    "totalPublishedQuestions": 1277,
+    "previewLimit": 15,
+    "activePrice": "EUR 4.99",
+    "activePlanKey": "full_study_pass",
+    "accessDurationDays": 90
+  },
+  "blockers": [
+    {
+      "id": "P1-BIZ-001",
+      "severity": "P1",
+      "title": "Mandatory commercial identity and support fields are still placeholders.",
+      "evidence": "public/business-config.json exposes 10 launchBlocker item(s): Configure legalTradingName. Configure operatorType. Configure registeredAddress. Configure supportEmail. Configure privacyEmail. Configure refundEmail. Configure governingJurisdiction. Configure privacyLawfulBasis. Configure internationalTransferBasis. Configure complaintRoute.",
+      "affectedFilesRoutes": [
+        "public/business-config.json",
+        "public/contact.html",
+        "public/privacy.html",
+        "public/terms.html",
+        "public/refunds.html",
+        "/api/create-checkout-session"
+      ],
+      "reproduction": "Run `npm run build` without commercial identity env vars, then open public/business-config.json or any policy page and search for NOT_CONFIGURED.",
+      "requiredFix": "Configure LEGAL_TRADING_NAME, OPERATOR_TYPE, REGISTERED_ADDRESS, SUPPORT_EMAIL, PRIVACY_EMAIL, REFUND_EMAIL, GOVERNING_JURISDICTION, PRIVACY_LAWFUL_BASIS, INTERNATIONAL_TRANSFER_BASIS, and PRIVACY_COMPLAINT_ROUTE in production/preview as appropriate; rebuild and verify launchBlockers is empty.",
+      "owner": "Product owner / legal / operations",
+      "retestRequirement": "Run npm run build, npm run check:compliance, npm run qa, and manually inspect contact/privacy/terms/refunds plus checkout creation."
+    },
+    {
+      "id": "P1-PAY-001",
+      "severity": "P1",
+      "title": "Stripe test-mode checkout, webhook, entitlement, instructor, refund, dispute, and reconciliation evidence is incomplete or invalid.",
+      "evidence": "generatedAt must be an ISO timestamp. commit must be a full 40-character Git SHA. Evidence commit does not match the audited Git commit. Evidence branch does not match the audited branch. vercelDeploymentId must be a Vercel deployment ID. The audit must provide the expected Vercel deployment ID. tests.fullStudyPassCheckout is missing. tests.instructor10Checkout is missing. tests.instructor25Checkout is missing. tests.webhookEntitlement is missing. tests.duplicateWebhook is missing. tests.repeatPurchaseExtension is missing. tests.checkoutCancellation is missing. tests.declinedPayment is missing. tests.partialRefund is missing. tests.fullRefund is missing. tests.disputeOpen is missing. tests.disputeWonClosed is missing. tests.instructorCodeGeneration is missing. tests.instructorCodeRedemption is missing. tests.malformedWebhookSignature is missing. tests.validWebhookResponse is missing. tests.reconciliation is missing.",
+      "affectedFilesRoutes": [
+        "server/api/create-checkout-session.js",
+        "server/api/stripe-webhook.js",
+        "server/api/admin/payments.js",
+        "lib/instructor-codes.js",
+        "/api/create-checkout-session",
+        "/api/stripe-webhook"
+      ],
+      "reproduction": "Set PAYMENT_EVIDENCE_DEPLOYMENT_ID to the audited preview deployment, then run npm run audit:final and inspect the validation errors for reports/final/payment-test-evidence.json.",
+      "requiredFix": "Run the complete deployed Preview Stripe sandbox matrix and generate schema-valid, fresh, redacted evidence for the exact audited commit and deployment with zero unresolved reconciliation findings.",
+      "owner": "Payments / operations",
+      "retestRequirement": "Run npm run qa, Stripe CLI/dashboard webhook replay, admin payment reconciliation, and update reports/final/payment-test-matrix.md with real test session IDs redacted."
+    },
+    {
+      "id": "P1-DOMAIN-001",
+      "severity": "P1",
+      "title": "The custom commercial domain is not publicly ready.",
+      "evidence": "Canonical metadata uses https://irishtheorycoach.ie, but live domain validation failed: The apex domain is not available through public DNS.",
+      "affectedFilesRoutes": [
+        "public/growth-config.json",
+        "public/sitemap.xml",
+        "shared/growth-config.js",
+        "all public SEO pages"
+      ],
+      "reproduction": "Run `npm run audit:final`, inspect evidence.domainValidation in reports/final/production-readiness.json, and test apex/www DNS plus HTTPS.",
+      "requiredFix": "Connect the custom domain, wait for public DNS and HTTPS certificate issuance, confirm the www permanent redirect, rebuild if needed, and submit the final sitemap.",
+      "owner": "Growth / operations",
+      "retestRequirement": "Run npm run check:seo, npm run qa, and inspect Search Console URL Inspection for priority pages."
+    }
+  ],
+  "nonBlockingRisks": [
+    {
+      "id": "P2-CONTENT-VARIANTS-001",
+      "severity": "P2",
+      "title": "Repeated-stem answer-set variants still require editorial classification.",
+      "evidence": "135 answer-set variant group(s) remain in reports/content/answer-variant-groups.csv; these are not direct same-answer-set contradictions.",
+      "affected": [
+        "data/questions.enriched.json",
+        "reports/content/answer-variant-groups.csv",
+        "/admin.html"
+      ],
+      "status": "open",
+      "requiredFix": "Review and mark legitimate answer-set or image scenarios through the content-quality workflow; do not change factual answers automatically.",
+      "owner": "Content/editorial"
+    },
+    {
+      "id": "P2-CONTENT-ALT-001",
+      "severity": "P2",
+      "title": "Image-rich content still needs alt-description editorial work.",
+      "evidence": "666 missing_alt_description lint findings in reports/content/content-quality-summary.md.",
+      "affected": [
+        "data/questions.enriched.json",
+        "reports/content/editorial-backlog.csv"
+      ],
+      "status": "open",
+      "requiredFix": "Add meaningful alt descriptions during editorial review, especially for road-sign/image questions.",
+      "owner": "Content/editorial"
+    }
+  ],
+  "evidence": {
+    "publicDataJsonFiles": [
+      "public/data/preview-questions.json"
+    ],
+    "publicDataFileCount": 1,
+    "publicMapFiles": [],
+    "publicSecretHits": [],
+    "previewLeakChecks": {
+      "questionCount": 15,
+      "previewLimit": 15,
+      "underLimit": true,
+      "noAnswerKeys": true,
+      "duplicateCanonicalCount": 0,
+      "fullBankPublic": false
+    },
+    "routePresence": {
+      "public/index.html": true,
+      "public/app.html": true,
+      "public/pricing.html": true,
+      "public/learn.html": true,
+      "public/road-signs.html": true,
+      "public/mock-exam.html": true,
+      "public/account.html": true,
+      "public/support.html": true,
+      "public/admin.html": true,
+      "server/api/create-checkout-session.js": true,
+      "server/api/stripe-webhook.js": true,
+      "server/api/request-login-link.js": true,
+      "server/api/consume-login-link.js": true,
+      "server/api/referral-code.js": true,
+      "server/api/v1-study-sessions.js": true,
+      "server/api/v1-media.js": true,
+      "server/api/admin/payments.js": true
+    },
+    "pricingConsistency": {
+      "ok": true,
+      "errors": []
+    },
+    "paymentEvidence": {
+      "valid": false,
+      "errors": [
+        "generatedAt must be an ISO timestamp.",
+        "commit must be a full 40-character Git SHA.",
+        "Evidence commit does not match the audited Git commit.",
+        "Evidence branch does not match the audited branch.",
+        "vercelDeploymentId must be a Vercel deployment ID.",
+        "The audit must provide the expected Vercel deployment ID.",
+        "tests.fullStudyPassCheckout is missing.",
+        "tests.instructor10Checkout is missing.",
+        "tests.instructor25Checkout is missing.",
+        "tests.webhookEntitlement is missing.",
+        "tests.duplicateWebhook is missing.",
+        "tests.repeatPurchaseExtension is missing.",
+        "tests.checkoutCancellation is missing.",
+        "tests.declinedPayment is missing.",
+        "tests.partialRefund is missing.",
+        "tests.fullRefund is missing.",
+        "tests.disputeOpen is missing.",
+        "tests.disputeWonClosed is missing.",
+        "tests.instructorCodeGeneration is missing.",
+        "tests.instructorCodeRedemption is missing.",
+        "tests.malformedWebhookSignature is missing.",
+        "tests.validWebhookResponse is missing.",
+        "tests.reconciliation is missing."
+      ],
+      "deploymentId": "PENDING_PREVIEW_DEPLOYMENT",
+      "generatedAt": "PENDING_REAL_SANDBOX_RUN"
+    },
+    "businessLaunchBlockers": [
+      "Configure legalTradingName.",
+      "Configure operatorType.",
+      "Configure registeredAddress.",
+      "Configure supportEmail.",
+      "Configure privacyEmail.",
+      "Configure refundEmail.",
+      "Configure governingJurisdiction.",
+      "Configure privacyLawfulBasis.",
+      "Configure internationalTransferBasis.",
+      "Configure complaintRoute."
+    ],
+    "canonicalOrigin": "https://irishtheorycoach.ie",
+    "domainValidation": {
+      "valid": false,
+      "reason": "The apex domain is not available through public DNS."
+    },
+    "robotsAdminBlocked": true,
+    "sitemapUrlCount": 46
+  },
+  "journeys": {
+    "freeLearner": [
+      {
+        "name": "landing page",
+        "status": "pass",
+        "evidence": "Homepage exists, is indexable, and is covered by SEO/app-flow checks."
+      },
+      {
+        "name": "preview start",
+        "status": "pass",
+        "evidence": "test-app-flows and test-e2e cover preview loading from public preview package."
+      },
+      {
+        "name": "answer flow",
+        "status": "pass",
+        "evidence": "test-e2e covers keyboard answer, correct state, wrong state, and feedback live region."
+      },
+      {
+        "name": "refresh",
+        "status": "pass",
+        "evidence": "test-e2e reloads /app before mock flow; local preview state is client-backed."
+      },
+      {
+        "name": "offline preview",
+        "status": "pass",
+        "evidence": "check:pwa validates service worker shell/preview caching; full premium bank is not cached publicly."
+      },
+      {
+        "name": "preview limit",
+        "status": "pass",
+        "evidence": "test-content-security verifies preview cannot exceed server-side limit; preview package has 15 questions."
+      },
+      {
+        "name": "paywall",
+        "status": "pass",
+        "evidence": "test-e2e covers premium mode paywall and restore entry."
+      },
+      {
+        "name": "pricing",
+        "status": "pass",
+        "evidence": "pricing route exists, SEO checks pass, pricing config matches active product summary."
+      },
+      {
+        "name": "support",
+        "status": "blocked",
+        "evidence": "Support page exists but public support mailbox is NOT_CONFIGURED until P1-BIZ-001 is fixed."
+      }
+    ],
+    "paidLearner": [
+      {
+        "name": "checkout test-mode flow",
+        "status": "blocked",
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
+      },
+      {
+        "name": "webhook entitlement",
+        "status": "partial",
+        "evidence": "Mock webhook test passes; real test-mode webhook entitlement evidence is incomplete."
+      },
+      {
+        "name": "login link",
+        "status": "pass",
+        "evidence": "Auth tests cover unknown/known/malformed/throttled/expired/used token behavior."
+      },
+      {
+        "name": "access restoration",
+        "status": "partial",
+        "evidence": "Restore UI/API covered; production email provider and support identity remain unconfigured."
+      },
+      {
+        "name": "premium study",
+        "status": "pass",
+        "evidence": "Content-security tests verify active paid users can access premium questions and logged-out/expired users cannot."
+      },
+      {
+        "name": "mock",
+        "status": "pass",
+        "evidence": "E2E covers premium mock start and test suite covers forged score rejection."
+      },
+      {
+        "name": "progress sync",
+        "status": "pass",
+        "evidence": "API progress/attempt routes and test suite cover server-backed progress contracts."
+      },
+      {
+        "name": "second device",
+        "status": "manual_required",
+        "evidence": "Passwordless account model supports it, but real cross-browser email-link restore needs staging test."
+      },
+      {
+        "name": "session logout",
+        "status": "pass",
+        "evidence": "Account/auth tests cover session revocation paths."
+      },
+      {
+        "name": "expired access",
+        "status": "pass",
+        "evidence": "Content-security tests cover expired users blocked from premium content."
+      },
+      {
+        "name": "renewal",
+        "status": "manual_required",
+        "evidence": "Entitlement extension logic exists; repeat-purchase behavior needs real Stripe/DB staging test."
+      },
+      {
+        "name": "data export",
+        "status": "pass",
+        "evidence": "Account export route exists and admin/account tests cover access control."
+      },
+      {
+        "name": "deletion request",
+        "status": "pass",
+        "evidence": "Delete-account request route/page exists; operational fulfillment remains support/legal workflow."
+      }
+    ],
+    "instructor": [
+      {
+        "name": "pack purchase",
+        "status": "blocked",
+        "evidence": "Instructor Stripe pack purchase requires valid test evidence."
+      },
+      {
+        "name": "code generation",
+        "status": "partial",
+        "evidence": "generateInstructorCodesForPurchase creates strong codes; needs real pack purchase test."
+      },
+      {
+        "name": "CSV export",
+        "status": "pass",
+        "evidence": "Admin export/instructor routes exist and admin authz test covers them."
+      },
+      {
+        "name": "learner redemption",
+        "status": "partial",
+        "evidence": "Server redemption logic exists with generic errors; real DB redemption test still needed."
+      },
+      {
+        "name": "duplicate redemption",
+        "status": "partial",
+        "evidence": "Database row lock prevents concurrent double use; concurrency staging test still required."
+      },
+      {
+        "name": "code expiration",
+        "status": "partial",
+        "evidence": "isRedeemable checks expires_at; staging fixture test recommended."
+      },
+      {
+        "name": "code revocation",
+        "status": "pass",
+        "evidence": "Admin payment action supports confirmed revocation and audit logging."
+      },
+      {
+        "name": "instructor reporting",
+        "status": "pass",
+        "evidence": "Admin instructors/referrals/revenue routes exist with role enforcement."
+      }
+    ],
+    "admin": [
+      {
+        "name": "role enforcement",
+        "status": "pass",
+        "evidence": "test-admin-authz verifies 401/403/authorized behavior across admin endpoints."
+      },
+      {
+        "name": "user search",
+        "status": "pass",
+        "evidence": "Admin users endpoint and UI route exist."
+      },
+      {
+        "name": "purchase reconciliation",
+        "status": "pass",
+        "evidence": "Admin payments and ops reconciliation routes exist; scheduled reconciliation added."
+      },
+      {
+        "name": "refund recording",
+        "status": "pass",
+        "evidence": "Admin payments supports confirmed manual refund record and audit."
+      },
+      {
+        "name": "entitlement management",
+        "status": "pass",
+        "evidence": "Admin entitlements supports grant/revoke/extend with audit."
+      },
+      {
+        "name": "content editing",
+        "status": "pass",
+        "evidence": "Admin content-quality endpoint stores version/review decisions."
+      },
+      {
+        "name": "duplicate review",
+        "status": "pass",
+        "evidence": "Duplicate/conflict groups are exposed through admin content-quality API."
+      },
+      {
+        "name": "learner question report",
+        "status": "pass",
+        "evidence": "question-feedback route exists and is wired in app flow test."
+      },
+      {
+        "name": "audit log",
+        "status": "pass",
+        "evidence": "Admin audit log table/API and mutation logging exist."
+      },
+      {
+        "name": "support case",
+        "status": "pass",
+        "evidence": "Support case table/API exist."
+      },
+      {
+        "name": "export",
+        "status": "pass",
+        "evidence": "Admin export route exists and authz test covers it."
+      }
+    ]
+  },
+  "attacks": [
+    {
+      "name": "download complete public question bank",
+      "status": "pass",
+      "evidence": "Public data JSON files: public/data/preview-questions.json. Preview exposes 15 questions."
+    },
+    {
+      "name": "access premium API logged out",
+      "status": "pass",
+      "evidence": "test-content-security verifies logged-out users cannot access premium questions."
+    },
+    {
+      "name": "forge entitlement",
+      "status": "pass",
+      "evidence": "Premium access requires server session + entitlement; client localStorage is fallback-only for legacy UI, not premium API."
+    },
+    {
+      "name": "alter price",
+      "status": "pass",
+      "evidence": "Checkout plan resolves server-side Stripe price ID; browser never submits amount."
+    },
+    {
+      "name": "replay webhook",
+      "status": "pass",
+      "evidence": "Webhook event store idempotency and duplicate mock tests pass."
+    },
+    {
+      "name": "reuse login token",
+      "status": "pass",
+      "evidence": "Auth tests cover consumed token and consumeLoginToken locks token row."
+    },
+    {
+      "name": "brute-force login requests",
+      "status": "pass",
+      "evidence": "Request-login and consume-login endpoints use IP/email/token scoped rate limits."
+    },
+    {
+      "name": "spam analytics",
+      "status": "pass",
+      "evidence": "Events endpoint has validation, allowlist and rate limiting; oversized body test passes."
+    },
+    {
+      "name": "redeem code concurrently",
+      "status": "partial",
+      "evidence": "Instructor code redemption uses SELECT FOR UPDATE; needs staging concurrency test with real database."
+    },
+    {
+      "name": "IDOR",
+      "status": "pass",
+      "evidence": "Admin endpoints require server-side roles; study sessions signed and tied to entitlement/email."
+    },
+    {
+      "name": "CSRF",
+      "status": "pass",
+      "evidence": "State-changing routes verify Origin/Host; security tests include origin bypass checks."
+    },
+    {
+      "name": "XSS",
+      "status": "pass",
+      "evidence": "Request validators reject unsafe strings; security tests cover stored/reflected XSS probes."
+    },
+    {
+      "name": "SQL injection",
+      "status": "pass",
+      "evidence": "APIs use parameterized queries; security tests cover injection attempts."
+    },
+    {
+      "name": "oversized request",
+      "status": "pass",
+      "evidence": "Catch-all and body readers enforce size limits; tests cover 413."
+    },
+    {
+      "name": "cache leakage",
+      "status": "pass",
+      "evidence": "API default Cache-Control is no-store; protected media is short private cache."
+    },
+    {
+      "name": "inspect source maps",
+      "status": "pass",
+      "evidence": "No public .map files found."
+    },
+    {
+      "name": "inspect public assets for secrets or answer keys",
+      "status": "pass",
+      "evidence": "No obvious public secret patterns; preview package has no answer-key fields."
+    }
+  ],
+  "quality": [
+    {
+      "name": "mobile 320-430px",
+      "status": "pass",
+      "evidence": "test:e2e covers 320, 360, 375, 390, 412, 430 no-horizontal-scroll checks."
+    },
+    {
+      "name": "tablet",
+      "status": "pass",
+      "evidence": "test:e2e/test:visual cover tablet 768px."
+    },
+    {
+      "name": "1024px",
+      "status": "manual_required",
+      "evidence": "CSS supports desktop; specific 1024 manual viewport is required for final release signoff."
+    },
+    {
+      "name": "1280px",
+      "status": "pass",
+      "evidence": "test:e2e/test:visual cover 1280px."
+    },
+    {
+      "name": "1440px",
+      "status": "manual_required",
+      "evidence": "Specific 1440 manual viewport is required for final release signoff."
+    },
+    {
+      "name": "keyboard",
+      "status": "pass",
+      "evidence": "test:e2e covers keyboard answer flow."
+    },
+    {
+      "name": "screen reader landmarks",
+      "status": "pass",
+      "evidence": "test:a11y axe checks 7 states, 0 critical violations in last run."
+    },
+    {
+      "name": "200% zoom",
+      "status": "manual_required",
+      "evidence": "Needs manual browser zoom inspection before launch."
+    },
+    {
+      "name": "reduced motion",
+      "status": "manual_required",
+      "evidence": "CSS includes reduced-motion handling; manual verification still required."
+    },
+    {
+      "name": "slow network",
+      "status": "manual_required",
+      "evidence": "Loading states exist; staging throttled-network test required."
+    },
+    {
+      "name": "API failure",
+      "status": "partial",
+      "evidence": "Smoke/API tests cover safe errors; manual app behavior under API outage still needed."
+    },
+    {
+      "name": "email failure",
+      "status": "pass",
+      "evidence": "request-login-link records email_delivery_failure and returns safe production failure."
+    },
+    {
+      "name": "database failure",
+      "status": "pass",
+      "evidence": "/api/ready emits safe DB failure and does not expose internals."
+    },
+    {
+      "name": "expired session",
+      "status": "pass",
+      "evidence": "Auth/session tests cover expired/revoked session behavior."
+    },
+    {
+      "name": "duplicate webhook",
+      "status": "pass",
+      "evidence": "Webhook mock tests cover duplicate idempotency."
+    }
+  ],
+  "payment": {
+    "activePlan": {
+      "key": "full_study_pass",
+      "label": "Full Study Pass",
+      "amountCents": 499,
+      "currency": "EUR",
+      "displayPrice": "EUR 4.99",
+      "entitlementDays": 90,
+      "checkout": true,
+      "kind": "learner",
+      "codeCount": null,
+      "description": "One-time learner access for 90 days.",
+      "enabled": true,
+      "active": true
+    },
+    "plans": [
+      {
+        "key": "launch_offer",
+        "label": "Launch offer",
+        "displayPrice": "EUR 2.99",
+        "amountCents": 299,
+        "currency": "EUR",
+        "entitlementDays": 90,
+        "enabled": false,
+        "checkout": true,
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
+      },
+      {
+        "key": "full_study_pass",
+        "label": "Full Study Pass",
+        "displayPrice": "EUR 4.99",
+        "amountCents": 499,
+        "currency": "EUR",
+        "entitlementDays": 90,
+        "enabled": true,
+        "checkout": true,
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
+      },
+      {
+        "key": "instructor_10",
+        "label": "Instructor pack - 10 codes",
+        "displayPrice": "EUR 29.00",
+        "amountCents": 2900,
+        "currency": "EUR",
+        "entitlementDays": 90,
+        "enabled": true,
+        "checkout": true,
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
+      },
+      {
+        "key": "instructor_25",
+        "label": "Instructor pack - 25 codes",
+        "displayPrice": "EUR 69.00",
+        "amountCents": 6900,
+        "currency": "EUR",
+        "entitlementDays": 90,
+        "enabled": true,
+        "checkout": true,
+        "tested": "blocked",
+        "realStripeTestModeStatus": "blocked"
+      }
+    ],
+    "checks": [
+      {
+        "name": "server-authoritative price",
+        "status": "pass",
+        "evidence": "resolveCheckoutPlan reads Stripe price IDs from env; create-checkout-session sends line_items[0][price]."
+      },
+      {
+        "name": "checkout attempt before redirect",
+        "status": "pass",
+        "evidence": "createCheckoutAttempt runs before Stripe session creation."
+      },
+      {
+        "name": "webhook signature verification",
+        "status": "pass",
+        "evidence": "verifyStripeSignature validates timestamp/HMAC and test:webhook passes."
+      },
+      {
+        "name": "event idempotency",
+        "status": "pass",
+        "evidence": "beginStripeEventProcessing and webhook mock test cover duplicate events."
+      },
+      {
+        "name": "return URL entitlement grant",
+        "status": "pass",
+        "evidence": "Entitlement is not granted solely by browser return URL; webhook/session verification handles access."
+      },
+      {
+        "name": "refund/dispute representation",
+        "status": "pass",
+        "evidence": "Stripe webhook and admin payment endpoints record refund/dispute state and entitlement effects."
+      },
+      {
+        "name": "real learner checkout",
+        "status": "blocked",
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
+      },
+      {
+        "name": "real instructor checkout",
+        "status": "blocked",
+        "evidence": "Valid deployment-bound Stripe test evidence is required."
+      },
+      {
+        "name": "webhook entitlement",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "duplicate webhook",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "repeat purchase extension",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "partial/full refunds",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "dispute revoke/restore",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      },
+      {
+        "name": "reconciliation",
+        "status": "blocked",
+        "evidence": "Evidence is missing or invalid."
+      }
+    ]
+  },
+  "checklists": {
+    "environment": [
+      "Set all business identity/support/privacy/refund/security env vars.",
+      "Set PUBLIC_SITE_URL and PUBLIC_CANONICAL_ORIGIN to the final HTTPS custom domain.",
+      "Set DATABASE_URL to the intended Neon production database.",
+      "Set STUDY_SESSION_SECRET and RATE_LIMIT_SALT to strong random values.",
+      "Set EMAIL_FROM and EMAIL_PROVIDER_API_KEY only after email domain is verified.",
+      "Set MONITORING_ENABLED and MONITORING_WEBHOOK_URL if monitoring is live.",
+      "Set OPS_CRON_SECRET for Vercel Cron reconciliation."
+    ],
+    "migration": [
+      "Run npm run check:migrations.",
+      "Run npm run db:migrate against a Neon preview branch.",
+      "Run npm run db:migrate against production only inside the approved release window.",
+      "Confirm schema_migrations has 0001 and 0002 with expected checksums."
+    ],
+    "stripe": [
+      "Create test and live Stripe prices for every enabled plan.",
+      "Configure STRIPE_PRICE_ID_FULL, STRIPE_PRICE_ID_LAUNCH, STRIPE_PRICE_ID_INSTRUCTOR_10, STRIPE_PRICE_ID_INSTRUCTOR_25.",
+      "Configure STRIPE_WEBHOOK_SECRET for /api/stripe-webhook.",
+      "Run test-mode learner checkout, instructor checkout, webhook replay, refund, and dispute simulations.",
+      "Confirm no live key is used in preview/local and no test key is used in production."
+    ],
+    "domain": [
+      "Connect custom domain in Vercel.",
+      "Set PUBLIC_CANONICAL_ORIGIN.",
+      "Rebuild and confirm sitemap/canonical URLs use the custom domain.",
+      "Submit sitemap in Google Search Console."
+    ],
+    "manualSmoke": [
+      "Homepage loads.",
+      "Free preview starts and answers reveal only after submission.",
+      "Offline preview reload works after first load.",
+      "Paywall and pricing show EUR 4.99 / 90 days.",
+      "Restore access returns generic response.",
+      "Unauthorized admin request rejects.",
+      "Premium API rejects logged-out user.",
+      "Stripe test checkout completes and webhook grants entitlement.",
+      "Instructor code redemption grants access once.",
+      "Account export and deletion request work."
+    ],
+    "rollback": [
+      "Use Vercel dashboard or CLI to promote the previous known-good deployment.",
+      "Disable failing cron/webhook endpoint if it causes operational harm.",
+      "If a migration caused the incident, follow docs/operations/rollback-runbook.md; do not manually edit production data without a snapshot.",
+      "Run npm run smoke:postdeploy against the restored deployment."
+    ]
+  }
+}

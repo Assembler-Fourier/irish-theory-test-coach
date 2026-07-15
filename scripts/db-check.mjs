@@ -15,6 +15,7 @@ try {
     where table_schema = 'public'
       and table_name in (
         'users',
+        'schema_migrations',
         'purchases',
         'entitlements',
         'login_tokens',
@@ -29,7 +30,11 @@ try {
         'ai_explanation_rate_limits',
         'source_documents',
         'source_chunks',
-        'generated_questions'
+        'generated_questions',
+        'operational_events',
+        'reconciliation_runs',
+        'reconciliation_findings',
+        'restore_drills'
       )
     order by table_name
   `);

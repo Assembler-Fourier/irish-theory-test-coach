@@ -6,9 +6,16 @@ import stripeWebhook from "../server/api/stripe-webhook.js";
 const ENV_KEYS = [
   "STRIPE_SECRET_KEY",
   "STRIPE_PRICE_ID",
+  "STRIPE_PRICE_ID_LAUNCH",
+  "STRIPE_PRICE_ID_FULL",
+  "STRIPE_PRICE_ID_INSTRUCTOR_10",
+  "STRIPE_PRICE_ID_INSTRUCTOR_25",
   "STRIPE_WEBHOOK_SECRET",
   "DATABASE_URL",
   "PUBLIC_SITE_URL",
+  "PAYMENT_ENVIRONMENT",
+  "STRIPE_PRICE_MODE",
+  "CHECKOUT_REQUIRE_TERMS_CONSENT",
 ];
 
 const tests = [
@@ -144,9 +151,11 @@ async function withSuppressedExpectedErrors(callback) {
 function validEnv(overrides = {}) {
   return {
     STRIPE_SECRET_KEY: "sk_test_placeholder",
-    STRIPE_PRICE_ID: "price_test_placeholder",
+    STRIPE_PRICE_ID_FULL: "price_test_full_placeholder",
     DATABASE_URL: "postgresql://localhost:5432/irish_theory_test_coach",
     PUBLIC_SITE_URL: "http://localhost:5173",
+    PAYMENT_ENVIRONMENT: "local",
+    STRIPE_PRICE_MODE: "test",
     ...overrides,
   };
 }

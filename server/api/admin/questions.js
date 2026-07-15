@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import {
   requireAdmin,
   sendAdminError,
+  testAuthzOk,
   writeAdminAuditLog,
 } from "../../../lib/admin.js";
 import { readJsonBody } from "../../../lib/auth.js";
@@ -31,12 +32,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, env.databaseUrl);
+    const admin = await requireAdmin(req, env.databaseUrl, { permission: req.method === "POST" ? "manage_content" : "view_content" });
+    if (testAuthzOk(req, res, admin, req.method === "POST" ? "manage_content" : "view_content")) return;
 
     if (req.method === "POST") {
       const body = await readJsonBody(req);
       const question = await reviewQuestion(env.databaseUrl, admin, body);
       return res.status(200).json({ ok: true, question });
+    }
+
+    const questionId = Number(req.query.questionId || req.query.question_id || 0);
+    if (Number.isInteger(questionId) && questionId > 0) {
+      const detail = await loadQuestionDetail(env.databaseUrl, questionId);
+      return res.status(200).json({ ok: true, ...detail });
     }
 
     const q = String(req.query.q || "").trim().toLowerCase();
@@ -86,6 +94,62 @@ async function searchQuestions(databaseUrl, { q, category, status, review, highY
     .slice(0, 100);
 }
 
+async function loadQuestionDetail(databaseUrl, questionId) {
+  const sourceQuestion = (await readQuestions()).find((question) => question.id === questionId);
+  if (!sourceQuestion) {
+    const error = new Error("Question not found.");
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const formatted = formatQuestion(sourceQuestion);
+  return withDb(databaseUrl, async (client) => {
+    const [reviewMap, versions, reports] = await Promise.all([
+      loadQuestionReviewOverlayWithClient(client, [questionId]),
+      client.query(
+        `
+          select version_number,
+                 question_text,
+                 explanation,
+                 reviewed_status,
+                 safe_to_show,
+                 changed_by_email,
+                 change_note,
+                 fields_changed,
+                 reason,
+                 created_at
+          from question_versions
+          where question_id = $1
+          order by version_number desc
+          limit 20
+        `,
+        [questionId]
+      ),
+      client.query(
+        `
+          select reason_category,
+                 comment,
+                 status,
+                 app_version,
+                 content_version,
+                 created_at
+          from question_problem_reports
+          where question_id = $1
+          order by created_at desc
+          limit 20
+        `,
+        [questionId]
+      ),
+    ]);
+
+    return {
+      question: applyReviewOverlay(formatted, reviewMap.get(questionId)),
+      versions: versions.rows,
+      reports: reports.rows,
+    };
+  });
+}
+
 async function reviewQuestion(databaseUrl, admin, body) {
   const questionId = Number(body.questionId || body.question_id);
   const action = String(body.action || "").trim();
@@ -98,8 +162,14 @@ async function reviewQuestion(databaseUrl, admin, body) {
     throw error;
   }
 
-  if (!["approve", "reject", "needs_official_cross_check"].includes(action)) {
+  if (!["approve", "reject", "needs_official_cross_check", "publish", "archive"].includes(action)) {
     const error = new Error("Unsupported review action.");
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (action === "archive" && body.confirm !== true) {
+    const error = new Error("Confirmation is required.");
     error.statusCode = 400;
     throw error;
   }
@@ -111,17 +181,31 @@ async function reviewQuestion(databaseUrl, admin, body) {
     throw error;
   }
 
-  const reviewedStatus = action === "approve"
+  const reviewedStatus = action === "approve" || action === "publish"
     ? "approved"
-    : action === "reject"
+    : action === "reject" || action === "archive"
       ? "rejected"
       : "needs_official_cross_check";
-  const safeToShow = reviewedStatus === "approved" || (
+  const safeToShow = action === "archive"
+    ? false
+    : reviewedStatus === "approved" || (
     reviewedStatus === "needs_official_cross_check" &&
     sourceQuestion.source_type !== "ai_generated"
   );
+  const publicationStatus = action === "archive" ? "archived" : "published";
 
   return withTransaction(databaseUrl, async (client) => {
+    const beforeResult = await client.query(
+      `
+        select *
+        from question_reviews
+        where question_id = $1
+        limit 1
+      `,
+      [questionId]
+    );
+    const beforeState = beforeResult.rows[0] || null;
+
     await client.query(
       `
         insert into question_sources (
@@ -204,9 +288,13 @@ async function reviewQuestion(databaseUrl, admin, body) {
           reviewed_by_email,
           reviewed_at,
           notes,
+          publication_status,
+          structural_status,
+          factual_status,
+          archived_at,
           updated_at
         )
-        values ($1, $2, $3, $4, $5, now(), $6, now())
+        values ($1, $2, $3, $4, $5, now(), $6, $7, $8, $9, $10, now())
         on conflict (question_id) do update
         set reviewed_status = excluded.reviewed_status,
             safe_to_show = excluded.safe_to_show,
@@ -214,19 +302,42 @@ async function reviewQuestion(databaseUrl, admin, body) {
             reviewed_by_email = excluded.reviewed_by_email,
             reviewed_at = excluded.reviewed_at,
             notes = excluded.notes,
+            publication_status = excluded.publication_status,
+            structural_status = excluded.structural_status,
+            factual_status = excluded.factual_status,
+            archived_at = excluded.archived_at,
             updated_at = now()
       `,
-      [questionId, reviewedStatus, safeToShow, admin.userId, admin.email, notes]
+      [
+        questionId,
+        reviewedStatus,
+        safeToShow,
+        admin.userId,
+        admin.email,
+        notes,
+        publicationStatus,
+        reviewedStatus === "approved" ? "reviewed" : "needs_review",
+        reviewedStatus === "approved" ? "reviewed" : "needs_review",
+        publicationStatus === "archived" ? new Date().toISOString() : null,
+      ]
     );
 
     await writeAdminAuditLog(client, admin, {
-      action: `question.${reviewedStatus}`,
+      action: action === "archive" || action === "publish" ? `question.${action}` : `question.${reviewedStatus}`,
       targetType: "question",
       targetId: String(questionId),
+      beforeState,
+      afterState: {
+        reviewedStatus,
+        safeToShow,
+        publicationStatus,
+      },
+      reason: notes || action,
       metadata: {
         versionNumber,
         reviewedStatus,
         safeToShow,
+        publicationStatus,
         editedExplanation: Boolean(explanation && explanation !== sourceQuestion.explanation),
       },
     });
@@ -240,6 +351,9 @@ async function reviewQuestion(databaseUrl, admin, body) {
                  reviewed_by_email,
                  reviewed_at,
                  notes,
+                 publication_status,
+                 canonical_question_id,
+                 variant_group_id,
                  updated_at
           from question_reviews
           where question_id = $1
@@ -273,7 +387,12 @@ async function reviewQuestion(databaseUrl, admin, body) {
 async function loadQuestionReviewOverlay(databaseUrl, questionIds) {
   if (!questionIds.length) return new Map();
 
-  return withDb(databaseUrl, async (client) => {
+  return withDb(databaseUrl, (client) => loadQuestionReviewOverlayWithClient(client, questionIds));
+}
+
+async function loadQuestionReviewOverlayWithClient(client, questionIds) {
+  if (!questionIds.length) return new Map();
+
     const [reviews, versions] = await Promise.all([
       client.query(
         `
@@ -283,6 +402,9 @@ async function loadQuestionReviewOverlay(databaseUrl, questionIds) {
                  reviewed_by_email,
                  reviewed_at,
                  notes,
+                 publication_status,
+                 canonical_question_id,
+                 variant_group_id,
                  updated_at
           from question_reviews
           where question_id = any($1::int[])
@@ -316,7 +438,6 @@ async function loadQuestionReviewOverlay(databaseUrl, questionIds) {
       map.set(row.question_id, current);
     });
     return map;
-  });
 }
 
 async function readQuestions() {
@@ -374,6 +495,13 @@ function applyReviewOverlay(question, overlay) {
     reviewedAt: review?.reviewed_at || question.reviewedAt,
     notes: review?.notes || question.notes,
     safeToShow: review ? Boolean(review.safe_to_show) : question.safeToShow,
+    status: review?.publication_status === "archived"
+      ? "archived"
+      : review?.publication_status === "published"
+        ? "published"
+        : question.status,
+    canonicalQuestionId: review?.canonical_question_id || question.canonicalQuestionId || question.id,
+    variantGroupId: review?.variant_group_id || question.variantGroupId || "",
     explanation: version?.explanation || question.explanation,
     latestVersion: version?.version_number || null,
     latestReviewUpdatedAt: review?.updated_at || version?.created_at || null,

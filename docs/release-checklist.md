@@ -6,16 +6,18 @@ Use this checklist before every production launch or major payment/content relea
 
 - [ ] Stripe live secret key rotated after any local exposure or handoff.
 - [ ] Neon database password rotated after any local exposure or handoff.
-- [ ] Vercel production environment variables updated: `STRIPE_SECRET_KEY`, `STRIPE_PRICE_ID`, `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, `PUBLIC_SITE_URL`, `EMAIL_FROM`, and email provider key when configured.
+- [ ] Vercel production environment variables updated: `STRIPE_SECRET_KEY`, plan-specific Stripe price IDs, `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, `PUBLIC_SITE_URL`, `EMAIL_FROM`, and email provider key when configured.
 - [ ] `npm run check:secrets` passes locally before deployment.
 - [ ] No secrets are present in frontend files, docs, reports, screenshots, or committed logs.
 
 ## Stripe And Payments
 
-- [ ] Stripe product and EUR 0.99 live price are correct.
+- [ ] Stripe products and live prices are correct: EUR 2.99 launch offer, EUR 4.99 Full Study Pass, EUR 29 instructor 10-code pack, and EUR 69 instructor 25-code pack.
 - [ ] Stripe payouts are enabled for the live account.
 - [ ] Webhook endpoint is configured for `/api/stripe-webhook`.
-- [ ] Webhook listens for `checkout.session.completed`.
+- [ ] Webhook listens for checkout completion, async payment success/failure, expired checkout, refunds, charge refunds, and dispute events listed in `docs/stripe-webhook-setup.md`.
+- [ ] Payment environment is separated: local/preview use Stripe test mode, production uses Stripe live mode and `STRIPE_WEBHOOK_SECRET`.
+- [ ] Success URL verification does not grant access before webhook fulfillment is recorded.
 - [ ] `STRIPE_WEBHOOK_SECRET` in Vercel matches the live webhook endpoint secret.
 - [ ] Full test purchase completed from the production URL.
 - [ ] Checkout success page unlocks access.

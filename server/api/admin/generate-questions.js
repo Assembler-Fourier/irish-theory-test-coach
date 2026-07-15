@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import {
   requireAdmin,
   sendAdminError,
+  testAuthzOk,
   writeAdminAuditLog,
 } from "../../../lib/admin.js";
 import { readJsonBody } from "../../../lib/auth.js";
@@ -68,7 +69,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const admin = await requireAdmin(req, env.databaseUrl);
+    const admin = await requireAdmin(req, env.databaseUrl, { permission: req.method === "POST" ? "manage_content" : "view_content" });
+    if (testAuthzOk(req, res, admin, req.method === "POST" ? "manage_content" : "view_content")) return;
 
     if (req.method === "GET") {
       const pipeline = await loadPipeline(env.databaseUrl, req.query || {});

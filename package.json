@@ -1,25 +1,76 @@
 {
   "name": "irish-theory-test-coach",
   "version": "0.1.0",
+  "description": "Independent mobile-first Irish Category B practice preview with mock exams, road signs, progress coaching, and server-gated access flows.",
   "private": true,
+  "homepage": "https://irishtheorycoach.ie",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Assembler-Fourier/irish-theory-test-coach.git"
+  },
+  "keywords": [
+    "irish-theory-test",
+    "category-b",
+    "driving-theory",
+    "education",
+    "pwa",
+    "vercel"
+  ],
   "type": "module",
   "scripts": {
-    "build": "node scripts/prepare-public-data.mjs",
+    "build": "node scripts/generate-growth-assets.mjs && node scripts/generate-seo-assets.mjs && node scripts/generate-ia-pages.mjs && node scripts/generate-compliance-pages.mjs && node scripts/prepare-public-data.mjs && node scripts/generate-product-runtime.mjs && node scripts/apply-deployment-indexing.mjs",
+    "generate:growth": "node scripts/generate-growth-assets.mjs",
+    "generate:seo": "node scripts/generate-seo-assets.mjs",
+    "generate:product-runtime": "node scripts/generate-product-runtime.mjs",
+    "generate:compliance": "node scripts/generate-compliance-pages.mjs",
+    "import:owner-questions": "node scripts/import-owner-questions.mjs",
     "check:pwa": "node scripts/check-pwa.mjs",
-    "check:seo": "node scripts/check-seo.mjs",
+    "check:compliance": "node scripts/check-compliance-surface.mjs",
+    "check:seo": "node scripts/check-seo.mjs && node scripts/check-technical-seo.mjs && node scripts/check-structured-data.mjs && node scripts/check-internal-links.mjs && node scripts/check-seo-content-quality.mjs",
+    "check:technical-seo": "node scripts/check-technical-seo.mjs",
+    "check:structured-data": "node scripts/check-structured-data.mjs",
+    "check:links": "node scripts/check-internal-links.mjs",
+    "check:performance": "node scripts/check-performance-budget.mjs",
+    "check:growth": "node scripts/check-growth-surface.mjs",
+    "check:headers": "node scripts/check-security-headers.mjs",
+    "check:syntax": "node scripts/check-js-syntax.mjs",
+    "check:lockfile": "node scripts/check-lockfile.mjs",
+    "check:migrations": "node scripts/check-migrations.mjs && node scripts/db-migrate.mjs --dry-run",
     "check:secrets": "node scripts/check-secrets.mjs",
+    "check:sources": "node scripts/check-source-register.mjs",
+    "check:stale-build": "node scripts/check-stale-build.mjs",
+    "content:quality": "node scripts/generate-content-quality-reports.mjs",
     "db:check": "node scripts/db-check.mjs",
     "db:migrate": "node scripts/db-migrate.mjs",
+    "ops:reconcile": "node scripts/reconcile-operations.mjs",
+    "smoke:postdeploy": "node scripts/post-deploy-smoke.mjs",
+    "audit:final": "node scripts/final-commercial-audit.mjs",
     "dev": "python -m http.server 5173",
     "qa:provenance": "node scripts/add-question-provenance.mjs",
     "qa:checklist": "node scripts/generate-qa-checklist.mjs",
-    "qa": "npm run validate && npm run build && npm run check:pwa && npm run check:seo && npm run check:secrets && npm run test",
-    "test": "node scripts/test-app-flows.mjs && node scripts/test-api-smoke.mjs",
+    "qa": "npm run validate && npm run build && npm run content:quality && npm run check:stale-build && npm run check:pwa && npm run check:compliance && npm run check:growth && npm run check:seo && npm run check:performance && npm run check:sources && npm run check:headers && npm run check:lockfile && npm run check:migrations && npm run check:secrets && npm run test && npm run test:visual",
+    "security:audit": "npm audit --audit-level=high",
+    "security:cleanup": "node scripts/security-cleanup.mjs",
+    "screenshots:ui": "node scripts/capture-ui-baseline.mjs",
+    "test": "node scripts/test-app-flows.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-deployment-indexing.mjs && node scripts/test-domain-validation.mjs && node scripts/test-api-smoke.mjs && node scripts/test-content-security.mjs && node scripts/test-content-quality.mjs && node scripts/test-account-auth.mjs && npm run test:payment && node scripts/test-security-hardening.mjs && node scripts/test-reliability-system.mjs && node scripts/test-admin-authz.mjs && npm run test:webhook && npm run test:e2e && npm run test:a11y",
+    "test:a11y": "node scripts/test-a11y.mjs",
     "test:ai-generation": "node scripts/test-ai-question-generation-mock.mjs",
+    "test:e2e": "node scripts/test-e2e.mjs",
+    "test:payment": "node scripts/test-payment-system.mjs && node scripts/test-payment-evidence.mjs && node scripts/test-dispute-entitlements.mjs",
+    "test:security": "node scripts/test-security-hardening.mjs",
+    "test:visual": "node scripts/test-visual.mjs",
     "test:webhook": "node scripts/test-stripe-webhook-mock.mjs",
+    "evidence:payment": "node scripts/generate-payment-test-evidence.mjs",
     "validate": "python scripts/validate_dataset.py && node --check public/app.js"
+  },
+  "engines": {
+    "node": ">=22 <23"
   },
   "dependencies": {
     "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "axe-core": "^4.12.1",
+    "playwright": "^1.61.1"
   }
 }

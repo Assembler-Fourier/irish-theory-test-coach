@@ -1,36 +1,97 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin - Irish Theory Test Coach</title>
-    <link rel="stylesheet" href="./styles.css">
+    <meta name="robots" content="noindex,nofollow">
+    <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
   </head>
-  <body>
+  <body class="admin-page">
     <div class="shell admin-shell">
       <header class="topbar admin-topbar">
-        <div>
+        <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
+          <span class="brand-symbol" aria-hidden="true">TC</span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Operations workspace</small></span>
+        </a>
+        <div class="admin-title-block">
           <p class="eyebrow">Protected workspace</p>
-          <h1>Admin</h1>
+          <h1>Operations</h1>
         </div>
         <nav class="admin-nav" aria-label="Admin navigation">
-          <a href="./">App</a>
-          <a href="./contact.html">Support</a>
+          <a href="/app">Learner app</a>
+          <a href="/account">Account</a>
+          <a href="/support">Support</a>
         </nav>
       </header>
 
       <main class="admin-layout">
         <section id="adminStatus" class="status-bar">Checking admin access...</section>
+        <section id="adminProtectedState" class="admin-protected hidden" aria-labelledby="adminProtectedHeading">
+          <div>
+            <p class="eyebrow">Protected area</p>
+            <h2 id="adminProtectedHeading">Admin access required</h2>
+            <p id="adminProtectedCopy">You need an admin session to view this workspace.</p>
+          </div>
+          <div class="admin-protected-actions">
+            <a class="button-primary" href="/account">Sign in or restore access</a>
+            <a class="button-secondary" href="./contact.html">Contact support</a>
+          </div>
+        </section>
 
-        <section class="admin-section" aria-labelledby="dashboardHeading">
+        <nav class="admin-section-nav" aria-label="Admin workspace sections">
+          <a href="#admin-overview">Overview</a>
+          <a href="#admin-users">Users</a>
+          <a href="#admin-payments">Payments</a>
+          <a href="#admin-instructors">Instructors</a>
+          <a href="#admin-analytics">Analytics</a>
+          <a href="#admin-content">Content</a>
+          <a href="#admin-support">Support</a>
+        </nav>
+
+        <section id="admin-overview" class="admin-section admin-overview-section" aria-labelledby="dashboardHeading">
           <div class="panel-heading">
-            <h2 id="dashboardHeading">Dashboard metrics</h2>
-            <button id="refreshBtn" type="button">Refresh</button>
+            <div>
+              <h2 id="dashboardHeading">Overview</h2>
+              <p class="admin-section-note">Sales, access, learning, and operational health for the selected period.</p>
+            </div>
+            <form id="overviewRangeForm" class="admin-range-form">
+              <label>
+                <span>From</span>
+                <input id="overviewFromInput" type="date">
+              </label>
+              <label>
+                <span>To</span>
+                <input id="overviewToInput" type="date">
+              </label>
+              <button id="refreshBtn" type="submit">Refresh</button>
+            </form>
           </div>
           <div id="metricGrid" class="metric-grid"></div>
         </section>
 
-        <section class="admin-grid">
+        <section class="admin-section" aria-labelledby="readinessHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="readinessHeading">Launch readiness</h2>
+              <p class="admin-section-note">Quick operational checks for access, payments, content review, analytics, and auditability.</p>
+            </div>
+          </div>
+          <div id="launchReadinessMount" class="launch-readiness-grid"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="warningsHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="warningsHeading">Operational warnings</h2>
+              <p class="admin-section-note">Failed webhooks, failed checkout attempts, urgent support cases, and active disputes.</p>
+            </div>
+          </div>
+          <div id="operationalWarningsMount" class="admin-list"></div>
+        </section>
+
+        <section id="admin-users" class="admin-grid">
           <section class="admin-section" aria-labelledby="usersHeading">
             <div class="panel-heading">
               <h2 id="usersHeading">Users</h2>
@@ -38,9 +99,9 @@
             <form id="userSearchForm" class="admin-form">
               <label class="field">
                 <span>Email search</span>
-                <input id="userSearchInput" type="search" placeholder="email@example.com">
+                <input id="userSearchInput" type="search" autocomplete="email" placeholder="Find a learner by email">
               </label>
-              <button type="submit">Search users</button>
+              <button type="submit">Search</button>
             </form>
             <div id="usersMount" class="admin-list"></div>
           </section>
@@ -51,8 +112,8 @@
             </div>
             <form id="entitlementForm" class="admin-form">
               <label class="field">
-                <span>Email</span>
-                <input id="entitlementEmail" type="email" placeholder="email@example.com" required>
+                <span>Learner email</span>
+                <input id="entitlementEmail" type="email" autocomplete="email" placeholder="email@example.com" required>
               </label>
               <label class="field">
                 <span>Action</span>
@@ -66,22 +127,180 @@
                 <span>Days</span>
                 <input id="entitlementDays" type="number" min="0" step="1" placeholder="365">
               </label>
-              <button class="primary" type="submit">Save entitlement</button>
+              <button id="entitlementSubmitBtn" class="primary" type="submit">Save entitlement</button>
             </form>
             <div id="entitlementsMount" class="admin-list"></div>
           </section>
         </section>
 
-        <section class="admin-section" aria-labelledby="purchasesHeading">
+        <section class="admin-section" aria-labelledby="userDetailHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="userDetailHeading">User detail and support actions</h2>
+              <p class="admin-section-note">Inspect entitlement history, purchases, sessions, progress, support notes, and account requests.</p>
+            </div>
+          </div>
+          <div id="userDetailMount" class="admin-list"></div>
+        </section>
+
+        <section id="admin-payments" class="admin-section" aria-labelledby="purchasesHeading">
           <div class="panel-heading">
             <h2 id="purchasesHeading">Purchases</h2>
+            <div class="admin-export-actions">
+              <a class="button-secondary" href="/api/admin/export?type=purchases">Export purchases CSV</a>
+              <a class="button-secondary" href="/api/admin/export?type=referrals">Export referrals CSV</a>
+              <a class="button-secondary" href="/api/admin/export?type=instructor-codes">Export instructor codes CSV</a>
+            </div>
           </div>
           <div id="purchasesMount" class="admin-table-wrap"></div>
         </section>
 
-        <section class="admin-section" aria-labelledby="analyticsHeading">
+        <section class="admin-section" aria-labelledby="paymentsHeading">
           <div class="panel-heading">
-            <h2 id="analyticsHeading">Analytics</h2>
+            <h2 id="paymentsHeading">Payment operations</h2>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Checkout attempts</h3>
+              <div id="checkoutAttemptsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Webhook events</h3>
+              <div id="stripeEventsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Instructor codes</h3>
+              <div id="instructorCodesMount" class="admin-list"></div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section>
+              <h3>Refunds</h3>
+              <div id="refundsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Disputes</h3>
+              <div id="disputesMount" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section id="admin-instructors" class="admin-section" aria-labelledby="instructorOpsHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="instructorOpsHeading">Instructor operations</h2>
+              <p class="admin-section-note">Pack buyers, generated learner-code inventory, redemptions, expiry, revocation, and performance.</p>
+            </div>
+            <form id="instructorFilterForm" class="admin-inline-form">
+              <label>
+                <span>Search</span>
+                <input id="instructorSearchInput" type="search" placeholder="email or organisation">
+              </label>
+              <label>
+                <span>Status</span>
+                <select id="instructorStatusInput">
+                  <option value="">Any</option>
+                  <option value="active">Active</option>
+                  <option value="used">Used</option>
+                  <option value="revoked">Revoked</option>
+                  <option value="expired">Expired</option>
+                </select>
+              </label>
+              <button type="submit">Filter</button>
+            </form>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Instructor accounts</h3>
+              <div id="instructorAccountsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Pack purchases</h3>
+              <div id="instructorPacksMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Code inventory</h3>
+              <div id="instructorInventoryMount" class="admin-list"></div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section>
+              <h3>Redemptions</h3>
+              <div id="instructorRedemptionsMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Performance</h3>
+              <div id="instructorPerformanceMount" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="revenueHeading">
+          <div class="panel-heading">
+            <h2 id="revenueHeading">Revenue and pricing</h2>
+          </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Revenue metrics</h3>
+              <div id="revenueMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Sales by plan</h3>
+              <div id="planSalesMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Referral performance</h3>
+              <div id="referralPerformanceMount" class="admin-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="referralsHeading">
+          <div class="panel-heading">
+            <h2 id="referralsHeading">Referral codes</h2>
+          </div>
+          <form id="referralCodeForm" class="admin-form admin-form-wide">
+            <label class="field">
+              <span>Code</span>
+              <input id="referralCodeInput" type="text" placeholder="INSTRUCTOR10" required>
+            </label>
+            <label class="field">
+              <span>Description</span>
+              <input id="referralDescriptionInput" type="text" placeholder="Instructor launch code">
+            </label>
+            <label class="field">
+              <span>Fixed plan</span>
+              <select id="referralPlanInput">
+                <option value="">No fixed plan</option>
+                <option value="launch_offer">Launch offer</option>
+                <option value="full_study_pass">Full Study Pass</option>
+                <option value="instructor_10">Instructor 10</option>
+                <option value="instructor_25">Instructor 25</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Max redemptions</span>
+              <input id="referralMaxInput" type="number" min="0" step="1" placeholder="100">
+            </label>
+            <label class="field">
+              <span>Days</span>
+              <input id="referralDaysInput" type="number" min="1" max="365" step="1" value="90">
+            </label>
+            <label class="field check-field">
+              <span>Grant access</span>
+              <input id="referralGrantInput" type="checkbox">
+            </label>
+            <button class="primary" type="submit">Save code</button>
+          </form>
+          <div id="referralsMount" class="admin-list"></div>
+        </section>
+
+        <section id="admin-analytics" class="admin-section" aria-labelledby="analyticsHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="analyticsHeading">Analytics</h2>
+              <p class="admin-section-note">Privacy-safe funnel and learning behavior. Treat small samples as directional only.</p>
+            </div>
           </div>
           <div class="admin-grid admin-grid-thirds">
             <section>
@@ -97,9 +316,33 @@
               <div id="missedQuestionsMount" class="admin-list"></div>
             </section>
           </div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Mode usage</h3>
+              <div id="modeUsageMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Device class</h3>
+              <div id="deviceClassMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Conversion source</h3>
+              <div id="conversionSourceMount" class="admin-list"></div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section>
+              <h3>Mock completion</h3>
+              <div id="mockCompletionMount" class="admin-list"></div>
+            </section>
+            <section>
+              <h3>Question reports</h3>
+              <div id="reportFrequencyMount" class="admin-list"></div>
+            </section>
+          </div>
         </section>
 
-        <section class="admin-section" aria-labelledby="questionsHeading">
+        <section id="admin-content" class="admin-section" aria-labelledby="questionsHeading">
           <div class="panel-heading">
             <h2 id="questionsHeading">Questions</h2>
           </div>
@@ -118,6 +361,7 @@
                 <option value="">Any</option>
                 <option value="published">Published</option>
                 <option value="draft">Draft</option>
+                <option value="archived">Archived</option>
               </select>
             </label>
             <label class="field">
@@ -153,11 +397,49 @@
             </label>
             <div class="review-actions">
               <button data-review-action="needs_official_cross_check" type="button">Needs check</button>
-              <button data-review-action="reject" type="button">Reject</button>
+              <button data-review-action="reject" class="danger" type="button">Reject</button>
               <button data-review-action="approve" class="primary" type="button">Approve</button>
+              <button data-review-action="publish" class="primary" type="button">Publish</button>
+              <button data-review-action="archive" class="danger" type="button">Archive</button>
             </div>
+            <div id="questionDetailMount" class="admin-list"></div>
           </form>
           <div id="questionsMount" class="admin-table-wrap"></div>
+        </section>
+
+        <section class="admin-section" aria-labelledby="contentQualityHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="contentQualityHeading">Content quality pipeline</h2>
+              <p class="admin-section-note">Duplicate groups, conflicting answers, category aliases, lint findings, and auditable editorial decisions.</p>
+            </div>
+            <button id="reloadContentQualityBtn" type="button">Reload quality</button>
+          </div>
+          <div id="contentQualitySummaryMount" class="metric-grid metric-grid-compact"></div>
+          <div class="admin-grid admin-grid-thirds">
+            <section>
+              <h3>Conflicting answers</h3>
+              <div id="contentConflictMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Duplicate groups</h3>
+              <div id="contentDuplicateMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Category mapping</h3>
+              <div id="categoryMappingMount" class="admin-list content-quality-list"></div>
+            </section>
+          </div>
+          <div class="admin-grid">
+            <section>
+              <h3>Editorial backlog</h3>
+              <div id="editorialBacklogMount" class="admin-list content-quality-list"></div>
+            </section>
+            <section>
+              <h3>Recent decisions</h3>
+              <div id="qualityDecisionsMount" class="admin-list content-quality-list"></div>
+            </section>
+          </div>
         </section>
 
         <section class="admin-section" aria-labelledby="aiDraftHeading">
@@ -222,24 +504,105 @@
 
           <section class="admin-section" aria-labelledby="auditHeading">
             <div class="panel-heading">
-              <h2 id="auditHeading">Audit log</h2>
+              <div>
+                <h2 id="auditHeading">Audit log</h2>
+                <p class="admin-section-note">Sensitive admin actions with before/after state and correlation IDs.</p>
+              </div>
             </div>
+            <form id="auditFilterForm" class="admin-form">
+              <label class="field">
+                <span>Search</span>
+                <input id="auditSearchInput" type="search" placeholder="admin, target, action">
+              </label>
+              <label class="field">
+                <span>Action</span>
+                <input id="auditActionInput" type="search" placeholder="entitlement.revoke">
+              </label>
+              <label class="field">
+                <span>Target type</span>
+                <input id="auditTargetTypeInput" type="search" placeholder="user, entitlement">
+              </label>
+              <button type="submit">Filter audit</button>
+            </form>
             <div id="auditMount" class="admin-list"></div>
           </section>
+        </section>
+
+        <section id="admin-support" class="admin-section" aria-labelledby="supportHeading">
+          <div class="panel-heading">
+            <div>
+              <h2 id="supportHeading">Support cases</h2>
+              <p class="admin-section-note">Track access problems, refund context, account requests, internal notes, and resolutions.</p>
+            </div>
+            <form id="supportFilterForm" class="admin-inline-form">
+              <label>
+                <span>Status</span>
+                <select id="supportStatusInput">
+                  <option value="">Any</option>
+                  <option value="open">Open</option>
+                  <option value="waiting">Waiting</option>
+                  <option value="resolved">Resolved</option>
+                  <option value="closed">Closed</option>
+                </select>
+              </label>
+              <label>
+                <span>Search</span>
+                <input id="supportSearchInput" type="search" placeholder="email, category, note">
+              </label>
+              <button type="submit">Filter</button>
+            </form>
+          </div>
+          <form id="supportCaseForm" class="admin-form admin-form-wide">
+            <label class="field">
+              <span>Requester email</span>
+              <input id="supportEmailInput" type="email" placeholder="learner@example.com" required>
+            </label>
+            <label class="field">
+              <span>Category</span>
+              <select id="supportCategoryInput">
+                <option value="access">Access</option>
+                <option value="payment">Payment</option>
+                <option value="refund">Refund</option>
+                <option value="content">Content</option>
+                <option value="account_export">Account export</option>
+                <option value="account_deletion">Account deletion</option>
+                <option value="general">General</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Priority</span>
+              <select id="supportPriorityInput">
+                <option value="normal">Normal</option>
+                <option value="low">Low</option>
+                <option value="high">High</option>
+                <option value="urgent">Urgent</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Internal note</span>
+              <input id="supportNotesInput" type="text" placeholder="Access issue reported by learner">
+            </label>
+            <button class="primary" type="submit">Create case</button>
+          </form>
+          <div id="supportCasesMount" class="admin-list"></div>
         </section>
       </main>
 
       <footer class="site-footer">
         <p>Independent practice tool. Not affiliated with RSA or Prometric.</p>
         <nav aria-label="Legal and support links">
+          <a href="./legal.html">Legal centre</a>
           <a href="./privacy.html">Privacy</a>
+          <a href="./data-rights.html">Data rights</a>
+          <a href="./cookies.html">Privacy choices</a>
           <a href="./terms.html">Terms</a>
           <a href="./refunds.html">Refunds</a>
+          <a href="./security.html">Security</a>
           <a href="./contact.html">Contact</a>
         </nav>
       </footer>
     </div>
 
-    <script src="./admin.js"></script>
+    <script src="./admin.js?v=20260710-rebuild"></script>
   </body>
 </html>

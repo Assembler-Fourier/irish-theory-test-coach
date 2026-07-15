@@ -1,11 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">Irish Theory Test Coach maskable icon</title>
-  <desc id="desc">Centered green learning badge with road and check mark.</desc>
-  <rect width="512" height="512" fill="#1e7a5d"/>
-  <circle cx="256" cy="256" r="214" fill="#f5f7f7"/>
-  <path d="M137 402 224 122h64l87 280H137Z" fill="#1e7a5d"/>
-  <path d="M244 402V122h24v280h-24Z" fill="#f5f7f7"/>
-  <path d="M194 306h124" stroke="#f5f7f7" stroke-width="20" stroke-linecap="round" stroke-dasharray="30 32"/>
-  <circle cx="342" cy="178" r="62" fill="#ffffff"/>
-  <path d="m310 178 24 24 44-52" fill="none" stroke="#1e7a5d" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <desc id="desc">Centered blue Theory Coach study badge.</desc>
+  <rect width="512" height="512" fill="#121419"/>
+  <rect x="72" y="72" width="368" height="368" rx="64" fill="#2457f5"/>
+  <path d="M116 116h280v280H116z" fill="#121419"/>
+  <path d="M116 116h280v46H116z" fill="#d8ff5f"/>
+  <path d="M146 212h220v34H146zm0 64h146v34H146zm0 64h194v20H146z" fill="#fff"/>
+  <circle cx="340" cy="294" r="48" fill="#ff6b57"/>
+  <path d="m316 293 16 16 32-38" fill="none" stroke="#121419" stroke-width="17" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -39,6 +39,10 @@ Update these production variables in Vercel:
 ```text
 STRIPE_SECRET_KEY
 STRIPE_PRICE_ID
+STRIPE_PRICE_ID_LAUNCH
+STRIPE_PRICE_ID_FULL
+STRIPE_PRICE_ID_INSTRUCTOR_10
+STRIPE_PRICE_ID_INSTRUCTOR_25
 STRIPE_WEBHOOK_SECRET
 DATABASE_URL
 PUBLIC_SITE_URL
@@ -64,7 +68,7 @@ vercel deploy --prod
 ## Run Checkout Test
 
 1. Open the production site.
-2. Click `Unlock for EUR 0.99`.
+2. Click the current unlock CTA, normally `Unlock for EUR 4.99` or the launch-offer CTA if enabled.
 3. Confirm Stripe Checkout opens.
 4. Do not complete a live payment unless intentionally testing with a real card.
 5. Verify `/api/create-checkout-session` returns a Checkout URL.

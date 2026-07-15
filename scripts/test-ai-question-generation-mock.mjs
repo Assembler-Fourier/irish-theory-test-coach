@@ -4,12 +4,13 @@ import { fileURLToPath } from "node:url";
 import {
   buildLocalDraftQuestions,
   findNearestExistingQuestion,
-} from "../api/admin/generate-questions.js";
+} from "../server/api/admin/generate-questions.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const root = path.resolve(path.dirname(__filename), "..");
-const publicQuestionsPath = path.join(root, "public", "data", "questions.enriched.json");
-const questions = JSON.parse(fs.readFileSync(publicQuestionsPath, "utf8"));
+const privateQuestionsPath = path.join(root, "data", "questions.enriched.json");
+const publicPreviewPath = path.join(root, "public", "data", "preview-questions.json");
+const questions = JSON.parse(fs.readFileSync(privateQuestionsPath, "utf8"));
 const beforeCount = questions.length;
 
 const sourceNote = [
@@ -50,9 +51,16 @@ for (const draft of drafts) {
   }
 }
 
-const afterCount = JSON.parse(fs.readFileSync(publicQuestionsPath, "utf8")).length;
+const afterCount = JSON.parse(fs.readFileSync(privateQuestionsPath, "utf8")).length;
 if (afterCount !== beforeCount) {
-  throw new Error("Public practice data changed during mock generation.");
+  throw new Error("Private practice data changed during mock generation.");
 }
 
-console.log(`Generated ${drafts.length} admin-only draft candidates. Public practice data remains at ${afterCount} questions.`);
+if (fs.existsSync(publicPreviewPath)) {
+  const preview = JSON.parse(fs.readFileSync(publicPreviewPath, "utf8"));
+  if (JSON.stringify(preview).includes(drafts[0].question)) {
+    throw new Error("Draft unexpectedly appeared in the public preview package.");
+  }
+}
+
+console.log(`Generated ${drafts.length} admin-only draft candidates. Private practice data remains at ${afterCount} questions.`);

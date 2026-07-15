@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Security and Responsible Disclosure - Irish Theory Test Coach</title>
+    <meta name="description" content="Security controls, payment-data boundaries, incident reporting, responsible disclosure, and assurance status for Irish Theory Test Coach.">
+
+    <link rel="canonical" href="https://irishtheorycoach.ie/security.html">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Irish Theory Test Coach">
+    <meta property="og:title" content="Security and Responsible Disclosure - Irish Theory Test Coach">
+    <meta property="og:description" content="Security controls, payment-data boundaries, incident reporting, responsible disclosure, and assurance status for Irish Theory Test Coach.">
+    <meta property="og:url" content="https://irishtheorycoach.ie/security.html">
+    <meta property="og:image" content="https://irishtheorycoach.ie/marketing/og-home.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Security and Responsible Disclosure - Irish Theory Test Coach">
+    <meta name="twitter:description" content="Security controls, payment-data boundaries, incident reporting, responsible disclosure, and assurance status for Irish Theory Test Coach.">
+    <meta name="twitter:image" content="https://irishtheorycoach.ie/marketing/og-home.svg">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./icons/app-icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
+    <link rel="stylesheet" href="./product-ui.css?v=20260715-commercial-v2">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://irishtheorycoach.ie/"},{"@type":"ListItem","position":2,"name":"Security & Responsible Disclosure","item":"https://irishtheorycoach.ie/security.html"}]}</script>
+  </head>
+  <body>
+    <div class="shell legal-shell">
+      <header class="site-header">
+        <a class="brand-mark" href="/" aria-label="Irish Theory Test Coach home">
+          <span class="brand-symbol" aria-hidden="true">TC</span>
+          <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
+        </a>
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="/">Home</a>
+          <a href="/app">App</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a class="active" aria-current="page" href="/support">Support</a>
+        </nav>
+        <div class="nav-actions">
+          <a class="button-secondary" href="/account">Restore access</a>
+          <a class="button-primary" href="/app">Start free preview</a>
+        </div>
+        <details class="nav-menu">
+          <summary aria-label="Open navigation" title="Menu"><span class="nav-menu-icon" aria-hidden="true"></span></summary>
+          <nav aria-label="Mobile navigation">
+            <a href="/">Home</a>
+          <a href="/app">App</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/learn">Learn</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a class="active" aria-current="page" href="/support">Support</a>
+            <a href="/account">Restore access</a>
+            <a class="nav-menu-cta" href="/app">Start free preview</a>
+          </nav>
+        </details>
+      </header>
+      <main class="legal-page">
+        <nav class="legal-local-nav" aria-label="Legal and trust navigation"><a href="/legal.html">Legal centre</a><a href="/privacy.html">Privacy</a><a href="/data-rights.html">Data rights</a><a href="/cookies.html">Cookies</a><a href="/terms.html">Terms</a><a href="/refunds.html">Refunds</a><a href="/security.html">Security</a></nav>
+        <h1>Security &amp; Responsible Disclosure</h1>
+        <p class="policy-meta">Effective date: 2026-07-15. Policy version: <code>2026-07-15-v1</code>.</p>
+        <aside class="launch-blocker" role="note">
+          <strong>Launch blocker</strong>
+          <p>Mandatory commercial identity fields are not fully configured.</p>
+          <ul><li>Configure legalTradingName.</li><li>Configure operatorType.</li><li>Configure registeredAddress.</li><li>Configure supportEmail.</li><li>Configure privacyEmail.</li><li>Configure refundEmail.</li><li>Configure governingJurisdiction.</li><li>Configure privacyLawfulBasis.</li><li>Configure internationalTransferBasis.</li><li>Configure complaintRoute.</li></ul>
+        </aside>
+        <section><h2>Security approach</h2><p>Security is treated as an ongoing engineering and operational process. Controls are selected for the current risk profile and are tested in the release pipeline. No website can promise absolute security.</p></section>
+        <section><h2>Current controls</h2><ul><li>HTTPS and production security headers, including HSTS, Content Security Policy, frame protection, and restrictive browser permissions.</li><li>Secure HttpOnly SameSite session cookies, single-use magic links, session rotation, revocation, and server-side role checks.</li><li>Server-side entitlement and price enforcement; premium question and media delivery requires authorization.</li><li>Stripe-hosted card entry, webhook signature verification, event idempotency, and payment reconciliation controls.</li><li>Input validation, origin checks, request-size limits, hashed-identifier rate limits, safe errors, structured redacted logs, and admin audit records.</li><li>Secret scanning, dependency checks, migration checks, automated security tests, and documented incident, backup, rollback, and rotation procedures.</li></ul></section>
+        <section><h2>Payment data</h2><p>Full payment-card numbers and CVC values are entered on Stripe-hosted Checkout and are not intentionally stored by this application. The app stores limited Stripe references, payment state, amount, currency, plan, entitlement, refund/dispute state, and policy versions.</p></section>
+        <section><h2>SOC 2 and assurance status</h2><p><strong>Irish Theory Test Coach is not currently represented as SOC 2 certified, SOC 2 compliant, or independently audited against SOC 2.</strong> SOC 2 is an examination performed by an independent licensed CPA firm against defined controls; it cannot be self-awarded by adding a page or checklist. A hosting or payment provider's report applies to that provider and does not automatically certify this product.</p></section>
+        <section><h2>Responsible disclosure</h2><p>Email <a href="mailto:NOT_CONFIGURED_support@example.invalid?subject=Security%20report">NOT_CONFIGURED_support@example.invalid</a> with the affected URL, time, impact, and safe reproduction steps. Do not access other people's data, use real payment cards, degrade service, send malware, extort the operator, or publish exploitable details before a reasonable remediation window. This is a reporting channel, not a paid bug-bounty promise.</p></section>
+        <section><h2>Incident response</h2><p>Reports are triaged using the operational incident runbook. Where a personal-data breach creates a legal notification duty, the operator will follow the applicable regulator and affected-person notification requirements.</p></section>
+        <section><h2>Account safety</h2><p>Do not forward magic links. Use Logout all devices if account access is in doubt, secure the associated email account, and contact support for unexpected purchases, entitlement changes, or restore messages.</p></section>
+      </main>
+      <footer class="site-footer">
+        <div class="footer-brand">
+          <a class="brand-mark" href="/">
+            <span class="brand-symbol" aria-hidden="true">TC</span>
+            <span class="brand-copy"><strong>Irish Theory Coach</strong><small>Independent Category B practice</small></span>
+          </a>
+          <p>Focused practice, transparent pricing, and review tools for Irish learner drivers.</p>
+        </div>
+        <nav aria-label="Product links">
+          <strong>Product</strong>
+          <a href="/app">Learner app</a>
+          <a href="/pricing">Pricing</a>
+          <a href="/account">Account access</a>
+          <a href="/support">Support</a>
+        </nav>
+        <nav aria-label="Learning links">
+          <strong>Learn</strong>
+          <a href="/learn">Learning hub</a>
+          <a href="/road-signs">Road signs</a>
+          <a href="/mock-exam">Mock exam</a>
+          <a href="/theory-test-study-plan.html">Study plan</a>
+        </nav>
+        <nav aria-label="Legal links">
+          <strong>Trust</strong>
+          <a href="/legal.html">Legal centre</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/data-rights.html">Data rights</a>
+          <a href="/cookies.html" data-privacy-settings>Privacy choices</a>
+          <a href="/terms.html">Terms</a>
+          <a href="/refunds.html">Refunds</a>
+          <a href="/cancellation.html">Cancellation</a>
+          <a href="/security.html">Security</a>
+          <a href="/contact.html">Contact</a>
+          <a href="/accessibility.html">Accessibility</a>
+          <a href="/content-methodology.html">Content methodology</a>
+        </nav>
+        <p class="footer-disclaimer">Independent practice tool. Not affiliated with RSA or Prometric.</p>
+      </footer>
+    </div>
+    <script src="./config.js?v=20260710-rebuild"></script>
+    <script src="./business-config.js?v=20260710-rebuild"></script>
+    <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./privacy-consent.js?v=20260715-legal-v1"></script>
+    <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
+    <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
+    <script src="./trust.js?v=20260710-rebuild"></script>
+
+  </body>
+</html>

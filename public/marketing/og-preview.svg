@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Irish Theory Test Coach preview card</title>
+  <desc id="desc">A branded study card for Irish Theory Test Coach with progress, mock test, and road sign practice elements.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="0.55" stop-color="#1e293b"/>
+      <stop offset="1" stop-color="#2457f5"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#edf2ff"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1020" cy="110" r="150" fill="#b8ff65" opacity="0.22"/>
+  <circle cx="160" cy="550" r="180" fill="#ffb84d" opacity="0.14"/>
+  <g transform="translate(90 88)">
+    <text x="0" y="0" fill="#b8ff65" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="28" font-weight="800">Category B learner practice</text>
+    <text x="0" y="82" fill="#ffffff" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="72" font-weight="900">Irish Theory Test Coach</text>
+    <text x="0" y="138" fill="#dbeafe" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="34" font-weight="650">High-yield drills, road signs, mock exams, and review.</text>
+    <text x="0" y="192" fill="#cbd5e1" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="24" font-weight="650">Independent practice tool. Not affiliated with RSA or Prometric.</text>
+  </g>
+  <g transform="translate(690 128)">
+    <rect x="0" y="0" width="380" height="370" rx="36" fill="url(#card)" opacity="0.98"/>
+    <rect x="36" y="40" width="145" height="34" rx="17" fill="#2457f5"/>
+    <text x="58" y="64" fill="#ffffff" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="16" font-weight="900">Mock mode</text>
+    <text x="36" y="128" fill="#111827" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="30" font-weight="900">Question 18 of 40</text>
+    <rect x="36" y="164" width="308" height="14" rx="7" fill="#dbe4ff"/>
+    <rect x="36" y="164" width="190" height="14" rx="7" fill="#2457f5"/>
+    <g transform="translate(36 220)">
+      <rect x="0" y="0" width="308" height="62" rx="18" fill="#ecfdf5" stroke="#10b981" stroke-width="3"/>
+      <circle cx="34" cy="31" r="20" fill="#10b981"/>
+      <text x="28" y="38" fill="#ffffff" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="18" font-weight="900">A</text>
+      <text x="70" y="39" fill="#064e3b" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="18" font-weight="850">Understand the rule</text>
+    </g>
+    <g transform="translate(36 300)">
+      <rect x="0" y="0" width="146" height="42" rx="21" fill="#111827"/>
+      <text x="31" y="28" fill="#ffffff" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="16" font-weight="900">35 pass mark</text>
+      <rect x="162" y="0" width="146" height="42" rx="21" fill="#fbbf24"/>
+      <text x="196" y="28" fill="#111827" font-family="ui-sans-serif, Inter, Arial, sans-serif" font-size="16" font-weight="900">45 min</text>
+    </g>
+  </g>
+</svg>

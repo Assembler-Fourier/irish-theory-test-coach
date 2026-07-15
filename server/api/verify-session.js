@@ -5,8 +5,9 @@ import {
 import {
   getCheckoutSessionEmail,
   isPaidCheckoutSession,
-  recordStripeCheckoutSession,
 } from "../../lib/stripe-entitlements.js";
+import { buildSessionCookie, createSessionForEntitledEmail } from "../../lib/auth.js";
+import { getCheckoutFulfillmentStatus } from "../../lib/payment-ledger.js";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -45,12 +46,23 @@ export default async function handler(req, res) {
   }
 
   const email = getCheckoutSessionEmail(session);
-  const dbRecorded = email ? await recordStripeCheckoutSession(session, env.databaseUrl) : false;
+  const fulfillment = await getCheckoutFulfillmentStatus(env.databaseUrl, sessionId);
+  const fulfilledEmail = fulfillment.email || email;
+  const appSession = fulfillment.fulfilled && fulfilledEmail
+    ? await createSessionForEntitledEmail(fulfilledEmail, env.databaseUrl, { req })
+    : null;
+
+  if (appSession?.sessionToken) {
+    res.setHeader("Set-Cookie", buildSessionCookie(appSession.sessionToken, env));
+  }
 
   return res.status(200).json({
     ok: true,
     paid: true,
-    email,
-    dbRecorded,
+    email: fulfilledEmail,
+    dbRecorded: fulfillment.fulfilled,
+    fulfillmentPending: !fulfillment.fulfilled,
+    status: fulfillment.status,
+    authenticated: Boolean(appSession),
   });
 }

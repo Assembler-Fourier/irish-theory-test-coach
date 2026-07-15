@@ -2,13 +2,13 @@
   "name": "Irish Theory Test Coach",
   "short_name": "Theory Coach",
   "description": "Independent Irish Category B theory-test practice with road signs, mock exams, high-yield drills, and review mode.",
-  "id": "/",
-  "start_url": "/?source=pwa",
+  "id": "/app",
+  "start_url": "/app?source=pwa",
   "scope": "/",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
-  "background_color": "#f5f7f7",
-  "theme_color": "#1e7a5d",
+  "background_color": "#f4f6f8",
+  "theme_color": "#1f4f46",
   "orientation": "portrait-primary",
   "categories": ["education", "productivity"],
   "icons": [
@@ -29,13 +29,13 @@
     {
       "name": "Start free preview",
       "short_name": "Preview",
-      "url": "/?mode=preview",
+      "url": "/app?mode=preview",
       "description": "Open the free preview questions."
     },
     {
       "name": "Road signs",
       "short_name": "Signs",
-      "url": "/irish-theory-test-road-signs.html",
+      "url": "/road-signs",
       "description": "Open road-sign practice information."
     }
   ]

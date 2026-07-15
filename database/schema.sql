@@ -1,5 +1,15 @@
 create extension if not exists pgcrypto;
 
+create table if not exists schema_migrations (
+  version text primary key,
+  name text not null,
+  checksum text not null,
+  applied_at timestamptz not null default now(),
+  duration_ms integer not null default 0,
+  success boolean not null default true,
+  log jsonb not null default '{}'::jsonb
+);
+
 create table if not exists users (
   id uuid primary key default gen_random_uuid(),
   email text not null unique,
@@ -14,19 +24,15 @@ alter table users
   add column if not exists role text not null default 'user',
   add column if not exists display_name text,
   add column if not exists last_login_at timestamptz,
+  add column if not exists last_active_at timestamptz,
+  add column if not exists delete_requested_at timestamptz,
+  add column if not exists notification_preferences jsonb not null default '{}'::jsonb,
   add column if not exists updated_at timestamptz not null default now();
 
-do $$
-begin
-  if not exists (
-    select 1
-    from pg_constraint
-    where conname = 'users_role_check'
-  ) then
-    alter table users
-      add constraint users_role_check check (role in ('user', 'admin'));
-  end if;
-end $$;
+alter table users drop constraint if exists users_role_check;
+
+alter table users
+  add constraint users_role_check check (role in ('user', 'owner', 'admin', 'content_editor', 'support'));
 
 create table if not exists purchases (
   id uuid primary key default gen_random_uuid(),
@@ -41,7 +47,101 @@ create table if not exists purchases (
 );
 
 alter table purchases
-  add column if not exists stripe_payment_intent_id text;
+  add column if not exists stripe_payment_intent_id text,
+  add column if not exists stripe_charge_id text,
+  add column if not exists plan_key text,
+  add column if not exists stripe_price_id text,
+  add column if not exists referral_code text,
+  add column if not exists checkout_attempt_id uuid,
+  add column if not exists environment text,
+  add column if not exists policy_versions jsonb not null default '{}'::jsonb,
+  add column if not exists refunded_amount integer not null default 0,
+  add column if not exists disputed_amount integer not null default 0,
+  add column if not exists entitlement_effect text,
+  add column if not exists updated_at timestamptz not null default now();
+
+create table if not exists checkout_attempts (
+  id uuid primary key default gen_random_uuid(),
+  requested_plan_key text not null,
+  resolved_plan_key text,
+  user_id uuid references users(id) on delete set null,
+  email text,
+  anonymous_id text,
+  referral_code text,
+  environment text not null default 'local',
+  stripe_mode text,
+  stripe_checkout_session_id text unique,
+  stripe_payment_intent_id text,
+  status text not null default 'created',
+  failure_reason text,
+  metadata jsonb not null default '{}'::jsonb,
+  accepted_policy_versions jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table checkout_attempts
+  add column if not exists accepted_policy_versions jsonb not null default '{}'::jsonb;
+
+create table if not exists stripe_events (
+  id uuid primary key default gen_random_uuid(),
+  stripe_event_id text not null unique,
+  type text not null,
+  livemode boolean,
+  api_version text,
+  payload jsonb not null,
+  processing_status text not null default 'pending',
+  failure_reason text,
+  replay_count integer not null default 0,
+  first_received_at timestamptz not null default now(),
+  last_received_at timestamptz not null default now(),
+  processed_at timestamptz
+);
+
+create table if not exists payment_refunds (
+  id uuid primary key default gen_random_uuid(),
+  purchase_id uuid references purchases(id) on delete set null,
+  email text,
+  amount integer not null default 0,
+  currency text not null default 'eur',
+  reason text,
+  actor_user_id uuid references users(id) on delete set null,
+  actor_email text,
+  stripe_refund_id text unique,
+  stripe_charge_id text,
+  stripe_payment_intent_id text,
+  status text not null default 'recorded',
+  entitlement_effect text not null default 'none',
+  user_notification text not null default 'not_sent',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists payment_disputes (
+  id uuid primary key default gen_random_uuid(),
+  purchase_id uuid references purchases(id) on delete set null,
+  email text,
+  amount integer not null default 0,
+  currency text not null default 'eur',
+  stripe_dispute_id text unique,
+  stripe_charge_id text,
+  stripe_payment_intent_id text,
+  reason text,
+  status text not null,
+  entitlement_effect text not null default 'none',
+  last_event_type text,
+  stripe_event_created_at timestamptz,
+  revoked_entitlement_id uuid,
+  revoked_entitlement_active boolean,
+  revoked_entitlement_source text,
+  revoked_entitlement_expires_at timestamptz,
+  revocation_applied_at timestamptz,
+  restoration_applied_at timestamptz,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
 create table if not exists entitlements (
   id uuid primary key default gen_random_uuid(),
@@ -51,6 +151,8 @@ create table if not exists entitlements (
   source text not null default 'stripe',
   expires_at timestamptz,
   revoked_at timestamptz,
+  revoked_reason text,
+  revoked_by_dispute_id text,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (email, product)
@@ -58,7 +160,121 @@ create table if not exists entitlements (
 
 alter table entitlements
   add column if not exists expires_at timestamptz,
-  add column if not exists revoked_at timestamptz;
+  add column if not exists revoked_at timestamptz,
+  add column if not exists revoked_reason text,
+  add column if not exists revoked_by_dispute_id text;
+
+alter table payment_disputes
+  add column if not exists last_event_type text,
+  add column if not exists stripe_event_created_at timestamptz,
+  add column if not exists revoked_entitlement_id uuid,
+  add column if not exists revoked_entitlement_active boolean,
+  add column if not exists revoked_entitlement_source text,
+  add column if not exists revoked_entitlement_expires_at timestamptz,
+  add column if not exists revocation_applied_at timestamptz,
+  add column if not exists restoration_applied_at timestamptz;
+
+create table if not exists instructor_accounts (
+  id uuid primary key default gen_random_uuid(),
+  email text not null unique,
+  name text,
+  organisation text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists referral_codes (
+  code text primary key,
+  instructor_account_id uuid references instructor_accounts(id) on delete set null,
+  description text,
+  discount_percent integer not null default 0,
+  fixed_price_plan text,
+  commission_note text,
+  max_redemptions integer not null default 0,
+  expires_at timestamptz,
+  entitlement_duration_days integer not null default 90,
+  grant_entitlement boolean not null default false,
+  active boolean not null default true,
+  created_by uuid,
+  created_by_email text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table referral_codes
+  add column if not exists instructor_account_id uuid,
+  add column if not exists description text,
+  add column if not exists discount_percent integer not null default 0,
+  add column if not exists fixed_price_plan text,
+  add column if not exists commission_note text,
+  add column if not exists max_redemptions integer not null default 0,
+  add column if not exists expires_at timestamptz,
+  add column if not exists entitlement_duration_days integer not null default 90,
+  add column if not exists grant_entitlement boolean not null default false,
+  add column if not exists active boolean not null default true,
+  add column if not exists created_by uuid,
+  add column if not exists created_by_email text,
+  add column if not exists allowed_plan_keys jsonb not null default '[]'::jsonb,
+  add column if not exists attribution_note text,
+  add column if not exists updated_at timestamptz not null default now();
+
+create table if not exists referral_redemptions (
+  id uuid primary key default gen_random_uuid(),
+  code text not null references referral_codes(code) on delete cascade,
+  email text,
+  anonymous_id text,
+  stripe_checkout_session_id text,
+  status text not null default 'applied',
+  plan_key text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table referral_redemptions
+  add column if not exists email text,
+  add column if not exists anonymous_id text,
+  add column if not exists stripe_checkout_session_id text,
+  add column if not exists status text not null default 'applied',
+  add column if not exists plan_key text,
+  add column if not exists purchase_id uuid,
+  add column if not exists ip_address text,
+  add column if not exists user_agent text,
+  add column if not exists metadata jsonb not null default '{}'::jsonb,
+  add column if not exists updated_at timestamptz not null default now();
+
+create table if not exists instructor_codes (
+  code text primary key,
+  instructor_account_id uuid references instructor_accounts(id) on delete set null,
+  purchase_id uuid references purchases(id) on delete set null,
+  purchase_email text,
+  plan_key text,
+  status text not null default 'active',
+  max_redemptions integer not null default 1,
+  redemption_count integer not null default 0,
+  entitlement_duration_days integer not null default 90,
+  expires_at timestamptz,
+  redeemed_by_email text,
+  redeemed_by_user_id uuid references users(id) on delete set null,
+  redeemed_at timestamptz,
+  revoked_at timestamptz,
+  revoked_by uuid references users(id) on delete set null,
+  revoked_by_email text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists instructor_code_redemptions (
+  id uuid primary key default gen_random_uuid(),
+  code text not null references instructor_codes(code) on delete cascade,
+  email text,
+  user_id uuid references users(id) on delete set null,
+  status text not null default 'redeemed',
+  ip_address text,
+  user_agent text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
 
 create table if not exists login_tokens (
   id uuid primary key default gen_random_uuid(),
@@ -67,18 +283,130 @@ create table if not exists login_tokens (
   purpose text not null default 'login',
   expires_at timestamptz not null,
   consumed_at timestamptz,
+  request_ip text,
+  user_agent text,
+  origin text,
+  sent_at timestamptz,
+  delivery_status text not null default 'pending',
+  delivery_error text,
   created_at timestamptz not null default now()
 );
 
+alter table login_tokens
+  add column if not exists request_ip text,
+  add column if not exists user_agent text,
+  add column if not exists origin text,
+  add column if not exists sent_at timestamptz,
+  add column if not exists delivery_status text not null default 'pending',
+  add column if not exists delivery_error text;
+
 create table if not exists sessions (
   id uuid primary key default gen_random_uuid(),
+  user_id uuid,
   email text not null,
   session_token_hash text not null unique,
   expires_at timestamptz not null,
   revoked_at timestamptz,
+  revoked_reason text,
+  ip_address text,
+  user_agent text,
+  rotated_from_session_id uuid,
   last_seen_at timestamptz not null default now(),
   created_at timestamptz not null default now()
 );
+
+alter table sessions
+  add column if not exists user_id uuid,
+  add column if not exists revoked_reason text,
+  add column if not exists ip_address text,
+  add column if not exists user_agent text,
+  add column if not exists rotated_from_session_id uuid;
+
+create table if not exists auth_audit_log (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text,
+  event_type text not null,
+  severity text not null default 'info',
+  ip_address text,
+  user_agent text,
+  origin text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists flag_operations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null,
+  email text not null,
+  question_id integer not null,
+  operation_id text not null,
+  active boolean not null,
+  category text,
+  client_updated_at timestamptz not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, operation_id)
+);
+
+create table if not exists mock_sessions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text not null,
+  session_public_id text not null,
+  mode text not null default 'exam',
+  score integer not null default 0,
+  total integer not null default 0,
+  answered integer not null default 0,
+  passed boolean,
+  duration_seconds integer not null default 0,
+  product_version text,
+  content_version text,
+  started_at timestamptz,
+  completed_at timestamptz not null default now(),
+  created_at timestamptz not null default now()
+);
+
+create table if not exists account_deletion_requests (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid,
+  email text not null,
+  reason text,
+  status text not null default 'requested',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
+create table if not exists support_cases (
+  id uuid primary key default gen_random_uuid(),
+  requester_email text not null,
+  requester_name text,
+  category text not null default 'general',
+  purchase_id uuid references purchases(id) on delete set null,
+  status text not null default 'open',
+  priority text not null default 'normal',
+  assigned_admin_user_id uuid references users(id) on delete set null,
+  assigned_admin_email text,
+  internal_notes text,
+  resolution text,
+  created_by uuid references users(id) on delete set null,
+  created_by_email text,
+  resolved_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table support_cases
+  add column if not exists requester_name text,
+  add column if not exists purchase_id uuid,
+  add column if not exists assigned_admin_user_id uuid,
+  add column if not exists assigned_admin_email text,
+  add column if not exists internal_notes text,
+  add column if not exists resolution text,
+  add column if not exists created_by uuid,
+  add column if not exists created_by_email text,
+  add column if not exists resolved_at timestamptz,
+  add column if not exists updated_at timestamptz not null default now();
 
 create table if not exists attempts (
   id uuid primary key default gen_random_uuid(),
@@ -95,6 +423,7 @@ create table if not exists attempts (
 
 alter table attempts
   add column if not exists user_id uuid,
+  add column if not exists canonical_question_id integer,
   add column if not exists category text,
   add column if not exists client_event_id text;
 
@@ -109,6 +438,17 @@ create table if not exists flags (
   unique (email, question_id)
 );
 
+create table if not exists canonical_categories (
+  category_key text primary key,
+  display_name text not null,
+  description text not null default '',
+  display_order integer not null default 999,
+  aliases jsonb not null default '[]'::jsonb,
+  active boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists admin_audit_log (
   id uuid primary key default gen_random_uuid(),
   admin_user_id uuid,
@@ -117,9 +457,19 @@ create table if not exists admin_audit_log (
   target_type text not null,
   target_email text,
   target_id text,
+  before_state jsonb,
+  after_state jsonb,
+  reason text,
+  request_correlation_id text,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+
+alter table admin_audit_log
+  add column if not exists before_state jsonb,
+  add column if not exists after_state jsonb,
+  add column if not exists reason text,
+  add column if not exists request_correlation_id text;
 
 create table if not exists question_sources (
   id uuid primary key default gen_random_uuid(),
@@ -145,6 +495,16 @@ create table if not exists question_reviews (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table question_reviews
+  add column if not exists ownership_status text not null default 'owned_confirmed',
+  add column if not exists structural_status text not null default 'needs_review',
+  add column if not exists factual_status text not null default 'needs_review',
+  add column if not exists publication_status text not null default 'published',
+  add column if not exists canonical_question_id integer,
+  add column if not exists variant_group_id text,
+  add column if not exists duplicate_reason text,
+  add column if not exists archived_at timestamptz;
 
 do $$
 begin
@@ -176,6 +536,45 @@ create table if not exists question_versions (
   change_note text,
   created_at timestamptz not null default now(),
   unique (question_id, version_number)
+);
+
+alter table question_versions
+  add column if not exists old_version_json jsonb,
+  add column if not exists new_version_json jsonb,
+  add column if not exists fields_changed jsonb not null default '[]'::jsonb,
+  add column if not exists reason text;
+
+create table if not exists question_quality_decisions (
+  id uuid primary key default gen_random_uuid(),
+  group_id text not null,
+  group_type text not null,
+  question_ids integer[] not null default '{}'::integer[],
+  action text not null,
+  canonical_question_id integer,
+  old_version_json jsonb,
+  new_version_json jsonb,
+  fields_changed jsonb not null default '[]'::jsonb,
+  reason text,
+  notes text,
+  review_status text not null default 'published',
+  created_by uuid,
+  created_by_email text,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists question_problem_reports (
+  id uuid primary key default gen_random_uuid(),
+  question_id integer not null,
+  reason_category text not null,
+  comment text,
+  app_version text,
+  content_version text,
+  anonymous_id text,
+  user_id uuid,
+  email text,
+  review_state text not null default 'open',
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
 );
 
 create table if not exists ai_explanations (
@@ -304,12 +703,107 @@ create table if not exists generated_questions (
 
 create table if not exists events (
   id uuid primary key default gen_random_uuid(),
+  event_id text unique,
+  schema_version integer not null default 1,
   event_name text not null,
   anonymous_id text not null,
   user_id uuid,
   properties jsonb not null default '{}'::jsonb,
+  attribution jsonb not null default '{}'::jsonb,
+  experiments jsonb not null default '{}'::jsonb,
+  bot_signals jsonb not null default '{}'::jsonb,
+  environment text not null default 'local',
+  client_created_at timestamptz,
   created_at timestamptz not null default now()
 );
+
+alter table events
+  add column if not exists event_id text,
+  add column if not exists schema_version integer not null default 1,
+  add column if not exists attribution jsonb not null default '{}'::jsonb,
+  add column if not exists experiments jsonb not null default '{}'::jsonb,
+  add column if not exists bot_signals jsonb not null default '{}'::jsonb,
+  add column if not exists environment text not null default 'local',
+  add column if not exists client_created_at timestamptz;
+
+create table if not exists operational_events (
+  id uuid primary key default gen_random_uuid(),
+  event_type text not null,
+  severity text not null default 'info',
+  source text not null default 'app',
+  environment text not null default 'local',
+  correlation_id text,
+  safe_actor text,
+  message text,
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists reconciliation_runs (
+  id uuid primary key default gen_random_uuid(),
+  status text not null default 'running',
+  environment text not null default 'local',
+  started_at timestamptz not null default now(),
+  completed_at timestamptz,
+  findings_count integer not null default 0,
+  high_severity_count integer not null default 0,
+  metadata jsonb not null default '{}'::jsonb
+);
+
+create table if not exists reconciliation_findings (
+  id uuid primary key default gen_random_uuid(),
+  run_id uuid references reconciliation_runs(id) on delete cascade,
+  check_key text not null,
+  severity text not null default 'warning',
+  subject_type text not null,
+  subject_id text,
+  message text not null,
+  status text not null default 'open',
+  metadata jsonb not null default '{}'::jsonb,
+  created_at timestamptz not null default now(),
+  resolved_at timestamptz
+);
+
+create table if not exists restore_drills (
+  id uuid primary key default gen_random_uuid(),
+  restoration_date date not null,
+  source_backup text not null,
+  target_environment text not null,
+  row_counts jsonb not null default '{}'::jsonb,
+  integrity_checks jsonb not null default '{}'::jsonb,
+  elapsed_seconds integer,
+  problems text,
+  recorded_by text,
+  created_at timestamptz not null default now()
+);
+
+alter table operational_events
+  add column if not exists source text not null default 'app',
+  add column if not exists environment text not null default 'local',
+  add column if not exists correlation_id text,
+  add column if not exists safe_actor text,
+  add column if not exists message text,
+  add column if not exists metadata jsonb not null default '{}'::jsonb;
+
+alter table reconciliation_runs
+  add column if not exists environment text not null default 'local',
+  add column if not exists completed_at timestamptz,
+  add column if not exists findings_count integer not null default 0,
+  add column if not exists high_severity_count integer not null default 0,
+  add column if not exists metadata jsonb not null default '{}'::jsonb;
+
+alter table reconciliation_findings
+  add column if not exists run_id uuid,
+  add column if not exists status text not null default 'open',
+  add column if not exists metadata jsonb not null default '{}'::jsonb,
+  add column if not exists resolved_at timestamptz;
+
+alter table restore_drills
+  add column if not exists row_counts jsonb not null default '{}'::jsonb,
+  add column if not exists integrity_checks jsonb not null default '{}'::jsonb,
+  add column if not exists elapsed_seconds integer,
+  add column if not exists problems text,
+  add column if not exists recorded_by text;
 
 alter table generated_questions
   add column if not exists source_ids uuid[] not null default '{}'::uuid[],
@@ -372,15 +866,33 @@ from users
 where flags.user_id is null
   and lower(flags.email) = lower(users.email);
 
+update sessions
+set user_id = users.id
+from users
+where sessions.user_id is null
+  and lower(sessions.email) = lower(users.email);
+
 create index if not exists attempts_email_created_idx on attempts (email, created_at desc);
 create index if not exists attempts_question_idx on attempts (question_id);
+create index if not exists attempts_canonical_question_idx on attempts (canonical_question_id);
 create index if not exists attempts_user_created_idx on attempts (user_id, created_at desc);
 create index if not exists attempts_user_question_created_idx on attempts (user_id, question_id, created_at desc);
 create index if not exists entitlements_email_idx on entitlements (email);
 create index if not exists admin_audit_log_created_idx on admin_audit_log (created_at desc);
+create index if not exists admin_audit_log_action_idx on admin_audit_log (action, created_at desc);
+create index if not exists admin_audit_log_correlation_idx
+  on admin_audit_log (request_correlation_id)
+  where request_correlation_id is not null;
 create index if not exists question_sources_question_idx on question_sources (question_id);
 create index if not exists question_reviews_status_idx on question_reviews (reviewed_status);
+create index if not exists question_reviews_variant_group_idx on question_reviews (variant_group_id);
+create index if not exists question_reviews_canonical_idx on question_reviews (canonical_question_id);
+create index if not exists question_reviews_publication_idx on question_reviews (publication_status);
 create index if not exists question_versions_question_created_idx on question_versions (question_id, created_at desc);
+create index if not exists question_quality_decisions_group_idx on question_quality_decisions (group_id, created_at desc);
+create index if not exists question_quality_decisions_action_idx on question_quality_decisions (action, created_at desc);
+create index if not exists question_problem_reports_question_idx on question_problem_reports (question_id, created_at desc);
+create index if not exists question_problem_reports_state_idx on question_problem_reports (review_state, created_at desc);
 create unique index if not exists ai_explanations_question_selected_idx
   on ai_explanations (question_id, selected_answer_hash);
 create unique index if not exists ai_explanation_rate_limits_key_window_idx
@@ -397,10 +909,32 @@ create index if not exists events_created_idx on events (created_at desc);
 create index if not exists events_name_created_idx on events (event_name, created_at desc);
 create index if not exists events_anonymous_created_idx on events (anonymous_id, created_at desc);
 create index if not exists events_user_created_idx on events (user_id, created_at desc) where user_id is not null;
+create unique index if not exists events_event_id_unique_idx on events (event_id) where event_id is not null;
+create index if not exists events_environment_created_idx on events (environment, created_at desc);
+create index if not exists schema_migrations_applied_idx on schema_migrations (applied_at desc);
+create index if not exists operational_events_created_idx on operational_events (created_at desc);
+create index if not exists operational_events_type_created_idx on operational_events (event_type, created_at desc);
+create index if not exists reconciliation_runs_started_idx on reconciliation_runs (started_at desc);
+create index if not exists reconciliation_findings_run_idx on reconciliation_findings (run_id);
+create index if not exists reconciliation_findings_status_idx on reconciliation_findings (status, created_at desc);
 create index if not exists users_role_idx on users (role);
 create index if not exists flags_user_idx on flags (user_id);
 create index if not exists login_tokens_email_expires_idx on login_tokens (email, expires_at desc);
+create index if not exists login_tokens_delivery_idx on login_tokens (delivery_status, created_at desc);
 create index if not exists sessions_email_expires_idx on sessions (email, expires_at desc);
+create index if not exists sessions_user_expires_idx on sessions (user_id, expires_at desc) where user_id is not null;
+create index if not exists sessions_active_user_idx on sessions (user_id, last_seen_at desc) where revoked_at is null;
+create index if not exists auth_audit_log_email_created_idx on auth_audit_log (email, created_at desc);
+create index if not exists auth_audit_log_event_created_idx on auth_audit_log (event_type, created_at desc);
+create index if not exists flag_operations_user_created_idx on flag_operations (user_id, created_at desc);
+create index if not exists mock_sessions_user_completed_idx on mock_sessions (user_id, completed_at desc);
+create unique index if not exists mock_sessions_user_public_unique_idx
+  on mock_sessions (user_id, session_public_id)
+  where user_id is not null;
+create index if not exists account_deletion_requests_email_idx on account_deletion_requests (email, created_at desc);
+create index if not exists support_cases_status_priority_idx on support_cases (status, priority, updated_at desc);
+create index if not exists support_cases_requester_idx on support_cases (requester_email, created_at desc);
+create index if not exists support_cases_purchase_idx on support_cases (purchase_id) where purchase_id is not null;
 create unique index if not exists attempts_user_client_event_id_idx
   on attempts (user_id, client_event_id)
   where user_id is not null and client_event_id is not null;
@@ -410,3 +944,37 @@ create unique index if not exists flags_user_question_idx
 create unique index if not exists purchases_stripe_payment_intent_id_idx
   on purchases (stripe_payment_intent_id)
   where stripe_payment_intent_id is not null;
+create index if not exists purchases_stripe_charge_id_idx
+  on purchases (stripe_charge_id)
+  where stripe_charge_id is not null;
+create index if not exists purchases_checkout_attempt_idx
+  on purchases (checkout_attempt_id)
+  where checkout_attempt_id is not null;
+create index if not exists purchases_environment_idx on purchases (environment);
+create index if not exists purchases_plan_key_idx on purchases (plan_key);
+create index if not exists purchases_referral_code_idx on purchases (referral_code) where referral_code is not null;
+create index if not exists checkout_attempts_created_idx on checkout_attempts (created_at desc);
+create index if not exists checkout_attempts_status_idx on checkout_attempts (status, created_at desc);
+create index if not exists checkout_attempts_session_idx
+  on checkout_attempts (stripe_checkout_session_id)
+  where stripe_checkout_session_id is not null;
+create index if not exists stripe_events_status_idx on stripe_events (processing_status, last_received_at desc);
+create index if not exists stripe_events_type_idx on stripe_events (type, last_received_at desc);
+create index if not exists payment_refunds_purchase_idx on payment_refunds (purchase_id);
+create index if not exists payment_refunds_status_idx on payment_refunds (status, created_at desc);
+create index if not exists payment_disputes_purchase_idx on payment_disputes (purchase_id);
+create index if not exists payment_disputes_status_idx on payment_disputes (status, created_at desc);
+create index if not exists payment_disputes_open_revocation_idx
+  on payment_disputes (purchase_id, revocation_applied_at)
+  where revocation_applied_at is not null and restoration_applied_at is null;
+create index if not exists referral_codes_active_idx on referral_codes (active, expires_at);
+create index if not exists referral_redemptions_code_created_idx on referral_redemptions (code, created_at desc);
+create index if not exists referral_redemptions_session_idx
+  on referral_redemptions (stripe_checkout_session_id)
+  where stripe_checkout_session_id is not null;
+create unique index if not exists referral_redemptions_session_unique_idx
+  on referral_redemptions (stripe_checkout_session_id)
+  where stripe_checkout_session_id is not null;
+create index if not exists instructor_codes_purchase_idx on instructor_codes (purchase_id);
+create index if not exists instructor_codes_status_idx on instructor_codes (status, expires_at);
+create index if not exists instructor_code_redemptions_code_idx on instructor_code_redemptions (code, created_at desc);

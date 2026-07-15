@@ -1,0 +1,20 @@
+{
+  "version": "0.1.0-commercial-v1",
+  "commit": "local-dev",
+  "buildDate": "local-dev",
+  "contentVersion": "ff1535f7684d9ccc",
+  "schemaVersion": "da07814e976a",
+  "publicQuestionCount": 1277,
+  "previewCount": 15,
+  "featureFlags": {
+    "stripeCheckout": true,
+    "magicLinkRestore": true,
+    "progressSync": true,
+    "adminDashboard": true,
+    "seoPages": true,
+    "pwa": true,
+    "aiExplanations": true,
+    "referralCodes": true,
+    "launchOffer": false
+  }
+}

@@ -6,6 +6,8 @@ import {
   safeErrorSummary,
   sendSafeConfigError,
 } from "../../lib/server-env.js";
+import { rejectUnverifiedRequest, verifyStateChangingRequest } from "../../lib/security.js";
+import { limitFromEnv } from "../../lib/rate-limit.js";
 
 const AI_TIMEOUT_MS = 12000;
 const RATE_WINDOW_MS = 60 * 60 * 1000;
@@ -27,14 +29,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = await readJsonBody(req);
+    const origin = verifyStateChangingRequest(req, env);
+    if (!origin.ok) {
+      return rejectUnverifiedRequest(res);
+    }
+
+    const body = await readJsonBody(req, { maxBytes: 12_288 });
     const input = normalizeExplanationRequest(body);
     const user = await getSessionUser(req, env.databaseUrl);
     const selectedAnswerHash = hashValue(input.selectedAnswer);
     const rateKey = buildRateKey(req, user);
+    const requestLimit = user
+      ? limitFromEnv("RATE_LIMIT_AI_EXPLAIN_USER", USER_RATE_LIMIT)
+      : limitFromEnv("RATE_LIMIT_AI_EXPLAIN_GUEST", GUEST_RATE_LIMIT);
 
     const cached = await withDb(env.databaseUrl, async (client) => {
-      await enforceRateLimit(client, rateKey, user ? USER_RATE_LIMIT : GUEST_RATE_LIMIT);
+      await enforceRateLimit(client, rateKey, requestLimit);
       return findCachedExplanation(client, input.questionId, selectedAnswerHash);
     });
 

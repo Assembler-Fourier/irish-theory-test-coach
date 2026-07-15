@@ -1,0 +1,45 @@
+name: Security checks
+
+on:
+  pull_request:
+  push:
+  workflow_dispatch:
+
+jobs:
+  security:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Setup Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lockfile validation
+        run: npm run check:lockfile
+
+      - name: Syntax check
+        run: npm run check:syntax
+
+      - name: Migration validation
+        run: npm run check:migrations
+
+      - name: Dependency audit
+        run: npm run security:audit
+
+      - name: Secret scan
+        run: npm run check:secrets
+
+      - name: Security behavior tests
+        run: npm run test:security
+
+      - name: Security header checks
+        run: npm run check:headers

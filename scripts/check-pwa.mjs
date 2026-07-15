@@ -10,9 +10,12 @@ const requiredFiles = [
   "manifest.webmanifest",
   "service-worker.js",
   "offline.html",
+  "product-summary.json",
+  "release-manifest.json",
   "icons/app-icon.svg",
   "icons/maskable-icon.svg",
   "index.html",
+  "app.html",
 ];
 
 const errors = [];
@@ -24,8 +27,10 @@ for (const file of requiredFiles) {
 }
 
 const index = readPublicFile("index.html");
+const appHtml = readPublicFile("app.html");
 const app = readPublicFile("app.js");
 if (!index.includes('rel="manifest"')) errors.push("index.html does not link the manifest.");
+if (!appHtml.includes('rel="manifest"')) errors.push("app.html does not link the manifest.");
 if (!app.includes("service-worker.js")) errors.push("app.js does not register service-worker.js.");
 
 const manifest = JSON.parse(readPublicFile("manifest.webmanifest"));
@@ -43,11 +48,19 @@ const serviceWorker = readPublicFile("service-worker.js");
   "install",
   "activate",
   "fetch",
-  "questions.enriched.json",
+  "preview-questions.json",
+  "app.html",
+  "product-summary.js",
+  "privacy-consent.js",
+  "cookies.html",
   "offline.html",
 ].forEach((needle) => {
   if (!serviceWorker.includes(needle)) errors.push(`service-worker.js missing ${needle}`);
 });
+
+for (const forbidden of ["./data/questions.enriched.json", "./data/questions.json", "./data/study_report.json", "/data/assets/"]) {
+  if (serviceWorker.includes(forbidden)) errors.push(`service-worker.js must not precache protected asset ${forbidden}.`);
+}
 
 if (errors.length) {
   console.error(errors.map((error) => `- ${error}`).join("\n"));

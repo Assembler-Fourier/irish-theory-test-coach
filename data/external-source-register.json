@@ -1,0 +1,184 @@
+{
+  "generated_at": "2026-07-11",
+  "policy": "External sources may be used only when rights are clear. Competitor question text, answer choices, explanations, images, videos, transcripts, and paid course material must not be copied or closely paraphrased.",
+  "sources": [
+    {
+      "id": "github_adamisntdead_theory_test_questions",
+      "title": "adamisntdead/theory-test-questions",
+      "url": "https://github.com/adamisntdead/theory-test-questions",
+      "source_type": "github_repository",
+      "content_type": "question_bank",
+      "license_status": "blocked_no_clear_data_license",
+      "import_status": "blocked",
+      "rights_evidence": [
+        "GitHub repository has no detected licence for the data.",
+        "Repository README says the data was scraped from theory-tester.com and the questions are not the repository author's own material.",
+        "Package metadata marks code as MIT, but that does not grant commercial reuse rights to the question bank."
+      ],
+      "allowed_uses": [
+        "licensing outreach",
+        "risk documentation",
+        "non-verbatim topic research"
+      ],
+      "blocked_uses": [
+        "import question text",
+        "import answer choices",
+        "import explanations",
+        "import images",
+        "publish close paraphrases"
+      ],
+      "notes": "Do not import this dataset unless the question owner grants a commercial reuse licence covering the data."
+    },
+    {
+      "id": "competitor_question_sites",
+      "title": "Competitor Irish theory-test practice websites",
+      "url": "multiple",
+      "source_type": "competitor_website",
+      "content_type": "question_bank",
+      "license_status": "blocked_without_written_permission",
+      "import_status": "blocked",
+      "rights_evidence": [],
+      "allowed_uses": [
+        "manual market research",
+        "feature comparison",
+        "non-verbatim topic gap analysis"
+      ],
+      "blocked_uses": [
+        "scrape question text",
+        "scrape answer options",
+        "scrape explanations",
+        "scrape images",
+        "clone page structure or paid content"
+      ],
+      "notes": "Use competitor sites to understand product positioning only. Do not use them as content sources."
+    },
+    {
+      "id": "youtube_instructor_research",
+      "title": "Irish driving instructor YouTube videos",
+      "url": "multiple",
+      "source_type": "youtube",
+      "content_type": "learner_pain_points",
+      "license_status": "research_only_without_permission",
+      "import_status": "research_only",
+      "rights_evidence": [],
+      "allowed_uses": [
+        "aggregate high-level learner themes",
+        "manual outreach to creators",
+        "topic prioritisation without copying wording"
+      ],
+      "blocked_uses": [
+        "copy transcripts",
+        "copy screenshots",
+        "copy example questions",
+        "copy instructor explanations",
+        "use creator content in ads without permission"
+      ],
+      "notes": "If a creator agrees to provide source notes, record the permission before using them."
+    },
+    {
+      "id": "reddit_forum_research",
+      "title": "Reddit and learner forum discussions",
+      "url": "multiple",
+      "source_type": "forum_discussion",
+      "content_type": "learner_pain_points",
+      "license_status": "research_only",
+      "import_status": "research_only",
+      "rights_evidence": [],
+      "allowed_uses": [
+        "anonymous aggregate themes",
+        "non-verbatim product research",
+        "support article ideas"
+      ],
+      "blocked_uses": [
+        "copy posts",
+        "name users",
+        "quote anecdotes as official frequency",
+        "turn posts into question text"
+      ],
+      "notes": "Forum anecdotes are not evidence of official exam frequency."
+    },
+    {
+      "id": "rsa_rules_of_the_road",
+      "title": "RSA Rules of the Road",
+      "url": "https://www.rsa.ie/services/learner-drivers/resources/rules-of-the-road",
+      "source_type": "official_guidance",
+      "content_type": "rules_reference",
+      "license_status": "research_and_cross_check_only",
+      "import_status": "research_only",
+      "rights_evidence": [],
+      "allowed_uses": [
+        "cross-check facts",
+        "write original source notes",
+        "verify category coverage"
+      ],
+      "blocked_uses": [
+        "copy long passages",
+        "copy diagrams",
+        "claim official affiliation",
+        "republish paid revision content"
+      ],
+      "notes": "Use for factual verification and original explanations, not as copied content."
+    },
+    {
+      "id": "theorytest_revision_material",
+      "title": "Official Driver Theory Test revision material",
+      "url": "https://theorytest.ie/revision-material/",
+      "source_type": "official_revision_material",
+      "content_type": "licensed_or_paid_reference",
+      "license_status": "requires_commercial_licence_review",
+      "import_status": "blocked",
+      "rights_evidence": [],
+      "allowed_uses": [
+        "identify official purchasing/licensing route",
+        "manual licensing enquiry"
+      ],
+      "blocked_uses": [
+        "copy paid revision questions",
+        "copy answer options",
+        "copy explanations",
+        "claim official status"
+      ],
+      "notes": "Do not ingest paid official content unless a commercial licence explicitly permits it."
+    }
+  ],
+  "estimated_high_yield_topic_signals": [
+    {
+      "topic": "Road signs and road markings",
+      "reason": "Image/sign recognition is visually distinctive and easy to drill repeatedly.",
+      "allowed_action": "Use our existing licensed/owner-approved sign assets and original explanations only."
+    },
+    {
+      "topic": "Right of way, junctions, roundabouts, and merging",
+      "reason": "Learners commonly need scenario practice and safety-first judgement.",
+      "allowed_action": "Create original scenario drafts from approved source notes."
+    },
+    {
+      "topic": "Speed, stopping distance, weather, and road conditions",
+      "reason": "Safety-critical judgement topics fit high-yield review.",
+      "allowed_action": "Cross-check rules and write original coaching explanations."
+    },
+    {
+      "topic": "Alcohol, drugs, penalties, insurance, NCT, and licence rules",
+      "reason": "Legal consequence topics are important and should be kept current.",
+      "allowed_action": "Verify against current official/legal sources before publishing."
+    },
+    {
+      "topic": "Vehicle control, tyres, brakes, lights, and maintenance",
+      "reason": "Technical items are practical and often benefit from clear memory tips.",
+      "allowed_action": "Use original wording and admin review."
+    },
+    {
+      "topic": "Vulnerable road users, cyclists, pedestrians, buses, and emergency vehicles",
+      "reason": "Safety-critical behaviour and observation topics should be prioritised.",
+      "allowed_action": "Create original practice from approved notes."
+    }
+  ],
+  "next_actions": [
+    "Contact any source owner before importing their question bank.",
+    "Use competitor sites, YouTube, Reddit, and forums only for non-verbatim research signals.",
+    "Write admin-approved source notes in original words.",
+    "Generate original draft questions from approved notes only.",
+    "Review drafts before publication and keep provenance attached."
+  ]
+}
+

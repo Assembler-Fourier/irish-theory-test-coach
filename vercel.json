@@ -1,5 +1,70 @@
 {
   "buildCommand": "npm run build",
   "outputDirectory": "public",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "functions": {
+    "api/[...route].js": {
+      "includeFiles": "data/**"
+    }
+  },
+  "crons": [
+    { "path": "/api/ops/reconcile", "schedule": "17 3 * * *" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self' https://checkout.stripe.com" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=(), payment=()" }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/admin.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
+      "source": "/account.html",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/index.html", "destination": "/", "permanent": true },
+    { "source": "/app.html", "destination": "/app", "permanent": true },
+    { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
+    { "source": "/learn.html", "destination": "/learn", "permanent": true },
+    { "source": "/irish-road-signs-test", "destination": "/road-signs", "permanent": false },
+    { "source": "/irish-theory-test-road-signs", "destination": "/road-signs", "permanent": false },
+    { "source": "/mock-theory-test-ireland", "destination": "/mock-exam", "permanent": false },
+    { "source": "/car-theory-test-mock-exam", "destination": "/mock-exam", "permanent": false },
+    { "source": "/contact", "destination": "/support", "permanent": false }
+  ],
+  "rewrites": [
+    { "source": "/api/v1/:path*", "destination": "/api/dispatch?dispatchRoute=v1/:path*" },
+    { "source": "/api/ops/reconcile", "destination": "/api/ops-reconcile" },
+    { "source": "/api/admin/audit", "destination": "/api/admin-audit" },
+    { "source": "/api/admin/content-quality", "destination": "/api/admin-content-quality" },
+    { "source": "/api/admin/entitlements", "destination": "/api/admin-entitlements" },
+    { "source": "/api/admin/export", "destination": "/api/admin-export" },
+    { "source": "/api/admin/generate-questions", "destination": "/api/admin-generate-questions" },
+    { "source": "/api/admin/instructors", "destination": "/api/admin-instructors" },
+    { "source": "/api/admin/payments", "destination": "/api/admin-payments" },
+    { "source": "/api/admin/questions", "destination": "/api/admin-questions" },
+    { "source": "/api/admin/referrals", "destination": "/api/admin-referrals" },
+    { "source": "/api/admin/stats", "destination": "/api/admin-stats" },
+    { "source": "/api/admin/support", "destination": "/api/admin-support" },
+    { "source": "/api/admin/users", "destination": "/api/admin-users" }
+  ]
 }
