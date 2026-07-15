@@ -5,7 +5,10 @@ import {
   detectStripeSecretMode,
   validatePaymentEnvironment,
 } from "../lib/payment-environment.js";
-import { appendPaymentIntentTrace } from "../server/api/create-checkout-session.js";
+import {
+  appendCheckoutConsent,
+  appendPaymentIntentTrace,
+} from "../server/api/create-checkout-session.js";
 
 testModeDetection();
 testLiveSecretRejectsTestPrices();
@@ -13,6 +16,7 @@ testTestSecretRejectsLivePrices();
 testProductionRequiresWebhookAndLiveMode();
 testLocalRejectsProductionSiteUrl();
 testCheckoutPaymentIntentTrace();
+testCheckoutTermsConsent();
 
 console.log("Payment environment policy tests passed.");
 
@@ -87,4 +91,12 @@ function testCheckoutPaymentIntentTrace() {
     params.get("payment_intent_data[metadata][plan_key]"),
     "full_study_pass",
   );
+}
+
+function testCheckoutTermsConsent() {
+  const required = appendCheckoutConsent(new URLSearchParams(), "true");
+  assert.equal(required.get("consent_collection[terms_of_service]"), "required");
+
+  const disabled = appendCheckoutConsent(new URLSearchParams(), "false");
+  assert.equal(disabled.has("consent_collection[terms_of_service]"), false);
 }

@@ -9,6 +9,9 @@ const playwright = loadPlaywright();
 const server = await startStaticServer({ mockApi: true, premiumAccess: true });
 
 const states = [
+  { name: "mobile privacy choices", path: "/", viewport: { width: 390, height: 844 }, ready: "#privacyConsentPanel:not([hidden])", allowUnsetConsent: true },
+  { name: "legal centre", path: "/legal.html", viewport: { width: 390, height: 844 }, ready: ".legal-page" },
+  { name: "cancellation form", path: "/cancellation.html", viewport: { width: 390, height: 844 }, ready: ".model-cancellation-form" },
   { name: "mobile app", path: "/app", viewport: { width: 390, height: 844 }, ready: ".question-view" },
   { name: "mobile paywall", path: "/app", viewport: { width: 390, height: 844 }, ready: ".paywall-view", setup: async (page) => page.selectOption("#mobileModeSelect", "highYield") },
   { name: "mobile restore", path: "/app", viewport: { width: 390, height: 844 }, ready: "#restoreEmail", setup: async (page) => {
@@ -27,6 +30,15 @@ try {
   browser = await playwright.chromium.launch({ headless: true });
   for (const state of states) {
     const context = await browser.newContext({ viewport: state.viewport, deviceScaleFactor: 1 });
+    if (!state.allowUnsetConsent) {
+      await context.addInitScript(() => {
+        window.localStorage.setItem("ittc-privacy-preferences-v1", JSON.stringify({
+          analytics: "denied",
+          version: "2026-07-15-v1",
+          updatedAt: "2026-07-15T00:00:00.000Z",
+        }));
+      });
+    }
     const page = await context.newPage();
     try {
       await page.goto(`${server.baseUrl}${state.path}`, { waitUntil: "domcontentloaded" });

@@ -258,6 +258,7 @@ ${jsonLd.map((data) => `    <script type="application/ld+json">${JSON.stringify(
     <script src="./config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
     <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./privacy-consent.js?v=20260715-legal-v1"></script>
     <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
     <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
     ${item.type === "pricing" ? '<script type="module" src="./pricing.js?v=20260710-rebuild"></script>' : ""}
@@ -407,106 +408,6 @@ function writeHomeMetadata() {
     siteUrl,
   );
   fs.writeFileSync(homePath, html, "utf8");
-}
-
-function writeLegalPages() {
-  const legal = [
-    {
-      slug: "privacy.html",
-      title: "Privacy Policy - Irish Theory Test Coach",
-      description: "Privacy policy for Irish Theory Test Coach, including first-party analytics, progress storage, payments, and support contact.",
-      h1: "Privacy Policy",
-      sections: [
-        ["Who we are", "Irish Theory Test Coach is an independent practice tool for Irish Category B theory-test study. It is not affiliated with RSA or Prometric."],
-        ["Information we collect", "The app may store local progress, anonymous first-party analytics events, purchase status, and email addresses used for restore access."],
-        ["Payments", "Payments are handled by Stripe. We do not store card numbers on this website."],
-        ["Contact", "For privacy questions, contact support using the contact page."],
-      ],
-    },
-    {
-      slug: "terms.html",
-      title: "Terms of Use - Irish Theory Test Coach",
-      description: "Terms of use for Irish Theory Test Coach, an independent Category B practice and study tool.",
-      h1: "Terms of Use",
-      sections: [
-        ["Independent practice tool", "Irish Theory Test Coach is independent and is not affiliated with RSA or Prometric."],
-    ["No outcome promise", "The app helps you practise and review weak areas. It does not promise any test outcome or claim knowledge of live-test content."],
-        ["Digital access", "Paid learner access is one-time digital access for the plan duration shown at checkout."],
-        ["Acceptable use", "Do not scrape, resell, overload, or interfere with the service."],
-      ],
-    },
-    {
-      slug: "refunds.html",
-      title: "Refund Policy - Irish Theory Test Coach",
-      description: "Refund policy for Irish Theory Test Coach digital study access, duplicate purchases, and technical access issues.",
-      h1: "Refund Policy",
-      sections: [
-        ["Simple digital refunds", "If you purchased by mistake, bought duplicate access, or cannot access the product because of a technical issue we cannot resolve, contact support."],
-        ["Refund window", "Please contact support within 14 days of purchase and include the email used at checkout."],
-        ["When refunds may be declined", "Refunds may be declined where access was delivered and substantially used, or where the request is abusive."],
-        ["No outcome refunds", "We do not offer refunds based on test outcomes because the app does not guarantee a pass."],
-      ],
-    },
-    {
-      slug: "contact.html",
-      title: "Contact Irish Theory Test Coach",
-      description: "Contact Irish Theory Test Coach support for access, refunds, privacy, pricing, instructor codes, and purchase questions.",
-      h1: "Contact",
-      sections: [
-        ["Support email", "For support, purchase questions, refund requests, privacy questions, or instructor-code requests, email support from this page."],
-        ["What to include", "If your message is about a purchase, include the checkout email and a short description. Do not send card numbers."],
-        ["Independent status", "Irish Theory Test Coach cannot book, change, cancel, or manage theory-test appointments."],
-      ],
-    },
-  ];
-
-  for (const item of legal) {
-    fs.writeFileSync(path.join(publicDir, item.slug), cleanGeneratedHtml(renderLegalPage(item)), "utf8");
-  }
-}
-
-function renderLegalPage(item) {
-  const canonical = `${siteUrl}/${item.slug}`;
-  const ogImage = `${siteUrl}/marketing/${ogImageFileForSlug(item.slug)}`;
-  return `<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${escapeHtml(item.title)}</title>
-    <meta name="description" content="${escapeHtml(item.description)}">
-    <link rel="canonical" href="${canonical}">
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Irish Theory Test Coach">
-    <meta property="og:title" content="${escapeHtml(item.title)}">
-    <meta property="og:description" content="${escapeHtml(item.description)}">
-    <meta property="og:url" content="${canonical}">
-    <meta property="og:image" content="${ogImage}">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${escapeHtml(item.title)}">
-    <meta name="twitter:description" content="${escapeHtml(item.description)}">
-    <meta name="twitter:image" content="${ogImage}">
-    <link rel="stylesheet" href="./styles.css?v=20260710-rebuild">
-  </head>
-  <body>
-    <div class="shell legal-shell">
-      <header class="legal-header">
-        <a href="/">Irish Theory Test Coach</a>
-        <p>${disclaimer}</p>
-      </header>
-      <main class="legal-page">
-        <h1>${escapeHtml(item.h1)}</h1>
-        <p>Last updated: July 10, 2026</p>
-        ${item.sections.map(([heading, body]) => `<section><h2>${escapeHtml(heading)}</h2><p>${escapeHtml(body)}</p></section>`).join("\n        ")}
-        <section><h2>Contact</h2><p>Email <a data-support-email href="mailto:support@irish-theory-test-coach.com">support@irish-theory-test-coach.com</a>.</p></section>
-      </main>
-      ${footer()}
-    </div>
-    <script src="./config.js?v=20260710-rebuild"></script>
-    <script src="./trust.js?v=20260710-rebuild"></script>
-  </body>
-</html>
-`;
 }
 
 function writeDocs() {

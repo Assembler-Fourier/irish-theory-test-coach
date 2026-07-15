@@ -40,6 +40,7 @@ const ENV_KEYS = [
   "STRIPE_PRICE_MODE",
   "NODE_ENV",
   "VERCEL_ENV",
+  "VERCEL_URL",
   "RATE_LIMIT_SALT",
 ];
 
@@ -133,6 +134,43 @@ function testOriginAndCsrfProtection() {
       headers: { origin: "https://attacker.example", host: "coach.example" },
     }, env).ok,
     true
+  );
+
+  const previewEnv = {
+    publicSiteUrl: "https://stable-preview.example",
+    isProduction: false,
+    vercelEnvironment: "preview",
+    vercelUrl: "coach-git-feature-team.vercel.app",
+  };
+  assert.equal(
+    verifyStateChangingRequest({
+      method: "POST",
+      headers: {
+        origin: "https://coach-git-feature-team.vercel.app",
+        host: "coach-git-feature-team.vercel.app",
+      },
+    }, previewEnv).ok,
+    true,
+    "The exact Vercel Preview deployment origin should be accepted."
+  );
+  assert.equal(
+    verifyStateChangingRequest({
+      method: "POST",
+      headers: {
+        origin: "https://attacker-preview.vercel.app",
+        host: "coach-git-feature-team.vercel.app",
+      },
+    }, previewEnv).ok,
+    false,
+    "An arbitrary Vercel origin must not be trusted."
+  );
+  assert.equal(
+    verifyStateChangingRequest({
+      method: "POST",
+      headers: { host: "coach-git-feature-team.vercel.app" },
+    }, previewEnv).ok,
+    false,
+    "A deployed Preview must not accept a missing browser origin."
   );
 }
 

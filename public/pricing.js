@@ -1,11 +1,10 @@
-import { createAnalyticsClient, loadAnonymousId } from "./analytics-client.js";
+import { createAnalyticsClient } from "./analytics-client.js";
 
 (function () {
   "use strict";
 
   const config = window.PRICING_CONFIG || { plans: [] };
-  const anonymousId = loadAnonymousId();
-  const analytics = createAnalyticsClient({ anonymousId });
+  const analytics = createAnalyticsClient();
 
   bindPlanButtons();
   trackPricingView();
@@ -37,7 +36,7 @@ import { createAnalyticsClient, loadAnonymousId } from "./analytics-client.js";
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planKey, anonymousId }),
+        body: JSON.stringify({ planKey, anonymousId: analytics.anonymousId || "" }),
       });
       const payload = await response.json();
       if (!response.ok || !payload.url) throw new Error("checkout_failed");

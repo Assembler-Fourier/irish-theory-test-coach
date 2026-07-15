@@ -25,7 +25,7 @@ Legal review is required before production launch. This document describes actua
 | Entitlement state | Stripe webhook, instructor code, admin grant | Premium access control | Neon Postgres |
 | Attempts and flags | Learner app/API | Progress sync, missed questions, category accuracy | Neon Postgres and local storage queue |
 | Mock results | Learner app/API | Recent mock history and progress | Neon Postgres |
-| Analytics events | First-party `/api/events` | Funnel and learning behavior statistics | Neon Postgres |
+| Optional analytics events | Consent-enabled first-party `/api/events` | Funnel and learning behavior statistics | Browser queue and Neon Postgres only after consent |
 | Question reports | Learner report action | Content correction workflow | Neon Postgres |
 | Support cases | Account/admin support workflow | Support handling | Neon Postgres |
 | Admin audit logs | Admin mutations | Sensitive-action audit trail | Neon Postgres |
@@ -33,7 +33,7 @@ Legal review is required before production launch. This document describes actua
 
 ## Local Storage
 
-The browser may store local preview progress, pending offline sync operations, anonymous analytics ID, and old purchase unlock fallback state. Premium access is still verified server-side.
+The browser may store local preview progress, pending offline sync operations, privacy preferences, service-worker preview cache, and old purchase unlock fallback state. The anonymous analytics ID, attribution, queue, and deduplication state are created only after analytics consent and are removed when consent is rejected. Premium access is always verified server-side.
 
 ## Cookies
 
@@ -43,14 +43,15 @@ The app uses an HttpOnly SameSite session cookie for authenticated account acces
 
 - Export: `/account` calls the account export API.
 - Deletion request: `/account` records a deletion/support request; it is not an instant destructive delete.
+- Consent withdrawal: the Cookie & Storage Notice and footer open the working privacy-choice control.
+- Restriction, objection, and portability: documented on `/data-rights.html` and handled through the privacy mailbox/account export route.
 - Correction request: answer feedback includes “Report a problem”.
 - Support request: public contact/support email and admin support cases.
 
 ## Open Legal Review Items
 
-- Final controller identity.
-- Lawful basis wording.
-- Complaint route.
-- International transfer basis.
-- Liability/dispute wording.
-- Production retention periods for support, audit, payments, and account deletion records.
+- Solicitor review of consumer terms, cancellation classification, liability, and governing-law wording.
+- Processor legal names, contracts, locations, subprocessor lists, and transfer safeguards.
+- Public telephone-number requirement for the chosen sales model.
+- Confirmed production retention and deletion procedures, including tax/accounting records.
+- Data-protection impact assessment threshold review before materially expanding profiling or AI use.

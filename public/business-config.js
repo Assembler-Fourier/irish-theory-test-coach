@@ -1,17 +1,15 @@
 window.BUSINESS_CONFIG = {
-  "configVersion": 1,
+  "configVersion": 2,
   "publicProductName": "Irish Theory Test Coach",
   "legalTradingName": "Uzair Waseem",
   "operatorType": "Sole trader",
   "registeredAddress": "15 Aderrig Avenue, Adamstown, Lucan, Co. Dublin, K78 H9Y9",
-  "businessRegistrationNumber": "NOT_CONFIGURED: business registration number, if applicable",
-  "vatNumber": "NOT_CONFIGURED: VAT number, if applicable",
   "supportEmail": "uzairwaseem29@gmail.com",
   "privacyEmail": "uzairwaseem29@gmail.com",
   "refundEmail": "uzairwaseem29@gmail.com",
   "securityEmail": "uzairwaseem29@gmail.com",
   "governingJurisdiction": "Ireland",
-  "privacyLawfulBasis": "Performance of a contract for purchases, account access and delivery of the service; compliance with legal obligations for payment and accounting records; legitimate interests for security, fraud prevention and essential service analytics; consent where specifically requested.",
+  "privacyLawfulBasis": "Performance of a contract for purchases, account access and delivery of the service; compliance with legal obligations for payment and accounting records; legitimate interests for security, fraud prevention and essential service operations; consent for optional analytics.",
   "complaintRoute": "Contact uzairwaseem29@gmail.com first. If the matter is not resolved, you may raise a concern with the Irish Data Protection Commission through its online complaint form.",
   "internationalTransferBasis": "Where personal data is transferred outside the EEA, the transfer relies on an applicable adequacy decision or appropriate safeguards such as the European Commission Standard Contractual Clauses, as applicable to the processor.",
   "storageLocations": [
@@ -58,30 +56,38 @@ window.BUSINESS_CONFIG = {
     "sessions": "180 days after expiry; revoked sessions 90 days",
     "anonymousAnalytics": "180 days",
     "webhookPayloadMetadata": "365 days before payload redaction job may apply",
-    "purchasesAndEntitlements": "Retained as operational payment/access records unless deletion is legally required and approved.",
-    "supportCases": "Retained while open and for operational history after closure; final production period requires legal review.",
-    "auditLogs": "Retained for operational security and abuse investigation; final production period requires legal review.",
-    "accountDeletionRequests": "Retained as a record of the request and resolution.",
+    "purchasesAndEntitlements": "Generally six years after the relevant accounting period, subject to Irish tax, legal, dispute, and chargeback requirements.",
+    "supportCases": "While open and generally 24 months after closure, unless a dispute, legal duty, or security investigation requires longer.",
+    "auditLogs": "Generally 24 months for security, abuse investigation, and operational accountability, subject to an active investigation.",
+    "accountDeletionRequests": "Generally 24 months after resolution as evidence that the request was handled.",
     "localStorage": "Stored on the learner device until cleared by the learner/browser or replaced by server sync."
   },
   "policyEffectiveDates": {
-    "privacy": "2026-07-11",
-    "terms": "2026-07-11",
-    "refunds": "2026-07-11",
-    "accessibility": "2026-07-11",
-    "contentMethodology": "2026-07-11"
+    "privacy": "2026-07-15",
+    "terms": "2026-07-15",
+    "refunds": "2026-07-15",
+    "accessibility": "2026-07-15",
+    "contentMethodology": "2026-07-15",
+    "cookies": "2026-07-15",
+    "dataRights": "2026-07-15",
+    "security": "2026-07-15",
+    "cancellation": "2026-07-15"
   },
   "policyVersions": {
-    "privacy": "2026-07-pass9-draft",
-    "terms": "2026-07-pass9-draft",
-    "refunds": "2026-07-pass9-draft",
-    "accessibility": "2026-07-pass9-draft",
-    "contentMethodology": "2026-07-pass9-draft"
+    "privacy": "2026-07-15-v1",
+    "terms": "2026-07-15-v1",
+    "refunds": "2026-07-15-v1",
+    "accessibility": "2026-07-15-v1",
+    "contentMethodology": "2026-07-15-v1",
+    "cookies": "2026-07-15-v1",
+    "dataRights": "2026-07-15-v1",
+    "security": "2026-07-15-v1",
+    "cancellation": "2026-07-15-v1"
   },
   "responseExpectations": {
-    "support": "We aim to respond to support messages within 2 business days after launch configuration is complete.",
-    "privacy": "Privacy requests are triaged by email and handled according to the configured legal workflow.",
-    "security": "Urgent security reports should include affected URLs, timestamps, and safe reproduction details."
+    "support": "We aim to respond to support messages within 2 business days.",
+    "privacy": "We normally respond to valid privacy requests within one month after any necessary identity verification.",
+    "security": "We aim to acknowledge credible urgent security reports promptly and prioritize them by impact."
   },
   "launchBlockers": []
 };

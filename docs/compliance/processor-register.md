@@ -17,6 +17,8 @@ This register mirrors the runtime business configuration in `shared/business-con
 - Confirm whether AI provider receives personal data; current prompts should avoid unnecessary learner identity.
 - Confirm Stripe mode, webhook endpoint, and refund workflow.
 - Confirm support email and privacy email routing.
+- Confirm optional analytics remains consent-gated and that processor contracts cover the event data actually sent.
+- Retain provider assurance reports as vendor evidence only; do not present them as Irish Theory Test Coach SOC 2 certification.
 
 ## Configuration Variables
 

@@ -9,12 +9,12 @@ This schedule documents configured technical defaults. Legal review is required 
 | Expired sessions | 180 days after expiry | Cleanup dry-run/apply |
 | Anonymous analytics | 180 days | Cleanup dry-run/apply |
 | Processed webhook payload metadata | 365 days before payload redaction | Cleanup dry-run/apply redacts payload metadata |
-| Purchases and entitlements | Operational payment/access record | No blind deletion |
-| Refunds and disputes | Operational payment/access record | No blind deletion |
-| Support cases | Until resolved plus reviewed operational period | No blind deletion |
-| Admin audit logs | Security and operational audit trail | No blind deletion |
-| Account deletion requests | Request and resolution record | No blind deletion |
+| Purchases, refunds, disputes, and entitlements | Generally six years after the relevant accounting period, subject to tax, legal, chargeback, and claim requirements | No blind deletion |
+| Support cases | While open and generally 24 months after closure; longer for an active dispute or legal/security need | No blind deletion |
+| Admin audit logs | Generally 24 months; longer for an active investigation | No blind deletion |
+| Account deletion requests | Generally 24 months after resolution as handling evidence | No blind deletion |
 | Local storage | Browser/device controlled | Learner can clear browser storage |
+| Optional analytics browser storage | Until consent is rejected, storage is cleared, or the data is replaced | Removed immediately on a recorded rejection where storage is accessible |
 
 ## Cleanup Command
 

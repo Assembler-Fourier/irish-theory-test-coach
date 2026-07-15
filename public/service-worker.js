@@ -1,4 +1,4 @@
-const CACHE_VERSION = "ittc-pwa-2026-07-11-reliability-v1";
+const CACHE_VERSION = "ittc-pwa-2026-07-15-legal-v1";
 const SHELL_CACHE = `${CACHE_VERSION}-shell`;
 const DATA_CACHE = `${CACHE_VERSION}-data`;
 const IMAGE_CACHE = `${CACHE_VERSION}-images`;
@@ -18,6 +18,7 @@ const SHELL_ASSETS = [
   "./progress-controller.js",
   "./access-controller.js",
   "./analytics-client.js",
+  "./privacy-consent.js",
   "./growth-tracking.js",
   "./frontend-monitoring.js",
   "./config.js",
@@ -50,9 +51,15 @@ const SHELL_ASSETS = [
   "./account.html",
   "./support.html",
   "./contact.html",
+  "./legal.html",
   "./privacy.html",
+  "./data-rights.html",
+  "./cookies.html",
   "./terms.html",
   "./refunds.html",
+  "./cancellation.html",
+  "./cancellation.js",
+  "./security.html",
   "./accessibility.html",
   "./content-methodology.html",
   "./irish-theory-test-practice.html",

@@ -52,7 +52,7 @@
     "security:audit": "npm audit --audit-level=high",
     "security:cleanup": "node scripts/security-cleanup.mjs",
     "screenshots:ui": "node scripts/capture-ui-baseline.mjs",
-    "test": "node scripts/test-app-flows.mjs && node scripts/test-deployment-indexing.mjs && node scripts/test-domain-validation.mjs && node scripts/test-api-smoke.mjs && node scripts/test-content-security.mjs && node scripts/test-content-quality.mjs && node scripts/test-account-auth.mjs && npm run test:payment && node scripts/test-security-hardening.mjs && node scripts/test-reliability-system.mjs && node scripts/test-admin-authz.mjs && npm run test:webhook && npm run test:e2e && npm run test:a11y",
+    "test": "node scripts/test-app-flows.mjs && node scripts/test-privacy-consent.mjs && node scripts/test-deployment-indexing.mjs && node scripts/test-domain-validation.mjs && node scripts/test-api-smoke.mjs && node scripts/test-content-security.mjs && node scripts/test-content-quality.mjs && node scripts/test-account-auth.mjs && npm run test:payment && node scripts/test-security-hardening.mjs && node scripts/test-reliability-system.mjs && node scripts/test-admin-authz.mjs && npm run test:webhook && npm run test:e2e && npm run test:a11y",
     "test:a11y": "node scripts/test-a11y.mjs",
     "test:ai-generation": "node scripts/test-ai-question-generation-mock.mjs",
     "test:e2e": "node scripts/test-e2e.mjs",

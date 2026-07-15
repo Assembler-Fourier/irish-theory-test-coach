@@ -51,6 +51,8 @@ const serviceWorker = readPublicFile("service-worker.js");
   "preview-questions.json",
   "app.html",
   "product-summary.js",
+  "privacy-consent.js",
+  "cookies.html",
   "offline.html",
 ].forEach((needle) => {
   if (!serviceWorker.includes(needle)) errors.push(`service-worker.js missing ${needle}`);

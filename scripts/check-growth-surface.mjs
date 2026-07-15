@@ -111,6 +111,7 @@ function checkPublicPages() {
   if (!homepage.includes("/marketing/og-home.svg")) errors.push("Homepage does not use the branded home OG image.");
   if (!homepage.includes("growth-tracking.js")) errors.push("Homepage does not load growth tracking.");
   if (!homepage.includes("frontend-monitoring.js")) errors.push("Homepage does not load frontend monitoring.");
+  if (!homepage.includes("privacy-consent.js")) errors.push("Homepage does not load privacy choices before optional analytics.");
   const pricing = readText(path.join(publicDir, "pricing.html"));
   if (!pricing.includes("type=\"module\" src=\"./pricing.js")) errors.push("Pricing page must load pricing.js as a module.");
   if (!pricing.includes("/marketing/og-pricing.svg")) errors.push("Pricing page does not use pricing OG image.");

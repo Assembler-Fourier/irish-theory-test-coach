@@ -18,7 +18,6 @@ import { createProgressController } from "./progress-controller.js";
   const CELEBRATION_DURATION_MS = 3600;
   const STORAGE_KEY = "irish-theory-practice-progress-v2";
   const ACCESS_KEY = "irish-theory-practice-access-v1";
-  const ANALYTICS_KEY = "irish-theory-practice-anonymous-id-v1";
   const PROGRESS_SCHEMA_VERSION = 3;
   const store = createSessionStore(window.localStorage);
   const studyApi = createApiClient();
@@ -51,7 +50,6 @@ import { createProgressController } from "./progress-controller.js";
       entitlementActive: false,
     },
     analytics: {
-      anonymousId: loadAnonymousId(),
       previewStartedTracked: false,
     },
     referral: {
@@ -135,7 +133,7 @@ import { createProgressController } from "./progress-controller.js";
     trustSignImageCount: document.getElementById("trustSignImageCount"),
   };
 
-  analyticsClient = createAnalyticsClient({ anonymousId: state.analytics.anonymousId });
+  analyticsClient = createAnalyticsClient();
   accessController = createAccessController({
     pricingConfig,
     productSummary: PRODUCT_SUMMARY,
@@ -1244,7 +1242,7 @@ import { createProgressController } from "./progress-controller.js";
           comment,
           appVersion: PRODUCT_SUMMARY.productVersion || "",
           contentVersion: PRODUCT_SUMMARY.contentVersion || "",
-          anonymousId: state.analytics.anonymousId,
+          anonymousId: analyticsClient?.anonymousId || "",
           reviewState: question.duplicateReviewStatus || question.reviewedStatus || "open",
         }),
       });
@@ -1835,7 +1833,7 @@ import { createProgressController } from "./progress-controller.js";
         body: JSON.stringify({
           planKey,
           referralCode,
-          anonymousId: state.analytics.anonymousId,
+          anonymousId: analyticsClient?.anonymousId || "",
         }),
       });
       const payload = await response.json();
@@ -2474,18 +2472,6 @@ import { createProgressController } from "./progress-controller.js";
     }
   }
 
-  function loadAnonymousId() {
-    try {
-      const existing = window.localStorage.getItem(ANALYTICS_KEY);
-      if (existing) return existing;
-      const next = `anon_${createClientEventId().replace(/[^a-zA-Z0-9_-]/g, "_")}`;
-      window.localStorage.setItem(ANALYTICS_KEY, next);
-      return next;
-    } catch {
-      return `anon_${Date.now()}_${Math.random().toString(16).slice(2)}`;
-    }
-  }
-
   function saveEntitlement() {
     window.localStorage.setItem(ACCESS_KEY, JSON.stringify(state.entitlement));
   }
@@ -3072,7 +3058,7 @@ import { createProgressController } from "./progress-controller.js";
         body: JSON.stringify({
           code,
           email: emailInput?.value || "",
-          anonymousId: state.analytics.anonymousId,
+          anonymousId: analyticsClient?.anonymousId || "",
         }),
       });
       const payload = await response.json().catch(() => ({}));

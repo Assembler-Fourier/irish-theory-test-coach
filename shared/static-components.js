@@ -61,9 +61,14 @@ export function siteFooter(options = {}) {
         </nav>
         <nav aria-label="Legal links">
           <strong>Trust</strong>
+          <a href="${root}/legal.html">Legal centre</a>
           <a href="${root}/privacy.html">Privacy</a>
+          <a href="${root}/data-rights.html">Data rights</a>
+          <a href="${root}/cookies.html" data-privacy-settings>Privacy choices</a>
           <a href="${root}/terms.html">Terms</a>
           <a href="${root}/refunds.html">Refunds</a>
+          <a href="${root}/cancellation.html">Cancellation</a>
+          <a href="${root}/security.html">Security</a>
           <a href="${root}/contact.html">Contact</a>
           <a href="${root}/accessibility.html">Accessibility</a>
           <a href="${root}/content-methodology.html">Content methodology</a>
@@ -131,7 +136,7 @@ export function pricingCards(productSummary, options = {}) {
             <li>Mock exams and review mode</li>
           </ul>
           <a class="button-primary" href="${root}/pricing">Unlock full coach</a>
-          <p class="pricing-support-note"><a href="${root}/refunds.html">Refunds</a>, <a href="${root}/terms.html">terms</a>, and <a href="${root}/support">support</a> are visible before checkout.</p>
+          <p class="pricing-support-note"><a href="${root}/refunds.html">Refunds</a>, <a href="${root}/cancellation.html">cancellation</a>, <a href="${root}/terms.html">terms</a>, <a href="${root}/privacy.html">privacy</a>, and <a href="${root}/support">support</a> are visible before checkout.</p>
         </article>
         <article class="pricing-card">
           <p class="eyebrow">Launch offer</p>

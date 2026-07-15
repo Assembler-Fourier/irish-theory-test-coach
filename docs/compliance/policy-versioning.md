@@ -9,6 +9,10 @@ Policy versions are configured in `shared/business-config.js` through environmen
 - `REFUND_POLICY_VERSION`
 - `ACCESSIBILITY_POLICY_VERSION`
 - `CONTENT_METHODOLOGY_VERSION`
+- `COOKIE_NOTICE_VERSION`
+- `DATA_RIGHTS_POLICY_VERSION`
+- `SECURITY_PAGE_VERSION`
+- `CANCELLATION_POLICY_VERSION`
 
 ## Effective Date Fields
 
@@ -17,6 +21,10 @@ Policy versions are configured in `shared/business-config.js` through environmen
 - `REFUND_POLICY_EFFECTIVE_DATE`
 - `ACCESSIBILITY_POLICY_EFFECTIVE_DATE`
 - `CONTENT_METHODOLOGY_EFFECTIVE_DATE`
+- `COOKIE_NOTICE_EFFECTIVE_DATE`
+- `DATA_RIGHTS_POLICY_EFFECTIVE_DATE`
+- `SECURITY_PAGE_EFFECTIVE_DATE`
+- `CANCELLATION_POLICY_EFFECTIVE_DATE`
 
 Dates must use `YYYY-MM-DD`.
 
@@ -31,6 +39,10 @@ When checkout is created, the server records:
   - `policy_version_refunds`
   - `policy_version_accessibility`
   - `policy_version_content_methodology`
+  - `policy_version_cookies`
+  - `policy_version_data_rights`
+  - `policy_version_security`
+  - `policy_version_cancellation`
   - `policy_effective_date`
   - `content_version`
   - `product_version`

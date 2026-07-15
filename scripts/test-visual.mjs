@@ -11,6 +11,9 @@ const tablet = { width: 768, height: 1024 };
 const desktop = { width: 1280, height: 900 };
 
 const states = [
+  { name: "mobile-privacy-choices", viewport: mobile, path: "/", ready: "#privacyConsentPanel:not([hidden])", allowUnsetConsent: true },
+  { name: "desktop-legal-centre", viewport: desktop, path: "/legal.html", ready: ".legal-page" },
+  { name: "mobile-cancellation-form", viewport: mobile, path: "/cancellation.html", ready: ".model-cancellation-form" },
   { name: "mobile-first-load", viewport: mobile, path: "/app", ready: ".question-view" },
   { name: "tablet-first-load", viewport: tablet, path: "/app", ready: ".question-view" },
   { name: "desktop-first-load", viewport: desktop, path: "/app", ready: ".question-view" },
@@ -78,6 +81,15 @@ console.log(`Visual baseline passed (${states.length} deterministic screenshots)
 
 async function capture(browserInstance, state, filePath) {
   const context = await browserInstance.newContext({ viewport: state.viewport, deviceScaleFactor: 1 });
+  if (!state.allowUnsetConsent) {
+    await context.addInitScript(() => {
+      window.localStorage.setItem("ittc-privacy-preferences-v1", JSON.stringify({
+        analytics: "denied",
+        version: "2026-07-15-v1",
+        updatedAt: "2026-07-15T00:00:00.000Z",
+      }));
+    });
+  }
   const page = await context.newPage();
   try {
     await page.goto(`${server.baseUrl}${state.path}`, { waitUntil: "domcontentloaded" });

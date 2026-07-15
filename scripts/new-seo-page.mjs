@@ -57,6 +57,7 @@ const html = `<!doctype html>
       </main>
     </div>
     <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./privacy-consent.js?v=20260715-legal-v1"></script>
     <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
     <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
   </body>

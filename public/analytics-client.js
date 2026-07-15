@@ -1,3 +1,8 @@
+import {
+  clearOptionalAnalyticsStorage,
+  hasAnalyticsConsent,
+} from "./privacy-consent.js";
+
 const DEFAULT_SCHEMA_VERSION = 2;
 const ANON_KEY = "irish-theory-practice-anonymous-id-v1";
 const QUEUE_KEY = "irish-theory-analytics-queue-v2";
@@ -26,29 +31,33 @@ const SESSION_DEDUPE_EVENTS = new Set([
 
 export function createAnalyticsClient({
   fetchImpl = window.fetch.bind(window),
-  anonymousId = loadAnonymousId(),
+  anonymousId = "",
   storage = window.localStorage,
   sessionStorage = window.sessionStorage,
   location = window.location,
   navigatorRef = window.navigator,
 } = {}) {
   const schemaVersion = Number(window.GROWTH_CONFIG?.schemaVersion || DEFAULT_SCHEMA_VERSION);
+  let analyticsActivated = false;
   const client = {
-    anonymousId,
+    anonymousId: "",
     retryTimer: null,
     retryDelayMs: 2000,
     trackEvent(eventName, properties = {}, options = {}) {
       return this.trackEvents([{ eventName, properties, options }]);
     },
     trackEvents(events) {
+      if (!activateAnalytics()) return Promise.resolve({ queued: 0, consent: "not_granted" });
       const queued = events
-        .map((event) => buildEvent(event, { anonymousId, schemaVersion, storage, sessionStorage, location, navigatorRef }))
+        .map((event) => buildEvent(event, { anonymousId: client.anonymousId, schemaVersion, storage, sessionStorage, location, navigatorRef }))
         .filter(Boolean);
       if (!queued.length) return Promise.resolve({ queued: 0 });
       enqueueEvents(storage, queued);
       return this.flush();
     },
     flush() {
+      if (!hasAnalyticsConsent(storage)) return Promise.resolve({ saved: 0, consent: "not_granted" });
+      if (!activateAnalytics()) return Promise.resolve({ saved: 0, consent: "not_granted" });
       const queue = loadQueue(storage);
       if (!queue.length) return Promise.resolve({ saved: 0 });
       const batch = queue.slice(0, MAX_BATCH);
@@ -58,7 +67,7 @@ export function createAnalyticsClient({
         keepalive: true,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          anonymousId,
+          anonymousId: client.anonymousId,
           schemaVersion,
           events: batch,
         }),
@@ -78,16 +87,40 @@ export function createAnalyticsClient({
     },
   };
 
-  captureAttribution(storage, location);
-  trackReturnVisit(client, storage, sessionStorage);
+  function activateAnalytics() {
+    if (!hasAnalyticsConsent(storage)) return false;
+    if (!client.anonymousId) client.anonymousId = anonymousId || loadAnonymousId(storage);
+    if (!client.anonymousId) return false;
+    if (!analyticsActivated) {
+      analyticsActivated = true;
+      captureAttribution(storage, location);
+      trackReturnVisit(client, storage, sessionStorage);
+    }
+    return true;
+  }
+
+  activateAnalytics();
   window.addEventListener?.("online", () => client.flush());
   window.addEventListener?.("visibilitychange", () => {
     if (document.visibilityState === "hidden") client.flush();
+  });
+  window.addEventListener?.("ittc:privacy-consent-changed", (event) => {
+    if (event.detail?.analytics === "granted") {
+      activateAnalytics();
+      client.flush();
+      return;
+    }
+    if (client.retryTimer) window.clearTimeout(client.retryTimer);
+    client.retryTimer = null;
+    client.anonymousId = "";
+    analyticsActivated = false;
+    clearOptionalAnalyticsStorage(storage, sessionStorage);
   });
   return client;
 }
 
 export function loadAnonymousId(storage = window.localStorage) {
+  if (!storage || !hasAnalyticsConsent(storage)) return "";
   try {
     const existing = storage.getItem(ANON_KEY);
     if (existing) return existing;
@@ -95,7 +128,7 @@ export function loadAnonymousId(storage = window.localStorage) {
     storage.setItem(ANON_KEY, next);
     return next;
   } catch {
-    return `anon_${Date.now()}_${randomHex()}`;
+    return "";
   }
 }
 

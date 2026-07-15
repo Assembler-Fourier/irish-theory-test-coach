@@ -16,10 +16,15 @@ const errors = [];
 
 const business = buildBusinessConfig(process.env);
 const requiredPages = [
+  "legal.html",
   "contact.html",
   "privacy.html",
+  "data-rights.html",
+  "cookies.html",
   "terms.html",
   "refunds.html",
+  "cancellation.html",
+  "security.html",
   "accessibility.html",
   "content-methodology.html",
 ];
@@ -41,43 +46,71 @@ const privacy = readPublic("privacy.html");
 for (const phrase of [
   "Controller identity",
   "Data collected",
-  "Configured lawful basis",
+  "Purposes and lawful bases",
+  "Optional analytics choices",
   "Processors",
   "Storage locations",
   "Retention",
+  "Automated recommendations",
   "User rights",
   "Complaint route",
   "Account deletion and export",
-  "Analytics behavior",
   "Cookies and local storage",
+  "Security",
   "International transfers",
 ]) {
   requireText("privacy.html", privacy, phrase);
 }
+requireText("privacy.html", privacy, "No optional analytics ID or event is created before consent");
+
+const dataRights = readPublic("data-rights.html");
+for (const phrase of ["Access:", "Portability:", "Correction:", "Deletion:", "Restriction:", "Objection:", "Withdraw consent:", "one month"]) {
+  requireText("data-rights.html", dataRights, phrase);
+}
+
+const cookies = readPublic("cookies.html");
+for (const phrase of ["Optional first-party analytics remain off until you allow them", "ittc_session", "Strictly necessary", "No advertising cookies", "data-privacy-settings"]) {
+  requireText("cookies.html", cookies, phrase);
+}
 
 const terms = readPublic("terms.html");
 for (const phrase of [
-  "Access duration",
-  "Permitted account use",
-  "Payment",
+  "Access duration and renewal",
+  "Price, payment, and contract formation",
   "Account security",
   "Acceptable use",
-  "Content corrections",
-  "Service availability",
-  "Suspension",
-  "Intellectual property",
-  "Limitation wording placeholder",
+  "Service conformity and consumer rights",
+  "Cancellation and refunds",
+  "Suspension and termination",
+  "Intellectual property and licence",
+  "Liability",
+  "Governing law and disputes",
 ]) {
   requireText("terms.html", terms, phrase);
 }
+if (/Limitation wording placeholder|Dispute and jurisdiction placeholder|NOT_CONFIGURED: limitation/i.test(terms)) {
+  errors.push("terms.html still contains legal-copy placeholders.");
+}
 
 const refunds = readPublic("refunds.html");
-requireText("refunds.html", refunds, "does not promise instant automatic refunds");
+requireText("refunds.html", refunds, "14-day cancellation right");
+requireText("refunds.html", refunds, "Faulty or non-conforming service");
+requireText("refunds.html", refunds, "no later than 14 days after notice");
 requireText("refunds.html", refunds, "No outcome refunds");
+
+const cancellation = readPublic("cancellation.html");
+requireText("cancellation.html", cancellation, "Model cancellation notice");
+requireText("cancellation.html", cancellation, "cancellationForm");
+requireText("cancellation.html", cancellation, "cancellation.js");
+
+const security = readPublic("security.html");
+requireText("security.html", security, "not currently represented as SOC 2 certified");
+requireText("security.html", security, "Responsible disclosure");
+requireText("security.html", security, "No website can promise absolute security");
 
 const accessibility = readPublic("accessibility.html");
 requireText("accessibility.html", accessibility, "WCAG 2.2 AA");
-requireText("accessibility.html", accessibility, "Last automated accessibility test: July 11, 2026");
+requireText("accessibility.html", accessibility, "Last automated accessibility test: July 15, 2026");
 
 const methodology = readPublic("content-methodology.html");
 for (const phrase of [
@@ -96,6 +129,8 @@ requireText("app.html", app, "Refunds");
 requireText("app.html", app, "Policy version:");
 requireText("app.html", app, "Content version");
 requireText("app.html", app, "Report a problem");
+requireText("app.html", app, "privacy-consent.js");
+requireText("app.html", app, "Cancellation rights");
 
 const businessRuntime = JSON.parse(readPublic("business-config.json"));
 assert.equal(businessRuntime.policyVersions.terms, business.policyVersions.terms);
@@ -107,6 +142,9 @@ if (businessRuntime.launchBlockers.length) {
 const policy = checkoutPolicyMetadata(business);
 assert.equal(policy.policy_version_terms, business.policyVersions.terms);
 assert.equal(policy.accepted_policy_versions.privacy, business.policyVersions.privacy);
+assert.equal(policy.policy_version_cookies, business.policyVersions.cookies);
+assert.equal(policy.policy_version_data_rights, business.policyVersions.dataRights);
+assert.equal(policy.policy_version_cancellation, business.policyVersions.cancellation);
 
 const incompleteProductionEnv = {
   ...process.env,
@@ -154,6 +192,15 @@ const checkout = fs.readFileSync(path.join(root, "server", "api", "create-checko
 requireText("create-checkout-session.js", checkout, "acceptedPolicyVersions");
 requireText("create-checkout-session.js", checkout, "metadata[policy_version_terms]");
 requireText("create-checkout-session.js", checkout, "metadata[content_version]");
+requireText("create-checkout-session.js", checkout, "appendCheckoutConsent");
+requireText("create-checkout-session.js", checkout, "metadata[policy_version_cancellation]");
+
+const analytics = fs.readFileSync(path.join(publicDir, "analytics-client.js"), "utf8");
+const consent = fs.readFileSync(path.join(publicDir, "privacy-consent.js"), "utf8");
+requireText("analytics-client.js", analytics, "hasAnalyticsConsent");
+requireText("analytics-client.js", analytics, 'consent: "not_granted"');
+requireText("privacy-consent.js", consent, "clearOptionalAnalyticsStorage");
+requireText("privacy-consent.js", consent, "Reject optional analytics");
 
 for (const [file, text] of publicHtmlFiles()) {
   assertNoFakeTrust(file, text);

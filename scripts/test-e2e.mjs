@@ -12,6 +12,7 @@ let browser;
 try {
   browser = await playwright.chromium.launch({ headless: true });
   await testNoHorizontalScroll(browser);
+  await testPrivacyChoices(browser);
   await testKeyboardAnswerFlow(browser);
   await testCorrectAndWrongStates(browser);
   await testPaywallRestoreMockAndRoutes(browser);
@@ -36,9 +37,35 @@ async function testNoHorizontalScroll(browserInstance) {
       await gotoReady(page, "/account", "main");
       metrics = await pageMetrics(page);
       assert.ok(isHorizontalScrollSafe(metrics), `/account has document-level horizontal scroll at ${width}px: ${JSON.stringify(metrics)}`);
+
+      for (const route of ["/legal.html", "/cookies.html", "/cancellation.html"]) {
+        await gotoReady(page, route, ".legal-page");
+        metrics = await pageMetrics(page);
+        assert.ok(isHorizontalScrollSafe(metrics), `${route} has document-level horizontal scroll at ${width}px: ${JSON.stringify(metrics)}`);
+      }
     } finally {
       await page.context().close();
     }
+  }
+}
+
+async function testPrivacyChoices(browserInstance) {
+  const page = await newPage(browserInstance, { width: 390, height: 844 });
+  try {
+    await gotoReady(page, "/", "#privacyConsentPanel:not([hidden])");
+    assert.equal(await page.evaluate(() => localStorage.getItem("irish-theory-practice-anonymous-id-v1")), null, "Analytics ID must not exist before consent.");
+    await page.locator("[data-consent-reject]").click();
+    assert.equal(await page.locator("#privacyConsentPanel:not([hidden])").count(), 0, "Consent panel should close after rejection.");
+    assert.match(await page.evaluate(() => localStorage.getItem("ittc-privacy-preferences-v1") || ""), /"analytics":"denied"/);
+
+    await gotoReady(page, "/cookies.html", "[data-privacy-settings]");
+    await page.locator("[data-privacy-settings]").first().click();
+    await page.waitForSelector("#privacyConsentPanel:not([hidden])", { timeout: 8000 });
+    await page.locator("[data-consent-allow]").click();
+    await page.waitForFunction(() => Boolean(localStorage.getItem("irish-theory-practice-anonymous-id-v1")));
+    assert.match(await page.evaluate(() => localStorage.getItem("ittc-privacy-preferences-v1") || ""), /"analytics":"granted"/);
+  } finally {
+    await page.context().close();
   }
 }
 

@@ -1,9 +1,9 @@
-export const BUSINESS_CONFIG_VERSION = 1;
+export const BUSINESS_CONFIG_VERSION = 2;
 
 export const PLACEHOLDER = "NOT_CONFIGURED";
 
-export const DEFAULT_POLICY_VERSION = "2026-07-pass9-draft";
-export const DEFAULT_POLICY_EFFECTIVE_DATE = "2026-07-11";
+export const DEFAULT_POLICY_VERSION = "2026-07-15-v1";
+export const DEFAULT_POLICY_EFFECTIVE_DATE = "2026-07-15";
 
 const MANDATORY_COMMERCIAL_FIELDS = [
   "legalTradingName",
@@ -38,6 +38,7 @@ export function buildBusinessConfig(env = process.env) {
     privacyEmail,
     refundEmail,
     securityEmail,
+    supportPhone: cleanText(env.SUPPORT_PHONE, 80),
     governingJurisdiction: cleanText(env.GOVERNING_JURISDICTION, 160) || placeholder("governing jurisdiction"),
     privacyLawfulBasis: cleanText(env.PRIVACY_LAWFUL_BASIS, 500) || placeholder("lawful basis for processing"),
     complaintRoute: cleanText(env.PRIVACY_COMPLAINT_ROUTE, 500) || placeholder("data-protection complaint route"),
@@ -52,9 +53,9 @@ export function buildBusinessConfig(env = process.env) {
       internalReviewNote: "Draft operational policies generated from current product behavior. Legal review is required before production launch.",
     },
     responseExpectations: {
-      support: cleanText(env.SUPPORT_RESPONSE_EXPECTATION, 240) || "We aim to respond to support messages within 2 business days after launch configuration is complete.",
-      privacy: cleanText(env.PRIVACY_RESPONSE_EXPECTATION, 240) || "Privacy requests are triaged by email and handled according to the configured legal workflow.",
-      security: cleanText(env.SECURITY_RESPONSE_EXPECTATION, 240) || "Urgent security reports should include affected URLs, timestamps, and safe reproduction details.",
+      support: cleanText(env.SUPPORT_RESPONSE_EXPECTATION, 240) || "We aim to respond to support messages within 2 business days.",
+      privacy: cleanText(env.PRIVACY_RESPONSE_EXPECTATION, 240) || "We normally respond to valid privacy requests within one month after any necessary identity verification.",
+      security: cleanText(env.SECURITY_RESPONSE_EXPECTATION, 240) || "We aim to acknowledge credible urgent security reports promptly and prioritize them by impact.",
     },
     launchBlockers: [],
   };
@@ -70,12 +71,13 @@ export function publicBusinessConfig(config) {
     legalTradingName: config.legalTradingName,
     operatorType: config.operatorType,
     registeredAddress: config.registeredAddress,
-    businessRegistrationNumber: config.businessRegistrationNumber,
-    vatNumber: config.vatNumber,
+    ...(!isPlaceholder(config.businessRegistrationNumber) ? { businessRegistrationNumber: config.businessRegistrationNumber } : {}),
+    ...(!isPlaceholder(config.vatNumber) ? { vatNumber: config.vatNumber } : {}),
     supportEmail: config.supportEmail,
     privacyEmail: config.privacyEmail,
     refundEmail: config.refundEmail,
     securityEmail: config.securityEmail,
+    ...(config.supportPhone ? { supportPhone: config.supportPhone } : {}),
     governingJurisdiction: config.governingJurisdiction,
     privacyLawfulBasis: config.privacyLawfulBasis,
     complaintRoute: config.complaintRoute,
@@ -120,6 +122,10 @@ export function policyMetadata(config) {
     refunds: config.policyVersions.refunds,
     accessibility: config.policyVersions.accessibility,
     contentMethodology: config.policyVersions.contentMethodology,
+    cookies: config.policyVersions.cookies,
+    dataRights: config.policyVersions.dataRights,
+    security: config.policyVersions.security,
+    cancellation: config.policyVersions.cancellation,
     effectiveDate: config.policyEffectiveDates.terms,
     legalReviewRequired: String(Boolean(config.policyReview?.legalReviewRequired)),
   };
@@ -134,6 +140,10 @@ export function checkoutPolicyMetadata(config) {
     policy_version_refunds: versions.refunds,
     policy_version_accessibility: versions.accessibility,
     policy_version_content_methodology: versions.contentMethodology,
+    policy_version_cookies: versions.cookies,
+    policy_version_data_rights: versions.dataRights,
+    policy_version_security: versions.security,
+    policy_version_cancellation: versions.cancellation,
     policy_effective_date: versions.effectiveDate,
     legal_review_required: versions.legalReviewRequired,
   };
@@ -195,10 +205,10 @@ function buildRetentionPeriods(env) {
     sessions: `${numberFromEnv(env.RETENTION_EXPIRED_SESSIONS_DAYS, 180)} days after expiry; revoked sessions ${numberFromEnv(env.RETENTION_REVOKED_SESSIONS_DAYS, 90)} days`,
     anonymousAnalytics: `${numberFromEnv(env.RETENTION_ANONYMOUS_ANALYTICS_DAYS, 180)} days`,
     webhookPayloadMetadata: `${numberFromEnv(env.RETENTION_WEBHOOK_PAYLOAD_DAYS, 365)} days before payload redaction job may apply`,
-    purchasesAndEntitlements: cleanText(env.RETENTION_PURCHASES, 180) || "Retained as operational payment/access records unless deletion is legally required and approved.",
-    supportCases: cleanText(env.RETENTION_SUPPORT_CASES, 180) || "Retained while open and for operational history after closure; final production period requires legal review.",
-    auditLogs: cleanText(env.RETENTION_AUDIT_LOGS, 180) || "Retained for operational security and abuse investigation; final production period requires legal review.",
-    accountDeletionRequests: cleanText(env.RETENTION_ACCOUNT_DELETION_REQUESTS, 180) || "Retained as a record of the request and resolution.",
+    purchasesAndEntitlements: cleanText(env.RETENTION_PURCHASES, 180) || "Generally six years after the relevant accounting period, subject to Irish tax, legal, dispute, and chargeback requirements.",
+    supportCases: cleanText(env.RETENTION_SUPPORT_CASES, 180) || "While open and generally 24 months after closure, unless a dispute, legal duty, or security investigation requires longer.",
+    auditLogs: cleanText(env.RETENTION_AUDIT_LOGS, 180) || "Generally 24 months for security, abuse investigation, and operational accountability, subject to an active investigation.",
+    accountDeletionRequests: cleanText(env.RETENTION_ACCOUNT_DELETION_REQUESTS, 180) || "Generally 24 months after resolution as evidence that the request was handled.",
     localStorage: "Stored on the learner device until cleared by the learner/browser or replaced by server sync.",
   };
 }
@@ -210,6 +220,10 @@ function buildPolicyVersions(env) {
     refunds: cleanText(env.REFUND_POLICY_VERSION, 80) || DEFAULT_POLICY_VERSION,
     accessibility: cleanText(env.ACCESSIBILITY_POLICY_VERSION, 80) || DEFAULT_POLICY_VERSION,
     contentMethodology: cleanText(env.CONTENT_METHODOLOGY_VERSION, 80) || DEFAULT_POLICY_VERSION,
+    cookies: cleanText(env.COOKIE_NOTICE_VERSION, 80) || DEFAULT_POLICY_VERSION,
+    dataRights: cleanText(env.DATA_RIGHTS_POLICY_VERSION, 80) || DEFAULT_POLICY_VERSION,
+    security: cleanText(env.SECURITY_PAGE_VERSION, 80) || DEFAULT_POLICY_VERSION,
+    cancellation: cleanText(env.CANCELLATION_POLICY_VERSION, 80) || DEFAULT_POLICY_VERSION,
   };
 }
 
@@ -220,6 +234,10 @@ function buildPolicyEffectiveDates(env) {
     refunds: cleanDate(env.REFUND_POLICY_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
     accessibility: cleanDate(env.ACCESSIBILITY_POLICY_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
     contentMethodology: cleanDate(env.CONTENT_METHODOLOGY_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
+    cookies: cleanDate(env.COOKIE_NOTICE_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
+    dataRights: cleanDate(env.DATA_RIGHTS_POLICY_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
+    security: cleanDate(env.SECURITY_PAGE_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
+    cancellation: cleanDate(env.CANCELLATION_POLICY_EFFECTIVE_DATE) || DEFAULT_POLICY_EFFECTIVE_DATE,
   };
 }
 

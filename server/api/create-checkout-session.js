@@ -141,13 +141,15 @@ export default async function handler(req, res) {
   params.set("metadata[policy_version_refunds]", policy.policy_version_refunds);
   params.set("metadata[policy_version_accessibility]", policy.policy_version_accessibility);
   params.set("metadata[policy_version_content_methodology]", policy.policy_version_content_methodology);
+  params.set("metadata[policy_version_cookies]", policy.policy_version_cookies);
+  params.set("metadata[policy_version_data_rights]", policy.policy_version_data_rights);
+  params.set("metadata[policy_version_security]", policy.policy_version_security);
+  params.set("metadata[policy_version_cancellation]", policy.policy_version_cancellation);
   params.set("metadata[policy_effective_date]", policy.policy_effective_date);
   if (referral?.code) {
     params.set("metadata[referral_code]", referral.code);
   }
-  if (String(env.checkoutRequireTermsConsent || "").toLowerCase() === "true") {
-    params.set("consent_collection[terms_of_service]", "required");
-  }
+  appendCheckoutConsent(params, env.checkoutRequireTermsConsent);
 
   let stripeResponse;
   try {
@@ -209,6 +211,13 @@ export default async function handler(req, res) {
 export function appendPaymentIntentTrace(params, attemptId, planKey) {
   params.set("payment_intent_data[metadata][checkout_attempt_id]", String(attemptId || ""));
   params.set("payment_intent_data[metadata][plan_key]", cleanPlanKey(planKey));
+  return params;
+}
+
+export function appendCheckoutConsent(params, requireConsent) {
+  if (String(requireConsent || "").toLowerCase() === "true") {
+    params.set("consent_collection[terms_of_service]", "required");
+  }
   return params;
 }
 

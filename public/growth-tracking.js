@@ -1,9 +1,9 @@
-import { createAnalyticsClient, loadAnonymousId } from "./analytics-client.js";
+import { createAnalyticsClient } from "./analytics-client.js";
 
 (function () {
   "use strict";
 
-  const analytics = createAnalyticsClient({ anonymousId: loadAnonymousId() });
+  const analytics = createAnalyticsClient();
   const path = window.location.pathname || "/";
   const isMarketingEntry = !path.startsWith("/admin") && !path.startsWith("/api");
 

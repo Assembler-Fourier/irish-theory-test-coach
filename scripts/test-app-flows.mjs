@@ -92,9 +92,14 @@ function checkPremiumPaywallContract({ appHtml, appJs }) {
 
 async function checkLegalPagesLoad({ baseUrl }) {
   const pages = [
+    ["/legal.html", "Legal and Trust Centre"],
     ["/privacy.html", "Privacy Notice"],
-    ["/terms.html", "Terms of Use"],
+    ["/data-rights.html", "Your Data Rights"],
+    ["/cookies.html", "Cookie &amp; Storage Notice"],
+    ["/terms.html", "Terms &amp; Conditions"],
     ["/refunds.html", "Refund Policy"],
+    ["/cancellation.html", "Cancellation Form"],
+    ["/security.html", "Security &amp; Responsible Disclosure"],
     ["/contact.html", "Contact"],
     ["/accessibility.html", "Accessibility Statement"],
     ["/content-methodology.html", "Content Methodology"],
@@ -105,6 +110,7 @@ async function checkLegalPagesLoad({ baseUrl }) {
     assert.match(page, new RegExp(`<h1>${escapeRegExp(title)}</h1>`), `${urlPath} does not include the expected heading.`);
     assert.ok(page.includes(nonAffiliation), `${urlPath} is missing the non-affiliation disclaimer.`);
     assert.doesNotMatch(page, /<meta\s+name="robots"\s+content="noindex/i, `${urlPath} should be indexable before launch.`);
+    assert.match(page, /privacy-consent\.js/, `${urlPath} should load privacy choices before analytics.`);
   }
 }
 

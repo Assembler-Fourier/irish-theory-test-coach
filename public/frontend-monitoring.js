@@ -1,8 +1,6 @@
-import { createAnalyticsClient, loadAnonymousId } from "./analytics-client.js";
+import { createAnalyticsClient } from "./analytics-client.js";
 
-const analytics = createAnalyticsClient({
-  anonymousId: loadAnonymousId(),
-});
+const analytics = createAnalyticsClient();
 
 window.addEventListener("error", (event) => {
   trackFrontendError("error", {

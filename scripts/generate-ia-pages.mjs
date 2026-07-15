@@ -207,6 +207,7 @@ function renderPricingPage() {
     main: `<main class="marketing-main compact-main">
         ${pageHero("Pricing", "Clear learner pricing with no fake urgency.", `Start free, then unlock the full coach for ${summary.activePrice} when the complete study path is useful. One-time access lasts ${summary.accessDurationDays} days; repeat purchases extend access.`, "Start free preview", "/app")}
         ${pricingCards(summary, { root: "" })}
+        <p class="checkout-consent-note">Before checkout, review the <a href="/terms.html">Terms</a>, <a href="/privacy.html">Privacy Notice</a>, <a href="/refunds.html">Refund Policy</a>, and <a href="/cancellation.html">cancellation information</a>. Stripe Checkout records acceptance of the current Terms when checkout consent is enabled.</p>
         <section class="marketing-section comparison-section">
           <h2>What each plan includes</h2>
           <div class="comparison-table-wrap">
@@ -219,7 +220,7 @@ function renderPricingPage() {
                 <tr><td>Mock exams</td><td>No</td><td>${formatMockLong(summary)}</td><td>Included per code</td></tr>
                 <tr><td>Restore access</td><td>No purchase needed</td><td>Email restore</td><td>Code/account support</td></tr>
                 <tr><td>Renewal behavior</td><td>Not needed</td><td>Repeat purchase extends access</td><td>New pack creates new codes</td></tr>
-                <tr><td>Support links</td><td>Footer</td><td><a href="/refunds.html">Refunds</a>, <a href="/terms.html">terms</a>, <a href="/support">support</a></td><td><a href="/support">Support</a></td></tr>
+                <tr><td>Policies and support</td><td>Footer</td><td><a href="/terms.html">Terms</a>, <a href="/privacy.html">privacy</a>, <a href="/refunds.html">refunds</a>, <a href="/cancellation.html">cancellation</a>, <a href="/support">support</a></td><td><a href="/legal.html">Legal centre</a> and <a href="/support">support</a></td></tr>
               </tbody>
             </table>
           </div>
@@ -360,6 +361,7 @@ function renderAccountPage() {
               <button id="accountDeleteBtn" class="danger" type="submit">Request account deletion</button>
               <p id="accountActionStatus" class="account-message" role="status" aria-live="polite">Deletion is a support request, not an instant destructive action.</p>
             </form>
+            <p class="account-message">Read <a href="/data-rights.html">how access, portability, correction, deletion, restriction, and objection requests work</a>.</p>
           </article>
         </section>
       </main>`,
@@ -377,16 +379,21 @@ function renderSupportPage() {
         ${pageHero("Support", "Get help with access, refunds, or instructor codes.", "Support is visible before and after purchase. Do not send card numbers; Stripe handles payment details.", "Restore access", "/app#restoreEmail", "View refunds", "/refunds.html")}
         <section class="marketing-section route-section">
           <article><h2>Access problems</h2><p>Use restore access in the learner app with the email used at checkout.</p></article>
-          <article><h2>Refunds</h2><p>Refund wording is simple and fair for digital access. Read the refund page before launch review.</p></article>
+          <article><h2>Refunds and cancellation</h2><p>Read the refund policy, statutory cancellation information, and model cancellation form before or after purchase.</p></article>
           <article><h2>Instructor codes</h2><p>Instructor packs and referral codes are handled through the pricing and instructor pages.</p></article>
         </section>
         <section class="marketing-section support-links">
           <h2>Quick links</h2>
           <div class="link-card-grid">
             ${[
+              ["Legal and trust centre", "/legal.html", "One place for policies, rights, security, accessibility, and correction information."],
               ["Privacy", "/privacy.html", "How data, analytics, and restore access are handled."],
-              ["Terms", "/terms.html", "Product-use terms and independent status."],
+              ["Data rights", "/data-rights.html", "Access, portability, correction, deletion, restriction, objection, and complaints."],
+              ["Privacy choices", "/cookies.html", "Essential storage and optional first-party analytics consent."],
+              ["Terms", "/terms.html", "The contract, access duration, consumer rights, and independent status."],
               ["Refunds", "/refunds.html", "Digital access refund policy."],
+              ["Cancellation form", "/cancellation.html", "Printable and email-ready cancellation notice."],
+              ["Security", "/security.html", "Controls, assurance status, and responsible disclosure."],
               ["Contact", "/contact.html", "Support email and message guidance."],
               ["Accessibility", "/accessibility.html", "Accessibility target, known limitations, and contact route."],
               ["Content methodology", "/content-methodology.html", "How practice content, priority scoring, and corrections are handled."],
@@ -424,6 +431,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
     <script src="./business-config.js?v=20260710-rebuild"></script>
     <script src="./pricing-config.js?v=20260710-rebuild"></script>
     <script src="./growth-config.js?v=20260710-rebuild"></script>
+    <script type="module" src="./privacy-consent.js?v=20260715-legal-v1"></script>
     <script type="module" src="./growth-tracking.js?v=20260710-rebuild"></script>
     <script type="module" src="./frontend-monitoring.js?v=20260710-rebuild"></script>
     ${canonicalPath === "/pricing" ? '<script type="module" src="./pricing.js?v=20260710-rebuild"></script>' : canonicalPath === "/account" ? '<script type="module" src="./account.js?v=20260710-rebuild"></script>' : ""}
