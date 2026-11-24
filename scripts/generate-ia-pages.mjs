@@ -448,7 +448,7 @@ function pageShell({ active, canonicalPath, title, description, bodyClass, main,
 }
 
 function ogImageFileForPath(pathname) {
-  if (pathname === "/") return "og-home.svg";
+  if (pathname === "/") return "og-home.png";
   if (pathname === "/pricing") return "og-pricing.svg";
   if (pathname === "/mock-exam") return "og-mock-exam.svg";
   if (pathname === "/road-signs") return "og-road-signs.svg";
